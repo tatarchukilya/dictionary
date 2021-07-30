@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/graph_search"
+    app:startDestination="@id/fragment_dictionary">
+
+    <fragment
+        android:id="@+id/fragment_dictionary"
+        android:name="ru.nblackie.search.presentation.fragments.DictionaryFragment"
+        android:label="fragment_dictionary"
+        tools:layout="@layout/fragment_dictionary">
+
+        <action
+            android:id="@+id/dictionary_to_search"
+            app:destination="@id/fragment_search" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_search"
+        android:name="ru.nblackie.search.presentation.fragments.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" />
+
+</navigation>

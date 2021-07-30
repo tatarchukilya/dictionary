@@ -1,0 +1,5 @@
+rootProject.name = "dictionary"
+include ':MainApp'
+include ':Exercise'
+include ':Settings'
+include ':Search'

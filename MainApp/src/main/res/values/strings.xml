@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">dictionary</string>
+    <string name="dictionary">dictionary</string>
+    <string name="exercise">exercise</string>
+    <string name="search">search</string>
+    <string name="settings">settings</string>
+</resources>
