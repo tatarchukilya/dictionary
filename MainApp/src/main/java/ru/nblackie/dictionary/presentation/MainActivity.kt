@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.presentation.activity
+package ru.nblackie.dictionary.presentation
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Хранит последовательность переходов по фрагментам через [onBackPressed]
+     * Хранит последовательность переходов по вкладкам через [onBackPressed]
      */
     private inner class TabStack(val list: ArrayList<Int>) {
 

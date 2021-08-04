@@ -4,14 +4,17 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="testRunner" value="PLATFORM" />
+        <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Core" />
+            <option value="$PROJECT_DIR$/CoreDI" />
             <option value="$PROJECT_DIR$/Exercise" />
             <option value="$PROJECT_DIR$/MainApp" />
+            <option value="$PROJECT_DIR$/Remote" />
             <option value="$PROJECT_DIR$/Search" />
             <option value="$PROJECT_DIR$/Settings" />
           </set>

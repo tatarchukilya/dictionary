@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragment_dictionary"
-        android:name="ru.nblackie.search.presentation.fragments.DictionaryFragment"
+        android:name="ru.nblackie.search.presentation.dictionary.DictionaryFragment"
         android:label="fragment_dictionary"
         tools:layout="@layout/fragment_dictionary">
 
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_search"
-        android:name="ru.nblackie.search.presentation.fragments.SearchFragment"
+        android:name="ru.nblackie.search.presentation.search.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" />
 

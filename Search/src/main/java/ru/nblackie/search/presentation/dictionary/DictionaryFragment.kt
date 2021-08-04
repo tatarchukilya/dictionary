@@ -1,4 +1,4 @@
-package ru.nblackie.search.presentation.fragments
+package ru.nblackie.search.presentation.dictionary
 
 import android.os.Bundle
 import android.view.LayoutInflater
