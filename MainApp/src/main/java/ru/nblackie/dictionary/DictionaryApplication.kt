@@ -3,7 +3,6 @@ package ru.nblackie.dictionary
 import android.app.Application
 import android.content.Context
 import ru.nblackie.dictionary.di.AppComponent
-import ru.nblackie.dictionary.di.AppModule
 import ru.nblackie.dictionary.di.DaggerAppComponent
 
 /**

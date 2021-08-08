@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import ru.nblackie.dictionary.R
+import ru.nblackie.dictionary.di.AppComponent
 
 /**
  * @author tatarchukilya@gmail.com
@@ -15,11 +16,15 @@ import ru.nblackie.dictionary.R
 class MainActivity : AppCompatActivity() {
 
     private val tabs by lazy {
-        listOf(R.navigation.search, R.navigation.exersice, R.navigation.settings)
+        listOf(R.navigation.dictionary, R.navigation.exersice, R.navigation.settings)
     }
 
     private val items by lazy {
         listOf(R.id.item_dictionary, R.id.item_exercise, R.id.item_settings)
+    }
+
+    private val fr : NavHostFragment by lazy {
+        AppComponent.get().getDictionaryApi().navHostFragment()
     }
 
     private lateinit var tabStack: TabStack
@@ -39,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navigationView = findViewById(R.id.bottom_nav)
-
         tabStack = TabStack(savedInstanceState?.getIntegerArrayList(KEY_STACK) ?: arrayListOf())
         supportFragmentManager.findFragmentById(R.id.nav_host_container)?.let {
             selectedFragment = it as NavHostFragment
@@ -92,7 +96,11 @@ class MainActivity : AppCompatActivity() {
         existingFragment?.let {
             return it
         }
-        val newFragment = NavHostFragment.create(tabs[index])
+        val newFragment = if (index == 0) {
+            fr
+        } else {
+            NavHostFragment.create(tabs[index])
+        }
         commitNow { add(R.id.nav_host_container, newFragment, tag) }
         return newFragment
     }

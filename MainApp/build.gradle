@@ -44,10 +44,12 @@ dependencies {
     //Navigation
     implementation deps.navigation.fragment_ktx
 
-    implementation project(':Settings')
+    implementation project(':CoreDB')
+    implementation project(':CoreDI')
+    implementation project(':CoreRemote')
     implementation project(':Exercise')
-    implementation project(':Search')
-    implementation project(':Remote')
+    implementation project(':FeatureDictionary')
+    implementation project(':Settings')
 
     testImplementation "junit:junit:$versions.junit"
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

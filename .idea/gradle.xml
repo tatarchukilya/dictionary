@@ -7,15 +7,17 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="Android Studio java home" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Core" />
+            <option value="$PROJECT_DIR$/CoreDB" />
             <option value="$PROJECT_DIR$/CoreDI" />
+            <option value="$PROJECT_DIR$/CoreRemote" />
             <option value="$PROJECT_DIR$/Exercise" />
+            <option value="$PROJECT_DIR$/FeatureDictionary" />
             <option value="$PROJECT_DIR$/MainApp" />
-            <option value="$PROJECT_DIR$/Remote" />
-            <option value="$PROJECT_DIR$/Search" />
             <option value="$PROJECT_DIR$/Settings" />
           </set>
         </option>

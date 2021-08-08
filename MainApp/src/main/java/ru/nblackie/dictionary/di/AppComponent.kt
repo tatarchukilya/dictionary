@@ -3,12 +3,14 @@ package ru.nblackie.dictionary.di
 import dagger.Component
 import dagger.internal.Preconditions
 import ru.nblackie.dictionary.DictionaryApplication
+import javax.inject.Singleton
 
 /**
  * @author tatarchukilya@gmail.com
  */
-@Component(modules = [AppModule::class])
-abstract class AppComponent {
+@Component(modules = [CoreAppModule::class, FeatureAppModule::class])
+@Singleton
+abstract class AppComponent : FeatureProviderApi {
 
     abstract fun inject(daggerArchApplication: DictionaryApplication)
 
