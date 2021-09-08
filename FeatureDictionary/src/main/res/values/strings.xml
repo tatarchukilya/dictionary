@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">back</string>
+    <string name="personal">Personal</string>
+    <string name="general">General</string>
+    <string name="search">Search</string>
+    <string name="dictionary_search_transition" translatable="false">dictionary_search_transition</string>
+</resources>

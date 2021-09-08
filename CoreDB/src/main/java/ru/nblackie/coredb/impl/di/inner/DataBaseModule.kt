@@ -17,9 +17,7 @@ internal object DataBaseModule {
     @JvmStatic
     @Provides
     @Singleton
-    fun provideDb(context: Context): DictionaryDataBase = Room
-        .databaseBuilder(context, DictionaryDataBase::class.java, "dictionary_db")
-        .build()
+    fun provideDb(context: Context): DictionaryDataBase = DictionaryDataBase.getDatabase(context)
 
     @JvmStatic
     @Provides

@@ -19,6 +19,15 @@
         android:id="@+id/fragment_search"
         android:name="ru.nblackie.dictionary.impl.presentation.search.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/search_to_edit"
+            app:destination="@id/fragment_edit_word" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_edit_word"
+        android:name="ru.nblackie.dictionary.impl.presentation.edit.EditWordFragment"
+        android:label="fragment_edit_word"
+        tools:layout="@layout/fragment_edit_word" />
 
 </navigation>

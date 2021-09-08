@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dictionary">словарь</string>
+    <string name="exercise">упражнение</string>
+    <string name="settings">настройки</string>
+    <string name="translation">перевод</string>
+    <string name="transcription">транскрипция</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">назад</string>
+    <string name="personal">Личный</string>
+    <string name="general">Общий</string>
+    <string name="search">Поиск</string>
+</resources>

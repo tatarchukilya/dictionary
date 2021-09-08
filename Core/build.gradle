@@ -36,6 +36,7 @@ dependencies {
     implementation deps.kotlin.stdlib
     //Dagger2
     implementation deps.dagger.runtime
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt deps.dagger.compiler
     //Navigation
     implementation deps.navigation.fragment_ktx

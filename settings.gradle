@@ -1,9 +1,10 @@
 rootProject.name = "dictionary"
 include ':MainApp'
-include ':Exercise'
-include ':Settings'
+include ':FeatureExercise'
+include ':FeatureSettings'
 include ':FeatureDictionary'
 include ':Core'
 include ':CoreRemote'
 include ':CoreDI'
 include ':CoreDB'
+include ':FeatureStatistic'

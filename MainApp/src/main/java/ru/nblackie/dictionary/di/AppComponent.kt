@@ -10,7 +10,7 @@ import javax.inject.Singleton
  */
 @Component(modules = [CoreAppModule::class, FeatureAppModule::class])
 @Singleton
-abstract class AppComponent : FeatureProviderApi {
+internal abstract class AppComponent : FeatureApiProvider {
 
     abstract fun inject(daggerArchApplication: DictionaryApplication)
 

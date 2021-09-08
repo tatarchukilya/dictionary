@@ -15,10 +15,11 @@
             <option value="$PROJECT_DIR$/CoreDB" />
             <option value="$PROJECT_DIR$/CoreDI" />
             <option value="$PROJECT_DIR$/CoreRemote" />
-            <option value="$PROJECT_DIR$/Exercise" />
             <option value="$PROJECT_DIR$/FeatureDictionary" />
+            <option value="$PROJECT_DIR$/FeatureExercise" />
+            <option value="$PROJECT_DIR$/FeatureSettings" />
+            <option value="$PROJECT_DIR$/FeatureStatistic" />
             <option value="$PROJECT_DIR$/MainApp" />
-            <option value="$PROJECT_DIR$/Settings" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -1,17 +1,18 @@
 package ru.nblackie.dictionary.impl.di
 
 import android.util.Log
+import dagger.internal.Preconditions.checkNotNull
 import ru.nblackie.coredi.DependencyFeatureHolder
-import ru.nblackie.dictionary.api.di.DictionaryApi
-import ru.nblackie.dictionary.impl.di.internal.DictionaryComponent
-import ru.nblackie.dictionary.impl.di.internal.DictionaryInternalApi
+import ru.nblackie.dictionary.api.di.DictionaryFeatureApi
+import ru.nblackie.dictionary.impl.di.internal.DictionaryFeatureInternalComponent
+import ru.nblackie.dictionary.impl.di.internal.DictionaryFeatureInternalApi
 
 /**
  * @author tatarchukilya@gmail.com
  */
-object DictionaryFeatureHolder : DependencyFeatureHolder<DictionaryApi, DictionaryDependencies> {
+object DictionaryFeatureHolder : DependencyFeatureHolder<DictionaryFeatureApi, DictionaryDependencies> {
 
-    private var component: DictionaryComponent? = null
+    private var component: DictionaryFeatureInternalComponent? = null
 
     override fun init(dependencies: DictionaryDependencies) {
         Log.i("DictionaryComponentHolder", "init()")
@@ -19,16 +20,16 @@ object DictionaryFeatureHolder : DependencyFeatureHolder<DictionaryApi, Dictiona
             synchronized(DictionaryFeatureHolder::class.java) {
                 if (component == null) {
                     Log.i("DictionaryComponentHolder", "build")
-                    component = DictionaryComponent.build(dependencies)
+                    component = DictionaryFeatureInternalComponent.build(dependencies)
                 }
             }
         }
     }
 
-    override fun getApi(): DictionaryApi = getInternalApi()
+    override fun getApi(): DictionaryFeatureApi = getInternalApi()
 
-    internal fun getInternalApi(): DictionaryInternalApi {
-        checkNotNull(component) { "DictionaryComponent was not initialized!" }
+    internal fun getInternalApi(): DictionaryFeatureInternalApi {
+        checkNotNull(component, "DictionaryComponent was not initialized!")
         return component!!
     }
 

@@ -34,6 +34,9 @@ dependencies {
 
     //Kotlin Standard Library
     implementation deps.kotlin.stdlib
+    //Coroutines
+    implementation deps.coroutines.core
+    implementation deps.coroutines.android
     //Dagger
     implementation deps.dagger.runtime
     kapt deps.dagger.compiler

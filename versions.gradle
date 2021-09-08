@@ -5,6 +5,7 @@
  **/
 ext.deps = [:]
 def versions = [:]
+versions.coroutines = "1.5.1"
 versions.dagger = "2.38.1"
 versions.junit = "4.12"
 versions.kotlin = "1.5.21"
@@ -16,6 +17,11 @@ versions.retrofit = "2.9.0"
 versions.room = "2.3.0"
 versions.truth = "1.0.1"
 ext.versions = versions
+
+def coroutines = [:]
+coroutines.core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
+coroutines.android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
+deps.coroutines = coroutines
 
 def dagger = [:]
 dagger.runtime = "com.google.dagger:dagger:$versions.dagger"

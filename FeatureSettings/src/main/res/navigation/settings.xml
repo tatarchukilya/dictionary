@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/graph_settings"
+    app:startDestination="@id/fragment_settings_root">
+
+    <fragment
+        android:id="@+id/fragment_settings_root"
+        android:name="ru.nblackie.settings.presentation.SettingsRootFragment"
+        android:label="fragment_settings_root"
+        tools:layout="@layout/fragment_settings_root">
+        <action
+            android:id="@+id/root_to_settings"
+            app:destination="@id/fragment_settings" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_settings"
+        android:name="ru.nblackie.settings.presentation.SettingsFragment"
+        android:label="fragment_setting"
+        tools:layout="@layout/fragment_settings" />
+</navigation>

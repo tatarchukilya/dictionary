@@ -1,6 +1,7 @@
 package ru.nblackie.dictionary.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commitNow
@@ -15,16 +16,24 @@ import ru.nblackie.dictionary.di.AppComponent
  */
 class MainActivity : AppCompatActivity() {
 
-    private val tabs by lazy {
-        listOf(R.navigation.dictionary, R.navigation.exersice, R.navigation.settings)
-    }
+//    private val tabs by lazy {
+//        listOf(R.navigation.dictionary, R.navigation.exersice, R.navigation.settings)
+//    }
 
     private val items by lazy {
         listOf(R.id.item_dictionary, R.id.item_exercise, R.id.item_settings)
     }
 
-    private val fr : NavHostFragment by lazy {
+    private val dictionaryFragment: NavHostFragment by lazy {
         AppComponent.get().getDictionaryApi().navHostFragment()
+    }
+
+    private val exerciseFragment: NavHostFragment by lazy {
+        AppComponent.get().exerciseFeatureApi().navHostFragment()
+    }
+
+    private val settingsFragment: NavHostFragment by lazy {
+        AppComponent.get().settingsFeatureApi().navHostFragment()
     }
 
     private lateinit var tabStack: TabStack
@@ -51,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         navigationView.setOnItemSelectedListener {
             return@setOnItemSelectedListener if (it.itemId == navigationView.selectedItemId) {
-                false
+                false // Чтобы не было зацикливания при вызове selectTab из onBackPressed
             } else {
                 selectTab(items.indexOf(it.itemId), false)
                 true
@@ -66,7 +75,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (!currentNavController.navigateUp()) {
-            tabStack.pop().let { if (it < 0) finish() else selectTab(it, true) }
+            tabStack.pop().let {
+                if (it < 0) finish() else selectTab(it, true)
+            }
         }
     }
 
@@ -96,17 +107,22 @@ class MainActivity : AppCompatActivity() {
         existingFragment?.let {
             return it
         }
-        val newFragment = if (index == 0) {
-            fr
-        } else {
-            NavHostFragment.create(tabs[index])
-        }
+        val newFragment = fragmentByIndex(index)
         commitNow { add(R.id.nav_host_container, newFragment, tag) }
         return newFragment
     }
 
+    private fun fragmentByIndex(index: Int): NavHostFragment {
+        return when (index) {
+            0 -> dictionaryFragment
+            1 -> exerciseFragment
+            2 -> settingsFragment
+            else -> throw IllegalArgumentException("Illegal fragment index $index")
+        }
+    }
+
     /**
-     * Хранит последовательность переходов по вкладкам через [onBackPressed]
+     * Хранит последовательность переходов по фрагментам через [onBackPressed]
      */
     private inner class TabStack(val list: ArrayList<Int>) {
 

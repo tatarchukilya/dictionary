@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Dictionary" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/turquoise_500</item>
+        <item name="colorPrimaryVariant">@color/turquoise_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/lime_500</item>
+        <item name="colorSecondaryVariant">@color/lime_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorOnPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowSharedElementsUseOverlay">false</item>
+    </style>
+
+
+    <style name="Divider">
+        <item name="android:layout_height">@dimen/dividerHeight</item>
+        <item name="android:background">@color/colorDivider</item>
+    </style>
+
+    <!--    TextPrimary    -->
+    <style name="TextPrimary" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorPrimaryText</item>
+    </style>
+
+    <style name="TextPrimary.Normal">
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextPrimary.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextPrimary.Normal.Large">
+        <item name="android:textSize">@dimen/textLarge</item>
+    </style>
+
+    <style name="TextPrimary.Bold.Large">
+        <item name="android:textSize">@dimen/textLarge</item>
+    </style>
+
+    <style name="TextPrimary.Normal.Standard">
+        <item name="android:textSize">@dimen/textStandard</item>
+    </style>
+
+    <style name="TextPrimary.Bold.Standard">
+        <item name="android:textSize">@dimen/textStandard</item>
+    </style>
+
+    <style name="TextPrimary.Normal.Small">
+        <item name="android:textSize">@dimen/textSmall</item>
+    </style>
+
+    <style name="TextPrimary.Bold.Small">
+        <item name="android:textSize">@dimen/textSmall</item>
+    </style>
+
+    <!--    TextSecondary-->
+    <style name="TextSecondary">
+        <item name="android:textColor">@color/colorSecondaryText</item>
+    </style>
+
+    <style name="TextSecondary.Normal">
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextSecondary.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextSecondary.Normal.Large">
+        <item name="android:textSize">@dimen/textLarge</item>
+    </style>
+
+    <style name="TextSecondary.Bold.Large">
+        <item name="android:textSize">@dimen/textLarge</item>
+    </style>
+
+    <style name="TextSecondary.Normal.Standard">
+        <item name="android:textSize">@dimen/textStandard</item>
+    </style>
+
+    <style name="TextSecondary.Bold.Standard">
+        <item name="android:textSize">@dimen/textStandard</item>
+    </style>
+
+    <style name="TextSecondary.Normal.Small">
+        <item name="android:textSize">@dimen/textSmall</item>
+    </style>
+
+    <style name="TextSecondary.Bold.Small">
+        <item name="android:textSize">@dimen/textSmall</item>
+    </style>
+
+</resources>

@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * @author tatarchukilya@gmail.com
  */
 @Module
-object CoreAppModule {
+internal object CoreAppModule {
 
     @JvmStatic
     @Singleton

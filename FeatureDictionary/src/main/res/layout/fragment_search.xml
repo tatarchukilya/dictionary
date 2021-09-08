@@ -1,35 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="48dp"
-        android:text="fragment search"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:transitionName="shared_element_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/next"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="64dp"
-        android:text="next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:background="?attr/colorOnPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:contentInsetStart="@dimen/dynamic_size"
+            app:contentInsetStartWithNavigation="0dp">
 
-    <Button
-        android:id="@+id/back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="64dp"
-        android:text="back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <EditText
+                    android:id="@+id/input_query_view"
+                    android:layout_width="@dimen/dynamic_size"
+                    android:layout_height="match_parent"
+                    android:layout_weight="@integer/max_weight"
+                    android:hint="@string/search"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:paddingHorizontal="@dimen/small"
+                    android:backgroundTint="@android:color/transparent"
+                    android:textColor="@color/colorPrimaryText" />
+
+                <ProgressBar
+                    android:id="@+id/progressbar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:id="@+id/search_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/light_transparent_gradient"
+        android:translationZ="@dimen/one"
+        app:layout_anchor="@id/appBarLayout"
+        app:layout_anchorGravity="bottom"
+        android:visibility="visible"
+        tools:visibility="visible"
+        app:layout_behavior=".impl.presentation.search.TopHideBehavior">
+
+        <RadioGroup
+            android:id="@+id/dictionary_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/extra_large"
+            android:layout_margin="@dimen/large"
+            android:background="@drawable/radio_group_background"
+            android:checkedButton="@+id/personal_dictionary"
+            android:elevation="@dimen/min"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/personal_dictionary"
+                android:layout_width="@dimen/dynamic_size"
+                android:layout_height="match_parent"
+                android:layout_weight="@integer/max_weight"
+                android:background="@drawable/round_corners"
+                android:backgroundTint="@color/color_state_material_toggle_button"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/personal"
+                android:textColor="@color/colorPrimaryText" />
+
+            <RadioButton
+                android:id="@+id/general_dictionary"
+                android:layout_width="@dimen/dynamic_size"
+                android:layout_height="match_parent"
+                android:layout_weight="@integer/max_weight"
+                android:background="@drawable/round_corners"
+                android:backgroundTint="@color/color_state_material_toggle_button"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/general"
+                android:textColor="@color/colorPrimaryText" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?actionBarSize"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/view_word" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
