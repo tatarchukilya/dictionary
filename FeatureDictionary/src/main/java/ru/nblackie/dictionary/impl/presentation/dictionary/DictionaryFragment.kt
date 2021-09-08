@@ -21,6 +21,7 @@ import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 internal class DictionaryFragment : Fragment() {
 
     private lateinit var viewModel: DictionaryViewModel
+    private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,18 +47,22 @@ internal class DictionaryFragment : Fragment() {
     }
 
     private fun setUpToolbar(view: View) {
-        val toolbar = view.findViewById<Toolbar>(R.id.toolbar).apply {
+        toolbar = view.findViewById<Toolbar>(R.id.toolbar).apply {
             navigationIcon =
                 AppCompatResources.getDrawable(context, R.drawable.ic_search_24)
         }
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
-        val extras = FragmentNavigatorExtras(toolbar to "shared_element_container")
         toolbar.setOnClickListener {
-            findNavController().navigate(R.id.fragment_search, null, null, extras)
+            toolbarAction()
         }
-//        toolbar.setNavigationOnClickListener {
-//            activity?.onBackPressed()
-//        }
+        toolbar.setNavigationOnClickListener {
+            toolbarAction()
+        }
+    }
+
+    private fun toolbarAction() {
+        val extras = FragmentNavigatorExtras(toolbar to "shared_element_container")
+        findNavController().navigate(R.id.fragment_search, null, null, extras)
     }
 
     companion object {
