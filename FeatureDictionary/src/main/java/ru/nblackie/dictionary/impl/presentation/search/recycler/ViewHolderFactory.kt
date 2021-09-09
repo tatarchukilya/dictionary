@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import ru.nblackie.core.recycler.BindViewHolder
 import ru.nblackie.core.recycler.ListItem
-import ru.nblackie.core.recycler.empty.EmptyViewHolder
 import ru.nblackie.dictionary.R
 import java.lang.IllegalArgumentException
 
@@ -16,9 +15,9 @@ internal fun viewHolderFactoryMethod(parent: ViewGroup, type: Int): BindViewHold
         -1 -> EmptyViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.view_empty, parent, false)
         )
-        0 -> SingleWordViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.view_word, parent, false)
-        )
+//        0 -> SingleWordViewHolder(
+//            LayoutInflater.from(parent.context).inflate(R.layout.view_word, parent, false)
+//        )
         else -> throw IllegalArgumentException("Illegal viewType $type")
     }
 }

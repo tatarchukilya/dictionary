@@ -9,10 +9,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.nblackie.core.recycler.ListItem
-import ru.nblackie.core.recycler.empty.EmptyItem
+import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.core.viewmodel.SingleLiveEvent
-import ru.nblackie.dictionary.impl.domain.interactor.DictionaryUseCase
-import ru.nblackie.dictionary.impl.presentation.dictionary.search.converter.SearchResultConverter
+import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 import ru.nblackie.remote.impl.dictionary.model.Word
 
 /**
@@ -45,24 +44,15 @@ internal class SearchViewModel(private val useCase: DictionaryUseCase) : ViewMod
             delay(debounce)
             runCatching {
                 useCase.search(input)
+            }.onSuccess {
+                _progress.postValue(false)
+                _words.postValue(resultList(it))
+            }.onFailure {
+                _progress.postValue(false)
+                _words.postValue(emptyList())
+                Log.i("<>", "error", it)
             }
-                .map {
-                    SearchResultConverter.convert(it, this@SearchViewModel::clickItem)
-                }
-                .onSuccess {
-                    _progress.postValue(false)
-                    _words.postValue(resultList(it))
-                }
-                .onFailure {
-                    _progress.postValue(false)
-                    _words.postValue(emptyList())
-                    Log.i("<>", "error", it)
-                }
         }
-    }
-
-    private fun clickItem(word: Word) {
-        _editWord.postValue(word)
     }
 
     override fun onCleared() {

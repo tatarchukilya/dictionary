@@ -12,11 +12,11 @@ import ru.nblackie.dictionary.impl.di.DictionaryDependencies
     dependencies = [DictionaryDependencies::class],
     modules = [DictionaryFeatureModule::class]
 )
-internal abstract class DictionaryFeatureInternalComponent : DictionaryFeatureInternalApi {
+internal abstract class DictionaryFeatureComponent : DictionaryFeatureInternalApi {
 
     companion object {
         fun build(dependencies: DictionaryDependencies) =
-            DaggerDictionaryFeatureInternalComponent.builder()
+            DaggerDictionaryFeatureComponent.builder()
                 .dictionaryDependencies(dependencies)
                 .build()!!
     }
