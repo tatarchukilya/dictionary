@@ -22,4 +22,6 @@
     <color name="lime_700">#689F38</color>
     <color name="turquoise_500">#00BCD4</color>
     <color name="turquoise_700">#0097A7</color>
+    <color name="yellow_300">#FFF176</color>
+    <color name="yellow_500">#FFEB3B</color>
 </resources>

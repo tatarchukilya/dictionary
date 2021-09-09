@@ -9,6 +9,6 @@
 <!--        android:color="@android:color/background_light" />-->
 
     <!--- This is the background color -->
-    <solid android:color="@color/colorCheckedFalse" />
+    <solid android:color="?android:colorBackgroundFloating" />
 
 </shape>

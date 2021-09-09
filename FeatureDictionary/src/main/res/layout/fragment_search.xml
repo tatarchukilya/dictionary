@@ -8,13 +8,13 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
+        android:background="?android:colorBackground"
         android:transitionName="shared_element_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:background="?attr/colorOnPrimary"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:contentInsetStart="@dimen/dynamic_size"
@@ -34,8 +34,7 @@
                     android:importantForAutofill="no"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/small"
-                    android:backgroundTint="@android:color/transparent"
-                    android:textColor="@color/colorPrimaryText" />
+                    android:backgroundTint="@android:color/transparent" />
 
                 <ProgressBar
                     android:id="@+id/progressbar"
@@ -82,8 +81,7 @@
                 android:backgroundTint="@color/color_state_material_toggle_button"
                 android:button="@null"
                 android:gravity="center"
-                android:text="@string/personal"
-                android:textColor="@color/colorPrimaryText" />
+                android:text="@string/personal" />
 
             <RadioButton
                 android:id="@+id/general_dictionary"
@@ -94,8 +92,7 @@
                 android:backgroundTint="@color/color_state_material_toggle_button"
                 android:button="@null"
                 android:gravity="center"
-                android:text="@string/general"
-                android:textColor="@color/colorPrimaryText" />
+                android:text="@string/general" />
         </RadioGroup>
 
     </LinearLayout>

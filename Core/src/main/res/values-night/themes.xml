@@ -7,12 +7,12 @@
         <item name="colorPrimaryVariant">@color/turquoise_700</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/lime_500</item>
-        <item name="colorSecondaryVariant">@color/lime_700</item>
+        <item name="colorSecondary">@color/yellow_300</item>
+        <item name="colorSecondaryVariant">@color/yellow_500</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorOnPrimary</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowSharedElementsUseOverlay">false</item>
+        <item name="android:statusBarColor">?android:colorBackground</item>
+<!--        <item name="android:windowLightStatusBar">true</item>-->
+<!--        <item name="android:windowSharedElementsUseOverlay">false</item>-->
     </style>
 </resources>
