@@ -1,6 +1,7 @@
 package ru.nblackie.dictionary.impl.presentation.edit
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import ru.nblackie.dictionary.R
 import ru.nblackie.remote.impl.dictionary.model.Word
+import kotlin.math.log
 
 /**
  * @author tatarchukilya@gmail.com
@@ -51,7 +53,6 @@ class EditWordFragment : Fragment() {
         private const val TRANSCRIPTION_KEY = "transcription_key"
         private const val TRANSLATION_KEY = "translation_key"
 
-        @JvmStatic
         fun createArgs(word: String, transcription: String, translation: ArrayList<String>) =
             Bundle().apply {
                 putString(WORD_KEY, word)
@@ -59,10 +60,8 @@ class EditWordFragment : Fragment() {
                 putStringArrayList(TRANSLATION_KEY, translation)
             }
 
-        @JvmStatic
-        fun createArgs(data: Word): Bundle {
-            val (word: String, transcription: String, translation: List<String>) = data
-            return createArgs(word, transcription, ArrayList(translation))
+        fun createArgs(word: String, transcription: String, translation: String): Bundle {
+            return createArgs(word, transcription, ArrayList(translation.split(",")))
         }
     }
 }

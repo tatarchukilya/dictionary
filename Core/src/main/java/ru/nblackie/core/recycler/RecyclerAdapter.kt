@@ -17,7 +17,7 @@ class RecyclerAdapter(
     var items = mutableListOf<ListItem>()
         set(value) {
             field = value
-            notifyDataSetChanged()
+            //notifyDataSetChanged()
         }
 
     @Suppress("UNCHECKED_CAST")

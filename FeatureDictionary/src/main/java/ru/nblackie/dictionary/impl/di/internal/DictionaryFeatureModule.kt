@@ -11,8 +11,8 @@ import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.remote.DictionaryApiMapper
 import ru.nblackie.dictionary.impl.data.remote.DictionaryApiMapperImpl
 import ru.nblackie.dictionary.impl.data.repository.DictionaryRepositoryImpl
-import ru.nblackie.dictionary.impl.domain.interactor.DictionaryUseCase
-import ru.nblackie.dictionary.impl.domain.interactor.DictionaryUseCaseImpl
+import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.dictionary.impl.presentation.DictionaryStackFragment
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModel

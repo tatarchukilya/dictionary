@@ -1,6 +1,5 @@
 package ru.nblackie.dictionary.impl.presentation.search
 
-import android.animation.Animator
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -13,19 +12,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.Slide
 import androidx.transition.Transition
-import androidx.transition.TransitionManager
 import com.google.android.material.transition.MaterialContainerTransform
-import ru.nblackie.core.recycler.RecyclerAdapter
-import ru.nblackie.core.utils.EndAnimatorListener
-import ru.nblackie.core.utils.EndTransitionListener
+import ru.nblackie.core.recycler.BindViewHolder
+import ru.nblackie.core.recycler.ListItem
+import ru.nblackie.dictionary.impl.domain.model.EmptyItem
+import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.core.utils.StartEndTransitionListener
 import ru.nblackie.core.utils.showKeyboard
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 import ru.nblackie.dictionary.impl.presentation.edit.EditWordFragment
-import ru.nblackie.dictionary.impl.presentation.search.recycler.viewHolderFactoryMethod
+import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
 
 
 /**
@@ -36,7 +35,6 @@ internal class SearchFragment : Fragment() {
     private var input: String = ""
         set(value) {
             setMenuVisibility(value.isNotEmpty())
-            //searchToggle.isVisible = value.isNotEmpty()
             if (field != value) {
                 field = value
                 viewModel.search(value)
@@ -47,9 +45,7 @@ internal class SearchFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var searchToggle: LinearLayout
     private lateinit var toolbar: Toolbar
-    private val adapter = RecyclerAdapter { parent: ViewGroup, viewType: Int ->
-        viewHolderFactoryMethod(parent, viewType)
-    }
+    private val adapter = RecyclerAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,46 +143,53 @@ internal class SearchFragment : Fragment() {
         })
     }
 
-    private fun showSearchToggle() {
-//        if (!searchToggle.isVisible()) {
-//            with(searchToggle) {
-//                visibility = View.VISIBLE
-//                animate()
-//                    .translationY((toolbar.bottom - searchToggle.top).toFloat())
-//                    .setDuration(300)
-//                    .start()
-//            }
-//        }
-        TransitionManager.beginDelayedTransition(
-            requireView() as ViewGroup,
-            Slide(Gravity.TOP).apply {
-                duration = 300
-                addTarget(R.id.search_toggle)
-                addListener(object : EndTransitionListener() {
-                    override fun onTransitionEnd(transition: Transition) {
-                        searchToggle.visibility = View.VISIBLE
-                    }
-                })
-            })
-    }
+    private inner class RecyclerAdapter() : RecyclerView.Adapter<BindViewHolder<ListItem>>() {
 
-    private fun hideSearchToggle() {
-        with(searchToggle) {
-            animate()
-                .translationY((toolbar.bottom - searchToggle.bottom).toFloat())
-                .setDuration(300)
-                .setListener(object : EndAnimatorListener() {
-                    override fun onAnimationEnd(p0: Animator?) {
-                        visibility = View.GONE
-                    }
-                })
-                .start()
+        var items = mutableListOf<ListItem>()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<ListItem> =
+            when (type) {
+                EmptyItem.VIEW_TYPE -> EmptyViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.view_empty, parent, false)
+                )
+                SearchWordItem.VIEW_TYPE -> SingleWordViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.view_word, parent, false)
+                ) { view, position ->
+                    viewHolderClick(view, position)
+                }
+                else -> throw java.lang.IllegalArgumentException("Illegal viewType $type")
+            } as BindViewHolder<ListItem>
+
+        override fun onBindViewHolder(holder: BindViewHolder<ListItem>, position: Int) {
+            holder.onBind(items[position])
         }
-    }
 
+        override fun onViewRecycled(holder: BindViewHolder<ListItem>) {
+            holder.unbind()
+        }
 
-    private fun toggleVisible(isVisible: Boolean) {
+        override fun getItemCount(): Int = items.size
 
+        override fun getItemViewType(position: Int): Int {
+            return items[position].viewType()
+        }
+
+        private fun viewHolderClick(view: View?, position: Int) {
+            with(items[position] as SearchWordItem) {
+                findNavController().navigate(
+                    R.id.fragment_edit_word, EditWordFragment.createArgs(
+                        word, transcription, translation
+                    )
+                )
+            }
+        }
     }
 
     companion object {
