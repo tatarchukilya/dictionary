@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:color="#848482" android:state_enabled="false" />
-    <item android:color="?colorSecondary" android:state_checked="true" />
-    <item android:color="?colorOnPrimary" android:state_checked="false" />
-    <item android:color="?colorOnPrimary" android:state_enabled="true" />
+    <item android:color="?attr/colorPrimary" android:state_checked="true" />
+    <item android:color="?android:colorBackgroundFloating" android:state_checked="false" />
+    <item android:color="?android:colorBackgroundFloating" android:state_enabled="true" />
 </selector>
