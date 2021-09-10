@@ -8,6 +8,7 @@ import androidx.fragment.app.commitNow
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.shape.MaterialShapeDrawable
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.di.AppComponent
 
