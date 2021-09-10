@@ -1,5 +1,9 @@
 package ru.nblackie.dictionary.impl.presentation.dictionary
 
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.shape.MaterialShapeDrawable
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 
@@ -68,5 +73,15 @@ internal class DictionaryFragment : Fragment() {
     companion object {
         const val TRANSITION_NAME = "search_view_transition"
         fun newInstance() = DictionaryFragment()
+    }
+
+    private fun createMaterialShapeDrawableBackground(context: Context): MaterialShapeDrawable {
+        val materialShapeDrawable = MaterialShapeDrawable()
+        val originalBackground: Drawable? = view?.background
+        if (originalBackground is ColorDrawable) {
+            materialShapeDrawable.fillColor = ColorStateList.valueOf(originalBackground.color)
+        }
+        materialShapeDrawable.initializeElevationOverlay(context)
+        return materialShapeDrawable
     }
 }

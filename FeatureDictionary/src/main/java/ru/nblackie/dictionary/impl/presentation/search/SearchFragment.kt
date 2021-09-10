@@ -108,6 +108,7 @@ internal class SearchFragment : Fragment() {
         toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
+        view.background = toolbar.background
     }
 
     private fun setUpView(view: View) {
