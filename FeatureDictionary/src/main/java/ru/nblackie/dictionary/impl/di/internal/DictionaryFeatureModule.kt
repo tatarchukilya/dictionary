@@ -17,6 +17,7 @@ import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.dictionary.impl.presentation.DictionaryStackFragment
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModel
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
+import ru.nblackie.dictionary.impl.presentation.preview.PreviewWordViewModel
 import ru.nblackie.dictionary.impl.presentation.search.SearchViewModel
 import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 
@@ -26,23 +27,19 @@ import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 @Module
 internal object DictionaryFeatureModule {
 
-    @JvmStatic
     @Provides
     @PerFeature
     fun provideContainerFragment(): ContainerFragment = DictionaryStackFragment.newInstance()
 
-    @JvmStatic
     @Provides
     @PerFeature
     fun provideNavHostFragment(): NavHostFragment = NavHostFragment.create(R.navigation.dictionary)
 
-    @JvmStatic
     @Provides
     @PerFeature
     fun provideApiMapper(api: RemoteDictionaryApi): DictionaryApiMapper =
         DictionaryApiMapperImpl(api)
 
-    @JvmStatic
     @Provides
     @PerFeature
     fun provideRepository(
@@ -50,23 +47,25 @@ internal object DictionaryFeatureModule {
         dao: DictionaryDao
     ): DictionaryRepository = DictionaryRepositoryImpl(apiMapper, dao)
 
-    @JvmStatic
     @Provides
     @PerFeature
     fun provideDictionaryInteractor(repository: DictionaryRepository): DictionaryUseCase =
         DictionaryUseCaseImpl(repository)
 
-    @JvmStatic
     @Provides
     fun provideDictionaryViewModelProviderFactory(useCase: DictionaryUseCase):
             ViewModelProviderFactory<DictionaryViewModel> =
         ViewModelProviderFactory { DictionaryViewModel(useCase) }
 
-    @JvmStatic
     @Provides
     fun provideSearchViewModelProviderFactory(useCase: DictionaryUseCase):
             ViewModelProviderFactory<SearchViewModel> =
         ViewModelProviderFactory { SearchViewModel(useCase) }
+
+    @Provides
+    fun provideEditViewModelProviderFactory(useCase: DictionaryUseCase):
+            ViewModelProviderFactory<PreviewWordViewModel> =
+        ViewModelProviderFactory { PreviewWordViewModel(useCase) }
 
     @JvmStatic
     @Provides

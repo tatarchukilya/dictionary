@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -16,14 +15,15 @@ import androidx.transition.Transition
 import com.google.android.material.transition.MaterialContainerTransform
 import ru.nblackie.core.recycler.BindViewHolder
 import ru.nblackie.core.recycler.ListItem
-import ru.nblackie.dictionary.impl.domain.model.EmptyItem
-import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.core.utils.StartEndTransitionListener
 import ru.nblackie.core.utils.showKeyboard
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
-import ru.nblackie.dictionary.impl.presentation.edit.EditWordFragment
+import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.presentation.converter.toWordArgs
+import ru.nblackie.dictionary.impl.presentation.preview.PreviewWordFragment
+import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
 
 
@@ -100,15 +100,11 @@ internal class SearchFragment : Fragment() {
     }
 
     private fun setUpToolbar(view: View) {
-        toolbar = view.findViewById<Toolbar>(R.id.toolbar).apply {
-            navigationIcon =
-                AppCompatResources.getDrawable(context, R.drawable.ic_arrow_back_24)
-        }
+        toolbar = view.findViewById(R.id.toolbar)
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
-        view.background = toolbar.background
     }
 
     private fun setUpView(view: View) {
@@ -135,13 +131,6 @@ internal class SearchFragment : Fragment() {
     private fun setUpObserver() {
         viewModel.words.observe(viewLifecycleOwner, { adapter.items = it })
         viewModel.progress.observe(viewLifecycleOwner, { progressBar.isVisible = it })
-        viewModel.editWord.observe(viewLifecycleOwner, {
-            findNavController().navigate(
-                R.id.fragment_edit_word, EditWordFragment.createArgs(
-                    it.word, it.transcription, ArrayList(it.translation)
-                )
-            )
-        })
     }
 
     private inner class RecyclerAdapter() : RecyclerView.Adapter<BindViewHolder<ListItem>>() {
@@ -185,9 +174,7 @@ internal class SearchFragment : Fragment() {
         private fun viewHolderClick(view: View?, position: Int) {
             with(items[position] as SearchWordItem) {
                 findNavController().navigate(
-                    R.id.fragment_edit_word, EditWordFragment.createArgs(
-                        word, transcription, translation
-                    )
+                    R.id.fragment_edit_word, PreviewWordFragment.createArgs(this.toWordArgs())
                 )
             }
         }

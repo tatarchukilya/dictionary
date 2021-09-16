@@ -26,8 +26,8 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_edit_word"
-        android:name="ru.nblackie.dictionary.impl.presentation.edit.EditWordFragment"
+        android:name="ru.nblackie.dictionary.impl.presentation.preview.PreviewWordFragment"
         android:label="fragment_edit_word"
-        tools:layout="@layout/fragment_edit_word" />
+        tools:layout="@layout/fragment_preview" />
 
 </navigation>

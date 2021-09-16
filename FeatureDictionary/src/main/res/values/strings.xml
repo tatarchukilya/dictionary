@@ -4,5 +4,8 @@
     <string name="personal">Personal</string>
     <string name="general">General</string>
     <string name="search">Search</string>
+    <string name="edit">edit</string>
+    <string name="save">save</string>
+    <string name="add">add</string>
     <string name="dictionary_search_transition" translatable="false">dictionary_search_transition</string>
 </resources>
