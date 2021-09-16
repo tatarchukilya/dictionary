@@ -5,6 +5,7 @@ import ru.nblackie.core.viewmodel.ViewModelProviderFactory
 import ru.nblackie.dictionary.api.di.DictionaryFeatureApi
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModel
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
+import ru.nblackie.dictionary.impl.presentation.preview.PreviewWordViewModel
 import ru.nblackie.dictionary.impl.presentation.search.SearchViewModel
 
 /**
@@ -17,6 +18,8 @@ internal interface DictionaryFeatureInternalApi : DictionaryFeatureApi {
     fun dictionaryViewModelProviderFactory(): ViewModelProviderFactory<DictionaryViewModel>
 
     fun searchViewModelProviderFactory(): ViewModelProviderFactory<SearchViewModel>
+
+    fun editWordViewModelProviderFactory(): ViewModelProviderFactory<PreviewWordViewModel>
 
     fun dictionaryViewModelCreator(): ViewModelAssistedProvideFactory<DictionaryViewModelNew>
 }

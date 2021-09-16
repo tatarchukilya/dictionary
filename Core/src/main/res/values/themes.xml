@@ -24,7 +24,7 @@
 
     <!--    TextPrimary    -->
     <style name="TextPrimary" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textColor">?android:textColor</item>
     </style>
 
     <style name="TextPrimary.Normal">
@@ -61,7 +61,7 @@
 
     <!--    TextSecondary-->
     <style name="TextSecondary">
-        <item name="android:textColor">@color/colorSecondaryText</item>
+        <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
     <style name="TextSecondary.Normal">

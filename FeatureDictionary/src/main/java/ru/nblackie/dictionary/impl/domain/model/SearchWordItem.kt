@@ -7,7 +7,7 @@ import ru.nblackie.core.recycler.ListItem
  */
 data class SearchWordItem(
     val word: String,
-    val translation: String,
+    val translation: List<String>,
     val transcription: String
 ) : ListItem {
     override fun viewType() = VIEW_TYPE

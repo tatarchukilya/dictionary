@@ -1,11 +1,16 @@
 package ru.nblackie.core.utils
 
-import android.animation.Animator
+import android.R
 import android.app.Activity
+import android.content.res.TypedArray
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+
 
 /**
  * @author tatarchukilya@gmail.com
@@ -28,4 +33,22 @@ fun Activity.hideKeyboard() {
         view = View(this)
     }
     imm.hideSoftInputFromWindow(view.windowToken, 0)
+}
+
+@ColorInt
+fun Activity.getPrimaryTextColor(@AttrRes attr: Int): Int {
+    val typedValue = TypedValue()
+    //val theme: Theme = theme
+    theme.resolveAttribute(attr, typedValue, true)
+    val arr: TypedArray = obtainStyledAttributes(
+        typedValue.data, intArrayOf(attr)
+    )
+    return arr.getColor(0, -1)
+}
+
+@ColorInt
+fun Activity.getColorByAttr(@AttrRes attr: Int): Int {
+    val typedValue = TypedValue()
+    theme.resolveAttribute(attr, typedValue, true)
+    return typedValue.data
 }

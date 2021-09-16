@@ -8,14 +8,16 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
-        android:transitionName="shared_element_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:transitionName="shared_element_container">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
+            app:navigationIcon="@drawable/ic_arrow_back_24"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
+            android:background="?android:colorBackground"
             app:contentInsetStart="@dimen/dynamic_size"
             app:contentInsetStartWithNavigation="0dp">
 
@@ -29,11 +31,11 @@
                     android:layout_width="@dimen/dynamic_size"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/max_weight"
+                    android:backgroundTint="@android:color/transparent"
                     android:hint="@string/search"
                     android:importantForAutofill="no"
                     android:inputType="text"
-                    android:paddingHorizontal="@dimen/small"
-                    android:backgroundTint="@android:color/transparent" />
+                    android:paddingHorizontal="@dimen/small" />
 
                 <ProgressBar
                     android:id="@+id/progressbar"
@@ -55,11 +57,11 @@
         android:layout_gravity="bottom"
         android:background="@drawable/light_transparent_gradient"
         android:translationZ="@dimen/one"
+        android:visibility="visible"
         app:layout_anchor="@id/appBarLayout"
         app:layout_anchorGravity="bottom"
-        android:visibility="visible"
-        tools:visibility="visible"
-        app:layout_behavior=".impl.presentation.search.TopHideBehavior">
+        app:layout_behavior=".impl.presentation.search.TopHideBehavior"
+        tools:visibility="visible">
 
         <RadioGroup
             android:id="@+id/dictionary_toggle"
@@ -69,11 +71,13 @@
             android:background="@drawable/radio_group_background"
             android:checkedButton="@+id/personal_dictionary"
             android:elevation="@dimen/min"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar">
 
             <RadioButton
                 android:id="@+id/personal_dictionary"
                 android:layout_width="@dimen/dynamic_size"
+
                 android:layout_height="match_parent"
                 android:layout_weight="@integer/max_weight"
                 android:background="@drawable/round_corners"

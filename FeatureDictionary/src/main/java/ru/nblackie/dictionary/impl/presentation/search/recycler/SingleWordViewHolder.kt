@@ -24,7 +24,7 @@ class SingleWordViewHolder(
 
     override fun onBind(item: SearchWordItem) {
         word.text = item.word
-        translation.text = item.translation
+        translation.text = item.translation.joinToString()
     }
 
     override fun onClick(view: View?) {

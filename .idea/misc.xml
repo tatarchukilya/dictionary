@@ -4,7 +4,24 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.1935185185185185" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/ab_share_pack_material.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/action_bar_item_background_material.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/activated_background.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/activated_background_holo_dark.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/activated_background_holo_light.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/autofilled_highlight.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/background_holo_dark.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/background_holo_light.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/background_leanback_setup.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/bottomsheet_background.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/control_background_32dp_material.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/dark_header_dither.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/edit_query_background.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/edit_text.xml" value="0.12105263157894737" />
+        <entry key="../../Library/Android/sdk/platforms/android-31/data/res/drawable/edit_text_material.xml" value="0.12105263157894737" />
         <entry key="Core/src/main/res/drawable/buttin.xml" value="0.19814814814814816" />
+        <entry key="Core/src/main/res/drawable/ic_arrow_back_24.xml" value="0.18888888888888888" />
+        <entry key="Core/src/main/res/drawable/ic_clear_24.xml" value="0.18888888888888888" />
         <entry key="Core/src/main/res/drawable/ic_crescent_moon.xml" value="0.19444444444444445" />
         <entry key="Core/src/main/res/drawable/ic_puzzle_24.xml" value="0.19537037037037036" />
         <entry key="Core/src/main/res/drawable/ic_search_24.xml" value="0.1962962962962963" />
@@ -20,21 +37,35 @@
         <entry key="FeatureDictionary/src/main/res/drawable/clear_background.xml" value="0.2037037037037037" />
         <entry key="FeatureDictionary/src/main/res/drawable/color_state_material_toggle_button.xml" value="0.22777777777777777" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_clear_24.xml" value="0.2037037037037037" />
+        <entry key="FeatureDictionary/src/main/res/drawable/ic_remove_circle_outline_24.xml" value="0.18333333333333332" />
         <entry key="FeatureDictionary/src/main/res/drawable/light_transparent_gradient.xml" value="0.22777777777777777" />
         <entry key="FeatureDictionary/src/main/res/drawable/radio_group_background.xml" value="0.17685185185185184" />
         <entry key="FeatureDictionary/src/main/res/drawable/rectangle_background.xml" value="0.19814814814814816" />
         <entry key="FeatureDictionary/src/main/res/drawable/search_switch_color.xml" value="0.22777777777777777" />
+        <entry key="FeatureDictionary/src/main/res/layout/fab_layout.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_dictionary.xml" value="0.2391304347826087" />
-        <entry key="FeatureDictionary/src/main/res/layout/fragment_edit_word.xml" value="0.25" />
+        <entry key="FeatureDictionary/src/main/res/layout/fragment_edit_word.xml" value="0.335" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_search.xml" value="0.240684326776627" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_search_coordinator.xml" value="0.157548125633232" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_search_transition.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/search_appbar.xml" value="0.157548125633232" />
         <entry key="FeatureDictionary/src/main/res/layout/search_view.xml" value="0.157548125633232" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_bind_content.xml" value="0.13324764353041987" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_bind_data.xml" value="0.1" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_button.xml" value="0.13324764353041987" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_card.xml" value="0.335" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_data.xml" value="0.2719612718183204" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_empty.xml" value="0.1" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_prymary_text.xml" value="0.1" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_simple.xml" value="0.4015828672229563" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_simple_text.xml" value="0.17108958774462554" />
         <entry key="FeatureDictionary/src/main/res/layout/view_single_word.xml" value="0.13425925925925927" />
         <entry key="FeatureDictionary/src/main/res/layout/view_title.xml" value="1.8422585967839413" />
-        <entry key="FeatureDictionary/src/main/res/layout/view_word.xml" value="0.2604272415410415" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_title_secondary.xml" value="0.25" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_word.xml" value="0.19040758778473543" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_word_detail.xml" value="0.3634085213032581" />
+        <entry key="FeatureDictionary/src/main/res/menu/menu_pr.xml" value="0.17592592592592593" />
+        <entry key="FeatureDictionary/src/main/res/menu/menu_preview.xml" value="0.17592592592592593" />
         <entry key="FeatureDictionary/src/main/res/menu/menu_search.xml" value="0.1" />
         <entry key="FeatureSettings/src/main/res/layout/fragment_settings.xml" value="0.13518518518518519" />
         <entry key="FeatureSettings/src/main/res/layout/fragment_settings_root.xml" value="0.13518518518518519" />
