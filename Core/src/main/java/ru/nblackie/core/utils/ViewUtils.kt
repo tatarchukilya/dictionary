@@ -2,14 +2,19 @@ package ru.nblackie.core.utils
 
 import android.R
 import android.app.Activity
+import android.content.Context
 import android.content.res.TypedArray
+import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 
 
 /**
@@ -51,4 +56,13 @@ fun Activity.getColorByAttr(@AttrRes attr: Int): Int {
     val typedValue = TypedValue()
     theme.resolveAttribute(attr, typedValue, true)
     return typedValue.data
+}
+
+fun Activity.getTintDrawableByAttr(@DrawableRes drawableResId: Int, @AttrRes attrResId: Int): Drawable? {
+    val drawable = ResourcesCompat.getDrawable(resources, drawableResId, theme)
+    if (drawable != null) {
+        val color = getPrimaryTextColor(attrResId)
+        DrawableCompat.setTint(drawable, color)
+    }
+    return drawable
 }
