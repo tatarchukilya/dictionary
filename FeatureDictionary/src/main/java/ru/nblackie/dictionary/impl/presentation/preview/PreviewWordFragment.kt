@@ -17,6 +17,7 @@ import ru.nblackie.dictionary.impl.presentation.data.WordArgs
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.PreviewDataItem
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.PreviewDataViewHolder
 import androidx.core.graphics.drawable.DrawableCompat
+import ru.nblackie.core.utils.getTintDrawableByAttr
 
 
 /**
@@ -73,11 +74,17 @@ class PreviewWordFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_preview, menu)
-        viewModel?.isAdded?.observe(viewLifecycleOwner, {
-         val colorId =
-                if (it == true) android.R.attr.textColorSecondary else android.R.attr.colorPrimary
-            val item = menu.findItem(R.id.item_add)
-            tintMenuIcon(item, colorId)
+        viewModel?.isAdded?.observe(viewLifecycleOwner, { isAdded ->
+            activity?.let {
+                menu.findItem(R.id.item_add).icon = if (isAdded) {
+                    it.getTintDrawableByAttr(R.drawable.ic_bookmark_24, android.R.attr.colorPrimary)
+                } else {
+                    it.getTintDrawableByAttr(
+                        R.drawable.ic_bookmark_border_24,
+                        android.R.attr.textColorSecondary
+                    )
+                }
+            }
         })
     }
 
@@ -89,7 +96,7 @@ class PreviewWordFragment : Fragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun tintMenuIcon(item: MenuItem,  color: Int) {
+    private fun tintMenuIcon(item: MenuItem, color: Int) {
         val wrapDrawable = DrawableCompat.wrap(item.icon)
         activity?.let {
             val col = it.getPrimaryTextColor(color)

@@ -36,6 +36,8 @@
         <entry key="FeatureDictionary/src/main/res/drawable/bottom_navigation_color.xml" value="0.2037037037037037" />
         <entry key="FeatureDictionary/src/main/res/drawable/clear_background.xml" value="0.2037037037037037" />
         <entry key="FeatureDictionary/src/main/res/drawable/color_state_material_toggle_button.xml" value="0.22777777777777777" />
+        <entry key="FeatureDictionary/src/main/res/drawable/ic_bookmark_24.xml" value="0.18333333333333332" />
+        <entry key="FeatureDictionary/src/main/res/drawable/ic_bookmark_border_24.xml" value="0.18333333333333332" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_clear_24.xml" value="0.2037037037037037" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_remove_circle_outline_24.xml" value="0.18333333333333332" />
         <entry key="FeatureDictionary/src/main/res/drawable/light_transparent_gradient.xml" value="0.22777777777777777" />
