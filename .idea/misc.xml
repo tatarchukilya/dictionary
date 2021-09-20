@@ -46,7 +46,9 @@
         <entry key="FeatureDictionary/src/main/res/drawable/search_switch_color.xml" value="0.22777777777777777" />
         <entry key="FeatureDictionary/src/main/res/layout/fab_layout.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_dictionary.xml" value="0.2391304347826087" />
+        <entry key="FeatureDictionary/src/main/res/layout/fragment_edit.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_edit_word.xml" value="0.335" />
+        <entry key="FeatureDictionary/src/main/res/layout/fragment_preview.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_search.xml" value="0.240684326776627" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_search_coordinator.xml" value="0.157548125633232" />
         <entry key="FeatureDictionary/src/main/res/layout/fragment_search_transition.xml" value="0.1" />
@@ -56,6 +58,7 @@
         <entry key="FeatureDictionary/src/main/res/layout/view_bind_data.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/view_button.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/view_card.xml" value="0.335" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_edit_content.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_data.xml" value="0.2719612718183204" />
         <entry key="FeatureDictionary/src/main/res/layout/view_empty.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/view_prymary_text.xml" value="0.1" />

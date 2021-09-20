@@ -1,54 +1,29 @@
 package ru.nblackie.dictionary.impl.presentation.dictionary
 
-import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.shape.MaterialShapeDrawable
+import androidx.navigation.navGraphViewModels
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
+import ru.nblackie.dictionary.impl.presentation.viewmodel.SharedViewModel
+import ru.nblackie.dictionary.impl.presentation.viewmodel.ViewModelFragment
 
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class DictionaryFragment : Fragment() {
+internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictionary) {
 
-    private lateinit var viewModel: DictionaryViewModel
     private lateinit var toolbar: Toolbar
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(
-            this, DictionaryFeatureHolder.getInternalApi()
-                .dictionaryViewModelProviderFactory()
-        ).get(DictionaryViewModel::class.java)
-//        val vm: DictionaryViewModelNew = ViewModelProvider(
-//            this,
-//            DictionaryFeatureHolder.getInternalApi().dictionaryViewModelCreator()
-//                .create(this, Bundle())
-//        ).get(DictionaryViewModelNew::class.java)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_dictionary, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpToolbar(view)
+        viewModel.logAttach(this.javaClass.simpleName)
     }
 
     private fun setUpToolbar(view: View) {
@@ -66,22 +41,10 @@ internal class DictionaryFragment : Fragment() {
     }
 
     private fun toolbarAction() {
-        val extras = FragmentNavigatorExtras(toolbar to "shared_element_container")
+        viewModel.search("")
+        val extras =
+            FragmentNavigatorExtras(toolbar to getString(R.string.dictionary_search_transition))
         findNavController().navigate(R.id.fragment_search, null, null, extras)
     }
 
-    companion object {
-        const val TRANSITION_NAME = "search_view_transition"
-        fun newInstance() = DictionaryFragment()
-    }
-
-    private fun createMaterialShapeDrawableBackground(context: Context): MaterialShapeDrawable {
-        val materialShapeDrawable = MaterialShapeDrawable()
-        val originalBackground: Drawable? = view?.background
-        if (originalBackground is ColorDrawable) {
-            materialShapeDrawable.fillColor = ColorStateList.valueOf(originalBackground.color)
-        }
-        materialShapeDrawable.initializeElevationOverlay(context)
-        return materialShapeDrawable
-    }
 }

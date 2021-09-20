@@ -2,8 +2,8 @@ package ru.nblackie.dictionary.impl.presentation.search.recycler
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import ru.nblackie.core.recycler.BindViewHolder
-import ru.nblackie.core.recycler.ListItem
+import ru.nblackie.core.impl.recycler.BindViewHolder
+import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.dictionary.R
 import java.lang.IllegalArgumentException
 

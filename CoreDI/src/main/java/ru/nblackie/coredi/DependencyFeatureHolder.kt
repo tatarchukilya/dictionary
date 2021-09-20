@@ -3,7 +3,7 @@ package ru.nblackie.coredi
 /**
  * @author tatarchukilya@gmail.com
  */
-interface DependencyFeatureHolder<F : FeatureApi, D : FeatureDependencies> : FeatureHolder<F> {
+interface DependencyFeatureHolder<F : FeatureApi, D : FeatureDependency> : FeatureHolder<F> {
 
-    fun init(dependencies: D)
+    fun init(dependency: D)
 }

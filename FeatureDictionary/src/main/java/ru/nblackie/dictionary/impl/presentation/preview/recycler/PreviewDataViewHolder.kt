@@ -4,8 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import ru.nblackie.core.recycler.BindViewHolder
+import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.dictionary.R
+import ru.nblackie.dictionary.impl.domain.model.PreviewDataItem
 
 /**
  * @author tatarchukilya@gmail.com

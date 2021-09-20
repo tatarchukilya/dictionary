@@ -2,10 +2,12 @@ package ru.nblackie.dictionary.di
 
 import dagger.Module
 import dagger.Provides
+import ru.nblackie.core.api.CoreApi
+import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.coredb.api.DataBaseApi
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.dictionary.api.di.DictionaryFeatureApi
-import ru.nblackie.dictionary.impl.di.DictionaryDependencies
+import ru.nblackie.dictionary.impl.di.DictionaryDependency
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 import ru.nblackie.exercise.api.ExerciseFeatureApi
 import ru.nblackie.exercise.impl.di.ExerciseFeatureDependency
@@ -25,17 +27,20 @@ internal object FeatureAppModule {
     @Provides
     fun provideDictionaryDependencies(
         dataBaseApi: DataBaseApi,
-        restApi: RestApi
-    ): DictionaryDependencies =
-        object : DictionaryDependencies {
+        restApi: RestApi,
+        coreApi: CoreApi
+    ): DictionaryDependency =
+        object : DictionaryDependency {
             override fun dictionaryDao() = dataBaseApi.dao()
 
             override fun dictionaryApi() = restApi.dictionaryApi()
 
+            override fun resourceManager(): ResourceManager = coreApi.resourceManager()
+
         }
 
     @Provides
-    fun provideDictionaryApi(dependencies: DictionaryDependencies): DictionaryFeatureApi {
+    fun provideDictionaryApi(dependencies: DictionaryDependency): DictionaryFeatureApi {
         DictionaryFeatureHolder.init(dependencies)
         return DictionaryFeatureHolder.getApi()
     }

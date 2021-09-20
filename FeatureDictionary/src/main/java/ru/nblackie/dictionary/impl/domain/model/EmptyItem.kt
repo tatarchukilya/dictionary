@@ -1,6 +1,6 @@
 package ru.nblackie.dictionary.impl.domain.model
 
-import ru.nblackie.core.recycler.ListItem
+import ru.nblackie.core.impl.recycler.ListItem
 
 /**
  * @author tatarchukilya@gmail.com

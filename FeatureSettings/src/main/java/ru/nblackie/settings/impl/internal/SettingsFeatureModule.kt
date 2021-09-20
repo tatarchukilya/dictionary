@@ -3,7 +3,7 @@ package ru.nblackie.settings.impl.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
-import ru.nblackie.core.fragment.ContainerFragment
+import ru.nblackie.core.impl.fragment.ContainerFragment
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.settings.R
 import ru.nblackie.settings.presentation.SettingsContainerFragment

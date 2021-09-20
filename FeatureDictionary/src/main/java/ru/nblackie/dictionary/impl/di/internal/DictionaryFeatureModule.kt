@@ -3,8 +3,9 @@ package ru.nblackie.dictionary.impl.di.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
-import ru.nblackie.core.fragment.ContainerFragment
-import ru.nblackie.core.viewmodel.*
+import ru.nblackie.core.api.ResourceManager
+import ru.nblackie.core.impl.fragment.ContainerFragment
+import ru.nblackie.core.impl.viewmodel.*
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.dictionary.R
@@ -15,10 +16,8 @@ import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.dictionary.impl.presentation.DictionaryStackFragment
-import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModel
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
-import ru.nblackie.dictionary.impl.presentation.preview.PreviewWordViewModel
-import ru.nblackie.dictionary.impl.presentation.search.SearchViewModel
+import ru.nblackie.dictionary.impl.presentation.viewmodel.SharedViewModel
 import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 
 /**
@@ -33,7 +32,8 @@ internal object DictionaryFeatureModule {
 
     @Provides
     @PerFeature
-    fun provideNavHostFragment(): NavHostFragment = NavHostFragment.create(R.navigation.dictionary)
+    fun provideNavHostFragment(): NavHostFragment =
+        NavHostFragment.create(R.navigation.navigation_dictionary)
 
     @Provides
     @PerFeature
@@ -49,25 +49,9 @@ internal object DictionaryFeatureModule {
 
     @Provides
     @PerFeature
-    fun provideDictionaryInteractor(repository: DictionaryRepository): DictionaryUseCase =
+    fun provideDictionaryUseCase(repository: DictionaryRepository): DictionaryUseCase =
         DictionaryUseCaseImpl(repository)
 
-    @Provides
-    fun provideDictionaryViewModelProviderFactory(useCase: DictionaryUseCase):
-            ViewModelProviderFactory<DictionaryViewModel> =
-        ViewModelProviderFactory { DictionaryViewModel(useCase) }
-
-    @Provides
-    fun provideSearchViewModelProviderFactory(useCase: DictionaryUseCase):
-            ViewModelProviderFactory<SearchViewModel> =
-        ViewModelProviderFactory { SearchViewModel(useCase) }
-
-    @Provides
-    fun provideEditViewModelProviderFactory(useCase: DictionaryUseCase):
-            ViewModelProviderFactory<PreviewWordViewModel> =
-        ViewModelProviderFactory { PreviewWordViewModel(useCase) }
-
-    @JvmStatic
     @Provides
     fun provideTempCreator(useCase: DictionaryUseCase): ViewModelAssistedProvideFactory<DictionaryViewModelNew> {
         return ViewModelAssistedProvideFactory<DictionaryViewModelNew> { owner, defaultArgs ->
@@ -76,4 +60,9 @@ internal object DictionaryFeatureModule {
             }
         }
     }
+
+    @Provides
+    fun provideViewModelProviderFactory(useCase: DictionaryUseCase, manager: ResourceManager):
+            ViewModelProviderFactory<SharedViewModel> =
+        ViewModelProviderFactory { SharedViewModel(useCase, manager) }
 }

@@ -1,7 +1,7 @@
 package ru.nblackie.settings.presentation
 
 import androidx.fragment.app.Fragment
-import ru.nblackie.core.fragment.ContainerFragment
+import ru.nblackie.core.impl.fragment.ContainerFragment
 
 /**
  * @author tatarchukilya@gmail.com
