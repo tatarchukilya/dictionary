@@ -7,41 +7,41 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Transition
 import com.google.android.material.transition.MaterialContainerTransform
-import ru.nblackie.core.recycler.BindViewHolder
-import ru.nblackie.core.recycler.ListItem
-import ru.nblackie.core.utils.StartEndTransitionListener
-import ru.nblackie.core.utils.showKeyboard
+import ru.nblackie.core.impl.recycler.BindViewHolder
+import ru.nblackie.core.impl.recycler.ListItem
+import ru.nblackie.core.impl.utils.StartEndTransitionListener
+import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
-import ru.nblackie.dictionary.impl.presentation.converter.toWordArgs
-import ru.nblackie.dictionary.impl.presentation.preview.PreviewWordFragment
 import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
+import ru.nblackie.dictionary.impl.presentation.viewmodel.ViewModelFragment
 
 
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class SearchFragment : Fragment() {
+internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
 
     private var input: String = ""
         set(value) {
             setMenuVisibility(value.isNotEmpty())
+            if (value.isBlank()) {
+                searchToggle.translationY = 0F
+                viewModel.search(value)
+            }
             if (field != value) {
                 field = value
                 viewModel.search(value)
             }
         }
-    private lateinit var viewModel: SearchViewModel
-    private lateinit var editText: EditText
+
+    private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
     private lateinit var searchToggle: LinearLayout
     private lateinit var toolbar: Toolbar
@@ -50,7 +50,7 @@ internal class SearchFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
+        viewModel.logAttach(this.javaClass.simpleName)
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             scrimColor = resources.getColor(android.R.color.transparent, null)
             addListener(object : StartEndTransitionListener() {
@@ -65,26 +65,19 @@ internal class SearchFragment : Fragment() {
                         searchToggle.isVisible = true
                     }
                 }
-
             })
         }
-        viewModel = ViewModelProvider(
-            this, DictionaryFeatureHolder
-                .getInternalApi()
-                .searchViewModelProviderFactory()
-        ).get(SearchViewModel::class.java)
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_search, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpView(view)
         setUpToolbar(view)
         setUpObserver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.clearSelected()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -93,7 +86,7 @@ internal class SearchFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.item_clear_search -> {
-            editText.text.clear()
+            searchView.text.clear()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -111,9 +104,9 @@ internal class SearchFragment : Fragment() {
         view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
         searchToggle = view.findViewById(R.id.search_toggle)
         progressBar = view.findViewById(R.id.progressbar)
-        editText = view.findViewById(R.id.input_query_view)
-        editText.showKeyboard()
-        editText.doAfterTextChanged { input = it.toString() }
+        searchView = view.findViewById(R.id.input_query_view)
+        searchView.showKeyboard()
+        searchView.doAfterTextChanged { input = it.toString() }
         view.findViewById<RadioGroup>(R.id.dictionary_toggle)
             .setOnCheckedChangeListener { _, buttonId ->
                 when (buttonId) {
@@ -125,12 +118,12 @@ internal class SearchFragment : Fragment() {
                     }
                 }
             }
-        setMenuVisibility(editText.text.isNotEmpty())
+        setMenuVisibility(searchView.text.isNotEmpty())
     }
 
     private fun setUpObserver() {
-        viewModel.words.observe(viewLifecycleOwner, { adapter.items = it })
-        viewModel.progress.observe(viewLifecycleOwner, { progressBar.isVisible = it })
+        viewModel.searchResult.observe(viewLifecycleOwner, { adapter.items = it })
+        viewModel.progressSearch.observe(viewLifecycleOwner, { progressBar.isVisible = it })
     }
 
     private inner class RecyclerAdapter() : RecyclerView.Adapter<BindViewHolder<ListItem>>() {
@@ -172,15 +165,8 @@ internal class SearchFragment : Fragment() {
         }
 
         private fun viewHolderClick(view: View?, position: Int) {
-            with(items[position] as SearchWordItem) {
-                findNavController().navigate(
-                    R.id.fragment_edit_word, PreviewWordFragment.createArgs(this.toWordArgs())
-                )
-            }
+            viewModel.select(position)
+            findNavController().navigate(R.id.fragment_preview)
         }
-    }
-
-    companion object {
-        fun newInstance() = SearchFragment()
     }
 }

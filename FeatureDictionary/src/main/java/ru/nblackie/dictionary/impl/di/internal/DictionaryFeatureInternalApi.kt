@@ -1,12 +1,10 @@
 package ru.nblackie.dictionary.impl.di.internal
 
-import ru.nblackie.core.viewmodel.ViewModelAssistedProvideFactory
-import ru.nblackie.core.viewmodel.ViewModelProviderFactory
+import ru.nblackie.core.impl.viewmodel.ViewModelAssistedProvideFactory
+import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.dictionary.api.di.DictionaryFeatureApi
-import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModel
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
-import ru.nblackie.dictionary.impl.presentation.preview.PreviewWordViewModel
-import ru.nblackie.dictionary.impl.presentation.search.SearchViewModel
+import ru.nblackie.dictionary.impl.presentation.viewmodel.SharedViewModel
 
 /**
  *  Предоставляет internal зависимости модуля
@@ -15,11 +13,7 @@ import ru.nblackie.dictionary.impl.presentation.search.SearchViewModel
  */
 internal interface DictionaryFeatureInternalApi : DictionaryFeatureApi {
 
-    fun dictionaryViewModelProviderFactory(): ViewModelProviderFactory<DictionaryViewModel>
-
-    fun searchViewModelProviderFactory(): ViewModelProviderFactory<SearchViewModel>
-
-    fun editWordViewModelProviderFactory(): ViewModelProviderFactory<PreviewWordViewModel>
-
     fun dictionaryViewModelCreator(): ViewModelAssistedProvideFactory<DictionaryViewModelNew>
+
+    fun sharedViewModel(): ViewModelProviderFactory<SharedViewModel>
 }

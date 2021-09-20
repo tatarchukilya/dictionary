@@ -13,7 +13,7 @@
         android:layout_marginTop="@dimen/standard"
         android:background="@drawable/rectangle_background"
         android:elevation="4dp"
-        android:transitionName="shared_element_container"
+        android:transitionName="@string/dictionary_search_transition"
         app:contentInsetStart="0dp"
         app:contentInsetStartWithNavigation="0dp"
         app:layout_constraintTop_toTopOf="parent"

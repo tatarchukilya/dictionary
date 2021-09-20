@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import ru.nblackie.core.fragment.ContainerFragment
+import ru.nblackie.core.impl.fragment.ContainerFragment
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.di.AppComponent
 

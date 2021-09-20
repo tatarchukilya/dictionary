@@ -3,7 +3,7 @@ package ru.nblackie.exercise.impl.di.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
-import ru.nblackie.core.fragment.ContainerFragment
+import ru.nblackie.core.impl.fragment.ContainerFragment
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.exercise.R
 import ru.nblackie.exercise.impl.presentation.ExerciseContainerFragment

@@ -10,17 +10,17 @@ import ru.nblackie.dictionary.impl.di.internal.DictionaryFeatureInternalApi
 /**
  * @author tatarchukilya@gmail.com
  */
-object DictionaryFeatureHolder : DependencyFeatureHolder<DictionaryFeatureApi, DictionaryDependencies> {
+object DictionaryFeatureHolder : DependencyFeatureHolder<DictionaryFeatureApi, DictionaryDependency> {
 
     private var component: DictionaryFeatureComponent? = null
 
-    override fun init(dependencies: DictionaryDependencies) {
+    override fun init(dependency: DictionaryDependency) {
         Log.i("DictionaryComponentHolder", "init")
         if (component == null) {
             synchronized(DictionaryFeatureHolder::class.java) {
                 if (component == null) {
                     Log.i("DictionaryComponentHolder", "build")
-                    component = DictionaryFeatureComponent.build(dependencies)
+                    component = DictionaryFeatureComponent.build(dependency)
                 }
             }
         }

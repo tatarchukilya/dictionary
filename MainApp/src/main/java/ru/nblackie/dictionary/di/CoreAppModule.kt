@@ -3,8 +3,11 @@ package ru.nblackie.dictionary.di
 import android.content.Context
 import dagger.Module
 import dagger.Provides
+import ru.nblackie.core.api.CoreApi
+import ru.nblackie.core.impl.di.CoreDependency
+import ru.nblackie.core.impl.di.CoreFeatureHolder
 import ru.nblackie.coredb.api.DataBaseApi
-import ru.nblackie.coredb.impl.di.DataBaseDependencies
+import ru.nblackie.coredb.impl.di.DataBaseDependency
 import ru.nblackie.coredb.impl.di.DataBaseFeatureHolder
 import ru.nblackie.dictionary.DictionaryApplication
 import ru.nblackie.remote.api.RestApi
@@ -17,30 +20,40 @@ import javax.inject.Singleton
 @Module
 internal object CoreAppModule {
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideContext(): Context {
         return DictionaryApplication.appContext
     }
 
-    @JvmStatic
     @Singleton
     @Provides
-    fun provideDataBaseDependencies(context: Context): DataBaseDependencies =
-        object : DataBaseDependencies {
+    fun provideDataBaseDependencies(context: Context): DataBaseDependency =
+        object : DataBaseDependency {
             override fun context(): Context = context
         }
 
-    @JvmStatic
     @Singleton
     @Provides
-    fun provideDataBaseApi(dependencies: DataBaseDependencies): DataBaseApi {
+    fun provideDataBaseApi(dependencies: DataBaseDependency): DataBaseApi {
         DataBaseFeatureHolder.init(dependencies)
         return DataBaseFeatureHolder.getApi()
     }
 
-    @JvmStatic
+    @Singleton
+    @Provides
+    fun provideCoreDependency(context: Context): CoreDependency =
+        object : CoreDependency {
+            override fun context(): Context = context
+        }
+
+    @Singleton
+    @Provides
+    fun provideCoreApi(dependency: CoreDependency): CoreApi {
+        CoreFeatureHolder.init(dependency)
+        return CoreFeatureHolder.getApi()
+    }
+
     @Provides
     @Singleton
     fun provideRestApi(): RestApi {

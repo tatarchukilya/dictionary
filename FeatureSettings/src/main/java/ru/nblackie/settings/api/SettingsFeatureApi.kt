@@ -1,7 +1,7 @@
 package ru.nblackie.settings.api
 
 import androidx.navigation.fragment.NavHostFragment
-import ru.nblackie.core.fragment.ContainerFragment
+import ru.nblackie.core.impl.fragment.ContainerFragment
 import ru.nblackie.coredi.FeatureApi
 
 /**

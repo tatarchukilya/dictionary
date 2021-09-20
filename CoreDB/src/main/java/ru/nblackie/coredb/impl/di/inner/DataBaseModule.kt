@@ -14,12 +14,10 @@ import javax.inject.Singleton
 @Module
 internal object DataBaseModule {
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideDb(context: Context): DictionaryDataBase = DictionaryDataBase.getDatabase(context)
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideDao(dataBase: DictionaryDataBase): DictionaryDao = dataBase.dictionaryDao()

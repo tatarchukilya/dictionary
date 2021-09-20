@@ -2,23 +2,23 @@ package ru.nblackie.coredb.impl.di.inner
 
 import dagger.Component
 import ru.nblackie.coredb.api.DataBaseApi
-import ru.nblackie.coredb.impl.di.DataBaseDependencies
+import ru.nblackie.coredb.impl.di.DataBaseDependency
 import javax.inject.Singleton
 
 /**
  * @author tatarchukilya@gmail.com
  */
 @Component(
-    dependencies = [DataBaseDependencies::class],
+    dependencies = [DataBaseDependency::class],
     modules = [DataBaseModule::class]
 )
 @Singleton
 internal abstract class DataBaseComponent : DataBaseApi {
 
     companion object {
-        fun build(dependencies: DataBaseDependencies) =
+        fun build(dependency: DataBaseDependency) =
             DaggerDataBaseComponent.builder()
-                .dataBaseDependencies(dependencies)
+                .dataBaseDependency(dependency)
                 .build()!!
     }
 }

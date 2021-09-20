@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/graph_dictionary"
+    app:startDestination="@id/fragment_dictionary">
+
+    <fragment
+        android:id="@+id/fragment_dictionary"
+        android:name="ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryFragment"
+        android:label="fragment_dictionary"
+        tools:layout="@layout/fragment_dictionary">
+        <action
+            android:id="@+id/dictionary_to_search"
+            app:destination="@id/fragment_search" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_search"
+        android:name="ru.nblackie.dictionary.impl.presentation.search.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/search_to_preview"
+            app:destination="@id/fragment_preview" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_preview"
+        android:name="ru.nblackie.dictionary.impl.presentation.preview.PreviewFragment"
+        android:label="fragment_preview"
+        tools:layout="@layout/fragment_preview">
+        <action
+            android:id="@+id/preview_to_edit"
+            app:destination="@+id/fragment_edit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_edit"
+        android:name="ru.nblackie.dictionary.impl.presentation.edit.EditContentFragment"
+        android:label="fragment_edit"
+        tools:layout="@layout/fragment_edit" />
+    <action
+
+        android:id="@+id/action_global_fragment_search"
+        app:destination="@id/fragment_search" />
+
+</navigation>
