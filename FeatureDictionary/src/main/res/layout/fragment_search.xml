@@ -14,12 +14,12 @@
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            app:navigationIcon="@drawable/ic_arrow_back_24"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:background="?android:colorBackground"
             app:contentInsetStart="@dimen/dynamic_size"
-            app:contentInsetStartWithNavigation="0dp">
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIcon="@drawable/ic_arrow_back_24">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -77,7 +77,6 @@
             <RadioButton
                 android:id="@+id/personal_dictionary"
                 android:layout_width="@dimen/dynamic_size"
-
                 android:layout_height="match_parent"
                 android:layout_weight="@integer/max_weight"
                 android:background="@drawable/round_corners"

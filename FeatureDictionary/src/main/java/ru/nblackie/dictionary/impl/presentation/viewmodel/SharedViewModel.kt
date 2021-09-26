@@ -57,8 +57,8 @@ class SharedViewModel(
             return
         }
         searchJob = viewModelScope.launch {
-            _progressSearch.postValue(true)
             delay(DEBOUNCE)
+            _progressSearch.postValue(true)
             runCatching {
                 useCase.search(input)
             }.onSuccess {
