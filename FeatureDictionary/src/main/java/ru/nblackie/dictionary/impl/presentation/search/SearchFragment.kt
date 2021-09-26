@@ -22,6 +22,7 @@ import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
 import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
 import ru.nblackie.dictionary.impl.presentation.viewmodel.ViewModelFragment
+import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 
 /**
@@ -62,13 +63,6 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
         setUpView(view)
         setUpToolbar(view)
         setUpObserver()
-        searchToggle.viewTreeObserver.addOnGlobalLayoutListener(object :
-            ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                searchToggle.translationY = -searchToggle.height.toFloat()
-                searchToggle.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-        })
     }
 
     override fun onResume() {
@@ -99,6 +93,17 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
     private fun setUpView(view: View) {
         view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
         searchToggle = view.findViewById(R.id.search_toggle)
+        if (input.isNotEmpty()) { // Если слово поиска пустое, скрыть [searchToggle]
+            searchToggle.viewTreeObserver.addOnGlobalLayoutListener(object :
+                OnGlobalLayoutListener1 {
+                override fun onGlobalLayout() {
+                    if (input.isEmpty()) {
+                        searchToggle.translationY = -searchToggle.height.toFloat()
+                    }
+                    searchToggle.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            })
+        }
         progressBar = view.findViewById(R.id.progressbar)
         searchView = view.findViewById(R.id.input_query_view)
         searchView.showKeyboard()
