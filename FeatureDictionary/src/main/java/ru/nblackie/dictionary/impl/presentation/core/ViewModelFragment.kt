@@ -9,7 +9,7 @@ import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 /**
  * @author tatarchukilya@gmail.com
  */
-open class ViewModelFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes) {
+internal open class ViewModelFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes) {
 
     protected val viewModel: SharedViewModel by navGraphViewModels(R.id.graph_dictionary) {
         DictionaryFeatureHolder.getInternalApi().sharedViewModel()
