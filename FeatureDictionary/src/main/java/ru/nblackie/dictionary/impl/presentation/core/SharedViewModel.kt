@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.viewmodel
+package ru.nblackie.dictionary.impl.presentation.core
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -16,6 +16,13 @@ import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 
+
+internal interface ViewState
+
+internal typealias MutableState = MutableLiveData<out ViewState>
+
+internal typealias LiveState = LiveData<out ViewState>
+
 /**
  * @author tatarchukilya@gmail.com
  */
@@ -26,15 +33,20 @@ internal class SharedViewModel(
 
     private var searchJob: Job? = null
 
+    private val _edited = MutableState()
+    private val edited : LiveState
+        get() = _edited
+
     //Edit
     private var editedTranslationData = Pair(-1, "")
         set(value) {
             field = value
-            _editTranscription.postValue(field.second)
+            _editTranslation.postValue(field.second)
         }
-    private val _editTranscription = MutableLiveData<String>()
+
+    private val _editTranslation = MutableLiveData<String>()
     val editTranslation: LiveData<String>
-        get() = _editTranscription
+        get() = _editTranslation
 
     // Preview
     private var word: Word = Word()
@@ -164,5 +176,10 @@ internal class SharedViewModel(
         private const val DEBOUNCE = 300L
     }
 
-    
+    data class EditState(
+        val title: String = "",
+        val string: String = "",
+        val position: Int = -1,
+        val wasChanged: Boolean = false
+    ) : ViewState
 }

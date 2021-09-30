@@ -23,6 +23,7 @@ fun EditText.showKeyboard() {
     requestFocus()
     ContextCompat.getSystemService(context, InputMethodManager::class.java)
         ?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+    setSelection(text.length)
 }
 
 fun Activity.hideKeyboard() {
@@ -39,9 +40,8 @@ fun Activity.hideKeyboard() {
 }
 
 @ColorInt
-fun Activity.getPrimaryTextColor(@AttrRes attr: Int): Int {
+fun Activity.getColorByAttr(@AttrRes attr: Int): Int {
     val typedValue = TypedValue()
-    //val theme: Theme = theme
     theme.resolveAttribute(attr, typedValue, true)
     val arr: TypedArray = obtainStyledAttributes(
         typedValue.data, intArrayOf(attr)
@@ -49,17 +49,10 @@ fun Activity.getPrimaryTextColor(@AttrRes attr: Int): Int {
     return arr.getColor(0, -1)
 }
 
-@ColorInt
-fun Activity.getColorByAttr(@AttrRes attr: Int): Int {
-    val typedValue = TypedValue()
-    theme.resolveAttribute(attr, typedValue, true)
-    return typedValue.data
-}
-
 fun Activity.getTintDrawableByAttr(@DrawableRes drawableResId: Int, @AttrRes attrResId: Int): Drawable? {
     val drawable = ResourcesCompat.getDrawable(resources, drawableResId, theme)
     if (drawable != null) {
-        val color = getPrimaryTextColor(attrResId)
+        val color = this.getColorByAttr(attrResId)
         DrawableCompat.setTint(drawable, color)
     }
     return drawable

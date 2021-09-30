@@ -9,6 +9,8 @@ import ru.nblackie.core.impl.viewmodel.*
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.dictionary.R
+import ru.nblackie.dictionary.impl.data.cache.Cache
+import ru.nblackie.dictionary.impl.data.cache.CacheImpl
 import ru.nblackie.dictionary.impl.data.remote.DictionaryApiMapper
 import ru.nblackie.dictionary.impl.data.remote.DictionaryApiMapperImpl
 import ru.nblackie.dictionary.impl.data.repository.DictionaryRepositoryImpl
@@ -17,7 +19,7 @@ import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.dictionary.impl.presentation.DictionaryStackFragment
 import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
-import ru.nblackie.dictionary.impl.presentation.viewmodel.SharedViewModel
+import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 
 /**
@@ -25,6 +27,10 @@ import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
  */
 @Module
 internal object DictionaryFeatureModule {
+
+    @Provides
+    @PerFeature
+    fun provideCache(): Cache<String> = CacheImpl()
 
     @Provides
     @PerFeature

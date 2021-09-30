@@ -7,4 +7,4 @@ import ru.nblackie.remote.impl.dictionary.model.Word
  * @author tatarchukilya@gmail.com
  */
 
-fun Word.toItem(): SearchWordItem = SearchWordItem(word, translation, transcription)
+fun Word.toItem(): SearchWordItem = SearchWordItem(word, translation, transcription, false)

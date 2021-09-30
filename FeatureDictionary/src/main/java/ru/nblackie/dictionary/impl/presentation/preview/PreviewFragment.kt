@@ -4,25 +4,22 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
-import androidx.navigation.navGraphViewModels
+import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.RecyclerView
 import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
-import ru.nblackie.dictionary.impl.domain.model.PreviewDataItem
-import ru.nblackie.dictionary.impl.presentation.preview.recycler.PreviewDataViewHolder
-import ru.nblackie.dictionary.impl.presentation.viewmodel.SharedViewModel
-import ru.nblackie.dictionary.impl.presentation.viewmodel.ViewModelFragment
+import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
+import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
+import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 
 
 /**
  * @author tatarchukilya@gmail.com
  */
-class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
+internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var toolbar: Toolbar
@@ -39,6 +36,10 @@ class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
         setUpObserver()
+        postponeEnterTransition()
+        recyclerView.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     private fun setUpToolbar(view: View) {
@@ -51,10 +52,13 @@ class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_preview, menu)
-        viewModel.isAdded.observe(viewLifecycleOwner, { isAdded ->
+        viewModel.selectedItem.observe(viewLifecycleOwner, { data ->
             activity?.let {
-                menu.findItem(R.id.item_add).icon = if (isAdded) {
-                    it.getTintDrawableByAttr(R.drawable.ic_bookmark_24, android.R.attr.colorPrimary)
+                menu.findItem(R.id.item_add).icon = if (data.isAdded) {
+                    it.getTintDrawableByAttr(
+                        R.drawable.ic_bookmark_24,
+                        R.attr.colorSecondary
+                    )
                 } else {
                     it.getTintDrawableByAttr(
                         R.drawable.ic_bookmark_border_24,
@@ -74,11 +78,9 @@ class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
     }
 
     private fun setUpObserver() {
-        viewModel.selectedWord.observe(viewLifecycleOwner, {
-            toolbar.title = it.firstCharUpperCase()
-        })
-        viewModel.selectedWordData.observe(viewLifecycleOwner, {
-            adapter.items = it
+        viewModel.selectedItem.observe(viewLifecycleOwner, {
+            toolbar.title = it.word.firstCharUpperCase()
+            adapter.items = it.items.toMutableList()
         })
     }
 
@@ -95,10 +97,18 @@ class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
             parent: ViewGroup,
             viewType: Int
         ): BindViewHolder<ListItem> = when (viewType) {
-            PreviewDataItem.VIEW_TYPE -> PreviewDataViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.view_bind_content, parent, false)
-            )
+            R.layout.view_transcription_title -> {
+                TranscriptionViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.view_transcription_title, parent, false)
+                )
+            }
+            R.layout.view_translation -> {
+                TranslationViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.view_translation, parent, false)
+                )
+            }
             else -> throw java.lang.IllegalArgumentException("Illegal viewType $viewType")
         } as BindViewHolder<ListItem>
 
@@ -113,5 +123,9 @@ class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
         override fun getItemCount(): Int = items.size
 
         override fun getItemViewType(position: Int): Int = items[position].viewType()
+
+        private fun clickAction(transitionView: View, position: Int) {
+
+        }
     }
 }

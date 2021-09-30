@@ -1,4 +1,7 @@
-package ru.nblackie.corecache.api.cache
+package ru.nblackie.dictionary.impl.data.cache
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * @author tatarchukilya@gmail.com
@@ -11,7 +14,9 @@ interface Cache<K> {
 
     fun <V> put(key: K, value: V)
 
-    fun <V> get(key: K, clazz: Class<V>, getDataFun: (K) -> V): V {
-        return getIfExist(key, clazz) ?: getDataFun(key).also { put(key, it) }
+    suspend fun <V> get(key: K, clazz: Class<V>, getDataFun: suspend (K) -> V): V {
+        return withContext(Dispatchers.IO) {
+            getIfExist(key, clazz) ?: getDataFun(key).also { put(key, it) }
+        }
     }
 }

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -16,17 +17,60 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:background="?android:colorBackground"
-            android:transitionName="search_preview_transition"
-            app:navigationIcon="@drawable/ic_arrow_back_24" />
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            tools:layout_height="64dp" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <EditText
+        android:id="@+id/edit_text"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dynamic_size"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-        tools:listitem="@layout/view_word" />
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/large"
+        android:autofillHints="no"
+        android:hint="@string/translation"
+        android:inputType="text"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+    <ImageView
+        android:id="@+id/save_image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/save"
+        android:src="@drawable/ic_check_circle_24"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/edit_text"
+        app:layout_constraintTop_toTopOf="@+id/edit_text"
+        app:tint="?colorPrimary"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/rollback_image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@android:string/cancel"
+        android:src="@drawable/ic_replay_24"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/save_image_view"
+        app:layout_constraintTop_toTopOf="@id/edit_text"
+        app:tint="?colorPrimary"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/large"
+        android:enabled="false"
+        android:text="@string/save"
+        android:textAllCaps="false"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text"
+        tools:enabled="true"
+        tools:visibility="visible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

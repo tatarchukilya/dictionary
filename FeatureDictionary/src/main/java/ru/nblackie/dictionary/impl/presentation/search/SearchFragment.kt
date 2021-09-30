@@ -21,9 +21,8 @@ import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
 import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
-import ru.nblackie.dictionary.impl.presentation.viewmodel.ViewModelFragment
+import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
-
 
 /**
  * @author tatarchukilya@gmail.com
@@ -53,7 +52,6 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel.logAttach(this.javaClass.simpleName)
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             scrimColor = resources.getColor(android.R.color.transparent, activity?.theme)
         }
@@ -67,7 +65,12 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
 
     override fun onResume() {
         super.onResume()
-        viewModel.clearSelected()
+        searchView.isEnabled = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        searchView.isEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -93,17 +96,16 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
     private fun setUpView(view: View) {
         view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
         searchToggle = view.findViewById(R.id.search_toggle)
-        if (input.isNotEmpty()) { // Если слово поиска пустое, скрыть [searchToggle]
-            searchToggle.viewTreeObserver.addOnGlobalLayoutListener(object :
-                OnGlobalLayoutListener1 {
-                override fun onGlobalLayout() {
-                    if (input.isEmpty()) {
-                        searchToggle.translationY = -searchToggle.height.toFloat()
-                    }
-                    searchToggle.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        searchToggle.viewTreeObserver.addOnGlobalLayoutListener(object :
+            OnGlobalLayoutListener1 {
+            override fun onGlobalLayout() {
+                if (input.isEmpty()) { // Если слово поиска пустое, скрыть [searchToggle]
+                    searchToggle.translationY = -searchToggle.height.toFloat()
                 }
-            })
-        }
+                searchToggle.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        })
+
         progressBar = view.findViewById(R.id.progressbar)
         searchView = view.findViewById(R.id.input_query_view)
         searchView.showKeyboard()

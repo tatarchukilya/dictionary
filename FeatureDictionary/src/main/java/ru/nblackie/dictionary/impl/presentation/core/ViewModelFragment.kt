@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.viewmodel
+package ru.nblackie.dictionary.impl.presentation.core
 
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment

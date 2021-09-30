@@ -8,7 +8,8 @@ import ru.nblackie.core.impl.recycler.ListItem
 data class SearchWordItem(
     val word: String,
     val translation: List<String>,
-    val transcription: String
+    val transcription: String,
+    var isAdded: Boolean
 ) : ListItem {
     override fun viewType() = VIEW_TYPE
 

@@ -12,6 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Core" />
+            <option value="$PROJECT_DIR$/CoreCache" />
             <option value="$PROJECT_DIR$/CoreDB" />
             <option value="$PROJECT_DIR$/CoreDI" />
             <option value="$PROJECT_DIR$/CoreRemote" />

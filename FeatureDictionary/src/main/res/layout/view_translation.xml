@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/translation"
+        android:layout_width="@dimen/dynamic_size"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/standard"
+        android:layout_marginStart="@dimen/extra_large"
+        android:layout_weight="@integer/max_weight"
+        android:padding="@dimen/small"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="@dimen/textStandard"
+        tools:text="@string/translation" />
+
+    <ImageView
+        android:id="@+id/add_exercise_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/standard"
+        android:layout_marginEnd="@dimen/large"
+        android:background="?selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="@string/add"
+        android:focusable="true"
+        android:src="@drawable/ic_check_circle_24" />
+
+</LinearLayout>

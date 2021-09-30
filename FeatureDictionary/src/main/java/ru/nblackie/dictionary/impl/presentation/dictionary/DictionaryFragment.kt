@@ -5,14 +5,10 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
-import ru.nblackie.dictionary.impl.presentation.viewmodel.SharedViewModel
-import ru.nblackie.dictionary.impl.presentation.viewmodel.ViewModelFragment
+import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 
 /**
  * @author tatarchukilya@gmail.com
@@ -23,7 +19,6 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpToolbar(view)
-        viewModel.logAttach(this.javaClass.simpleName)
     }
 
     private fun setUpToolbar(view: View) {
