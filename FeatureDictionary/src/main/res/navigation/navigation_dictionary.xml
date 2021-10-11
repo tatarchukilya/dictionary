@@ -31,7 +31,16 @@
         <action
             android:id="@+id/preview_to_edit"
             app:destination="@+id/fragment_edit" />
+        <action
+            android:id="@+id/preview_to_edit_dialog"
+            app:destination="@id/edit_dialog" />
     </fragment>
+
+    <dialog
+        android:id="@+id/edit_dialog"
+        android:name="ru.nblackie.dictionary.impl.presentation.edit.EditBottomSheet"
+        android:label="dialog_edit"
+        tools:layout="@layout/fragment_edit"/>
 
     <fragment
         android:id="@+id/fragment_edit"
@@ -39,8 +48,8 @@
         android:label="fragment_edit"
         tools:layout="@layout/fragment_edit" />
     <action
-
         android:id="@+id/action_global_fragment_search"
         app:destination="@id/fragment_search" />
+
 
 </navigation>

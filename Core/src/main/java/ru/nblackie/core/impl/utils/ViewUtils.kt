@@ -1,8 +1,13 @@
 package ru.nblackie.core.impl.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.TypedArray
+import android.graphics.Insets
+import android.graphics.Point
 import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -13,7 +18,14 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import android.view.Display
+import android.util.DisplayMetrics
 
+import android.view.WindowInsets
+
+import android.view.WindowMetrics
+
+import android.os.Build
 
 /**
  * @author tatarchukilya@gmail.com
@@ -23,7 +35,6 @@ fun EditText.showKeyboard() {
     requestFocus()
     ContextCompat.getSystemService(context, InputMethodManager::class.java)
         ?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
-    setSelection(text.length)
 }
 
 fun Activity.hideKeyboard() {
@@ -57,3 +68,18 @@ fun Activity.getTintDrawableByAttr(@DrawableRes drawableResId: Int, @AttrRes att
     }
     return drawable
 }
+
+fun Activity.screenHeight(): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
+        // val insets: Insets = windowMetrics.windowInsets
+        //     .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        windowMetrics.bounds
+        windowMetrics.bounds.height()
+    } else {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        displayMetrics.heightPixels
+    }
+}
+

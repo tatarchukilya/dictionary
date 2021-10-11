@@ -2,8 +2,17 @@ package ru.nblackie.dictionary.impl.presentation.search
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
@@ -19,21 +28,21 @@ import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
-import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
+internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), SearchView {
 
     private var input: String = ""
         set(value) {
             value.isNotEmpty().let {
                 setMenuVisibility(it)
-                toggleState.setVisibility(it)
+                setSwitchVisibility(it)
             }
             if (field != value) {
                 field = value
@@ -45,7 +54,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
     private val toggleState = SearchToggleState()
     private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
-    private lateinit var searchToggle: LinearLayout
+    private lateinit var searchSwitch: LinearLayout
     private lateinit var toolbar: Toolbar
     private val adapter = RecyclerAdapter()
 
@@ -63,23 +72,13 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
         setUpObserver()
     }
 
-    override fun onResume() {
-        super.onResume()
-        searchView.isEnabled = true
-    }
-
-    override fun onPause() {
-        super.onPause()
-        searchView.isEnabled = false
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_search, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.item_clear_search -> {
-            searchView.text.clear()
+            clearSearch()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -95,14 +94,14 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
 
     private fun setUpView(view: View) {
         view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
-        searchToggle = view.findViewById(R.id.search_toggle)
-        searchToggle.viewTreeObserver.addOnGlobalLayoutListener(object :
+        searchSwitch = view.findViewById(R.id.search_toggle)
+        searchSwitch.viewTreeObserver.addOnGlobalLayoutListener(object :
             OnGlobalLayoutListener1 {
             override fun onGlobalLayout() {
                 if (input.isEmpty()) { // Если слово поиска пустое, скрыть [searchToggle]
-                    searchToggle.translationY = -searchToggle.height.toFloat()
+                    hideSwitchNow()
                 }
-                searchToggle.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                searchSwitch.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
 
@@ -114,10 +113,10 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
             .setOnCheckedChangeListener { _, buttonId ->
                 when (buttonId) {
                     R.id.personal_dictionary -> {
-                        Toast.makeText(requireContext(), "Personal", Toast.LENGTH_SHORT).show()
+                        selectLocal()
                     }
                     R.id.general_dictionary -> {
-                        Toast.makeText(requireContext(), "General", Toast.LENGTH_SHORT).show()
+                        selectRemote()
                     }
                 }
             }
@@ -129,8 +128,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
         viewModel.progressSearch.observe(viewLifecycleOwner, { progressBar.isVisible = it })
     }
 
-    private inner class RecyclerAdapter() :
-        ListAdapter<ListItem, BindViewHolder<ListItem>>(ListItemCallback()) {
+    private inner class RecyclerAdapter : ListAdapter<ListItem, BindViewHolder<ListItem>>(ListItemCallback()) {
 
         @Suppress("UNCHECKED_CAST")
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<ListItem> =
@@ -140,8 +138,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
                         .inflate(R.layout.view_empty, parent, false)
                 )
                 SearchWordItem.VIEW_TYPE -> SingleWordViewHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.view_word, parent, false)
+                    LayoutInflater.from(parent.context).inflate(R.layout.view_search_word, parent, false)
                 ) { view, position ->
                     viewHolderClick(view, position)
                 }
@@ -161,11 +158,11 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
         }
 
         private fun viewHolderClick(view: View?, position: Int) {
-            viewModel.select(position)
-            findNavController().navigate(R.id.fragment_preview)
+            select(position)
         }
     }
 
+    //DiffUtil
     private class ListItemCallback : DiffUtil.ItemCallback<ListItem>() {
 
         override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
@@ -189,44 +186,85 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search) {
         }
     }
 
+    override fun setItems(items: List<ListItem>) {
+        adapter.submitList(items)
+    }
+
+    override fun progressVisibility(isVisible: Boolean) {
+        progressBar.isVisible = isVisible
+    }
+
+    override fun clearSearch() {
+        searchView.text.clear()
+    }
+
+    override fun select(position: Int) {
+        viewModel.select(position)
+        findNavController().navigate(R.id.fragment_preview)
+    }
+
+    override fun search(input: String) {
+        viewModel.search(input)
+    }
+
+    override fun selectLocal() {
+        Toast.makeText(requireContext(), "Personal", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun selectRemote() {
+        Toast.makeText(requireContext(), "General", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun hideSwitchNow() {
+        searchSwitch.hideUpNow()
+    }
+
+    override fun setSwitchVisibility(isVisible: Boolean) {
+        toggleState.setSearchSwitchVisibility(isVisible)
+    }
+
+    private fun View.hideUpNow() {
+        translationY = -height.toFloat()
+    }
+
     // Класс, для анимации появления и скрытия searchToggle
     private inner class SearchToggleState {
         private val showAnimator = ValueAnimator().apply {
             duration = 300L
             addUpdateListener {
-                searchToggle.translationY = it.animatedValue as Float
+                searchSwitch.translationY = it.animatedValue as Float
             }
         }
 
         private val hideAnimator = ValueAnimator().apply {
             duration = 300L
             addUpdateListener {
-                searchToggle.translationY = it.animatedValue as Float
+                searchSwitch.translationY = it.animatedValue as Float
             }
         }
 
-        fun setVisibility(isVisible: Boolean) {
-            if (isVisible) showSearchToggle() else hideSearchToggle()
+        fun setSearchSwitchVisibility(isVisible: Boolean) {
+            if (isVisible) showSearchSwitch() else hideSearchSwitch()
         }
 
-        private fun showSearchToggle() {
-            if (searchToggle.translationY == 0f || showAnimator.isRunning) return
+        private fun showSearchSwitch() {
+            if (searchSwitch.translationY == 0f || showAnimator.isRunning) return
             hideAnimator.cancel()
             with(showAnimator) {
-                val from = searchToggle.height - (searchToggle.height - searchToggle.translationY)
+                val from = searchSwitch.height - (searchSwitch.height - searchSwitch.translationY)
                 setFloatValues(from, 0f)
                 start()
             }
         }
 
-        private fun hideSearchToggle() {
-            if (searchToggle.translationY == -searchToggle.height.toFloat() || hideAnimator.isRunning) {
+        private fun hideSearchSwitch() {
+            if (searchSwitch.translationY == -searchSwitch.height.toFloat() || hideAnimator.isRunning) {
                 return
             }
             showAnimator.cancel()
             with(hideAnimator) {
-                val from = searchToggle.height - (searchToggle.height - searchToggle.translationY)
-                setFloatValues(from, -searchToggle.height.toFloat())
+                val from = searchSwitch.height - (searchSwitch.height - searchSwitch.translationY)
+                setFloatValues(from, -searchSwitch.height.toFloat())
                 start()
             }
         }

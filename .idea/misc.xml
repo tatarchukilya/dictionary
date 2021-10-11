@@ -37,6 +37,7 @@
         <entry key="FeatureDictionary/src/main/res/drawable/clear_background.xml" value="0.2037037037037037" />
         <entry key="FeatureDictionary/src/main/res/drawable/color_state_material_toggle_button.xml" value="0.22777777777777777" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_add_24.xml" value="0.18055555555555555" />
+        <entry key="FeatureDictionary/src/main/res/drawable/ic_baseline_add_24.xml" value="0.24722222222222223" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_bookmark_24.xml" value="0.18333333333333332" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_bookmark_border_24.xml" value="0.18333333333333332" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_cancel_24.xml" value="0.17314814814814813" />
@@ -46,6 +47,7 @@
         <entry key="FeatureDictionary/src/main/res/drawable/ic_edit_24.xml" value="0.18055555555555555" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_remove_24.xml" value="0.1814814814814815" />
         <entry key="FeatureDictionary/src/main/res/drawable/ic_remove_circle_outline_24.xml" value="0.18333333333333332" />
+        <entry key="FeatureDictionary/src/main/res/drawable/ic_replay_24.xml" value="0.2518518518518518" />
         <entry key="FeatureDictionary/src/main/res/drawable/light_transparent_gradient.xml" value="0.22777777777777777" />
         <entry key="FeatureDictionary/src/main/res/drawable/radio_group_background.xml" value="0.17685185185185184" />
         <entry key="FeatureDictionary/src/main/res/drawable/rectangle_background.xml" value="0.19814814814814816" />
@@ -64,10 +66,12 @@
         <entry key="FeatureDictionary/src/main/res/layout/view_bind_data.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/view_button.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/view_card.xml" value="0.335" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_edit_bottom_sheet.xml" value="0.19722222222222222" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_content.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_data.xml" value="0.2719612718183204" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_focuss.xml" value="0.375" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_in_focuss.xml" value="0.11277602523659307" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_edit_translation.xml" value="0.2064814814814815" />
         <entry key="FeatureDictionary/src/main/res/layout/view_edit_word.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/view_editable_in_focus.xml" value="0.13324764353041987" />
         <entry key="FeatureDictionary/src/main/res/layout/view_editable_out_of_focus.xml" value="0.363855421686747" />

@@ -1,20 +1,27 @@
 package ru.nblackie.dictionary.impl.presentation.preview
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnPreDraw
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
+import ru.nblackie.dictionary.impl.presentation.actions.Action
+import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
-import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
-
 
 /**
  * @author tatarchukilya@gmail.com
@@ -23,6 +30,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var toolbar: Toolbar
+    private lateinit var fab: FloatingActionButton
 
     private val adapter = RecyclerAdapter()
 
@@ -35,6 +43,11 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
         setUpToolbar(view)
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
+        fab = view.findViewById(R.id.fab)
+        fab.setOnClickListener {
+            viewModel.addTranslation()
+            showEditFragment(it, -1)
+        }
         setUpObserver()
         postponeEnterTransition()
         recyclerView.doOnPreDraw {
@@ -52,7 +65,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_preview, menu)
-        viewModel.selectedItem.observe(viewLifecycleOwner, { data ->
+        viewModel.previewState.observe(viewLifecycleOwner, { data ->
             activity?.let {
                 menu.findItem(R.id.item_add).icon = if (data.isAdded) {
                     it.getTintDrawableByAttr(
@@ -71,17 +84,22 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.item_add -> {
-            viewModel.add()
+            viewModel.addToLocal()
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
     private fun setUpObserver() {
-        viewModel.selectedItem.observe(viewLifecycleOwner, {
+        (viewModel.previewState).observe(viewLifecycleOwner, {
             toolbar.title = it.word.firstCharUpperCase()
             adapter.items = it.items.toMutableList()
         })
+    }
+
+    private fun showEditFragment(view: View, position: Int) {
+        //val extras = FragmentNavigatorExtras(view to view.transitionName)
+        findNavController().navigate(R.id.preview_to_edit_dialog)
     }
 
     private inner class RecyclerAdapter() : RecyclerView.Adapter<BindViewHolder<ListItem>>() {
@@ -89,6 +107,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
         var items = mutableListOf<ListItem>()
             set(value) {
                 field = value
+                // Намеренно. Иначе анимация перехода не работает при возврате
                 notifyDataSetChanged()
             }
 
@@ -107,7 +126,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
                 TranslationViewHolder(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.view_translation, parent, false)
-                )
+                ) { clickAction(it) }
             }
             else -> throw java.lang.IllegalArgumentException("Illegal viewType $viewType")
         } as BindViewHolder<ListItem>
@@ -116,16 +135,18 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
             holder.onBind(items[position])
         }
 
-        override fun onViewRecycled(holder: BindViewHolder<ListItem>) {
-            holder.unbind()
-        }
-
         override fun getItemCount(): Int = items.size
 
         override fun getItemViewType(position: Int): Int = items[position].viewType()
 
-        private fun clickAction(transitionView: View, position: Int) {
-
+        private fun clickAction(action: Action) {
+            (action as Action.Click).run {
+                // viewModel.selectTranslation(position)
+                viewModel.selectTranslation(position)
+                showEditFragment(view, position)
+                //     TranslationDialogFragment()
+                // }.show(childFragmentManager, "tag")
+            }
         }
     }
 }

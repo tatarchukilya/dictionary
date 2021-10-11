@@ -44,6 +44,8 @@ dependencies {
     //Navigation
     implementation deps.navigation.ui
     implementation deps.navigation.fragment_ktx
+    //lifecycle
+    implementation deps.lifecycle.runtime
 
     implementation project(':Core')
     implementation project(':CoreDB')
