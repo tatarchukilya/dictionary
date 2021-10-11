@@ -17,11 +17,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialContainerTransform
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.showKeyboard
@@ -40,16 +44,11 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
 
     private var input: String = ""
         set(value) {
-            value.isNotEmpty().let {
-                setMenuVisibility(it)
-                setSwitchVisibility(it)
-            }
             if (field != value) {
                 field = value
-                viewModel.search(value)
+                search(value)
             }
         }
-    // TODO сохранеие input в arguments
 
     private val toggleState = SearchToggleState()
     private lateinit var searchView: EditText
@@ -95,8 +94,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     private fun setUpView(view: View) {
         view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
         searchSwitch = view.findViewById(R.id.search_toggle)
-        searchSwitch.viewTreeObserver.addOnGlobalLayoutListener(object :
-            OnGlobalLayoutListener1 {
+        searchSwitch.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener1 {
             override fun onGlobalLayout() {
                 if (input.isEmpty()) { // Если слово поиска пустое, скрыть [searchToggle]
                     hideSwitchNow()
@@ -120,12 +118,17 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
                     }
                 }
             }
-        setMenuVisibility(searchView.text.isNotEmpty())
     }
 
     private fun setUpObserver() {
-        viewModel.searchResult.observe(viewLifecycleOwner, { adapter.submitList(it) })
-        viewModel.progressSearch.observe(viewLifecycleOwner, { progressBar.isVisible = it })
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.searchState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                progressBar.isVisible = it.progressVisible
+                setMenuVisibility(it.clearVisible)
+                setSwitchVisibility(it.switchVisible)
+                adapter.submitList(it.items)
+            }
+        }
     }
 
     private inner class RecyclerAdapter : ListAdapter<ListItem, BindViewHolder<ListItem>>(ListItemCallback()) {
@@ -223,11 +226,15 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         toggleState.setSearchSwitchVisibility(isVisible)
     }
 
+    override fun setProgressVisibility(isVisible: Boolean) {
+        progressBar.isVisible = isVisible
+    }
+
     private fun View.hideUpNow() {
         translationY = -height.toFloat()
     }
 
-    // Класс, для анимации появления и скрытия searchToggle
+    // Класс, для анимации появления и скрытия searchToggle. Какой-то костыль
     private inner class SearchToggleState {
         private val showAnimator = ValueAnimator().apply {
             duration = 300L

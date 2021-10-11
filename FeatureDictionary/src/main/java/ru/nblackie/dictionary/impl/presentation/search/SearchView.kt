@@ -24,4 +24,6 @@ interface SearchView {
     fun hideSwitchNow()
 
     fun setSwitchVisibility(isVisible: Boolean)
+
+    fun  setProgressVisibility(isVisible: Boolean)
 }
