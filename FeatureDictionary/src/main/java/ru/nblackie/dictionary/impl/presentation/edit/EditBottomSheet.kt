@@ -75,18 +75,4 @@ internal class EditBottomSheet : BottomSheetDialogFragment() {
         super.onResume()
         editText.showKeyboard()
     }
-
-    companion object {
-        private const val DATA_KEY = "data_key"
-        private const val INDEX_KEY = "index_key"
-
-        fun newInstance(translation: String, index: Int): TranslationDialogFragment {
-            return TranslationDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putString(DATA_KEY, translation)
-                    putInt(INDEX_KEY, index)
-                }
-            }
-        }
-    }
 }

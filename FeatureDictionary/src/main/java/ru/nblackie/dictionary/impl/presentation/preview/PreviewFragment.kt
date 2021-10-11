@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnPreDraw
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ru.nblackie.core.impl.recycler.BindViewHolder
@@ -18,6 +20,8 @@ import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
+import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
+import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.presentation.actions.Action
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
@@ -46,7 +50,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
         fab = view.findViewById(R.id.fab)
         fab.setOnClickListener {
             viewModel.addTranslation()
-            showEditFragment(it, -1)
+            showEditFragment()
         }
         setUpObserver()
         postponeEnterTransition()
@@ -93,23 +97,15 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
     private fun setUpObserver() {
         (viewModel.previewState).observe(viewLifecycleOwner, {
             toolbar.title = it.word.firstCharUpperCase()
-            adapter.items = it.items.toMutableList()
+            adapter.submitList(it.items.toMutableList())
         })
     }
 
-    private fun showEditFragment(view: View, position: Int) {
-        //val extras = FragmentNavigatorExtras(view to view.transitionName)
+    private fun showEditFragment() {
         findNavController().navigate(R.id.preview_to_edit_dialog)
     }
 
-    private inner class RecyclerAdapter() : RecyclerView.Adapter<BindViewHolder<ListItem>>() {
-
-        var items = mutableListOf<ListItem>()
-            set(value) {
-                field = value
-                // Намеренно. Иначе анимация перехода не работает при возврате
-                notifyDataSetChanged()
-            }
+    private inner class RecyclerAdapter : ListAdapter<ListItem, BindViewHolder<ListItem>>(ListItemCallback()) {
 
         @Suppress("UNCHECKED_CAST")
         override fun onCreateViewHolder(
@@ -132,20 +128,39 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
         } as BindViewHolder<ListItem>
 
         override fun onBindViewHolder(holder: BindViewHolder<ListItem>, position: Int) {
-            holder.onBind(items[position])
+            holder.onBind(getItem(position))
         }
 
-        override fun getItemCount(): Int = items.size
-
-        override fun getItemViewType(position: Int): Int = items[position].viewType()
+        override fun getItemViewType(position: Int): Int = getItem(position).viewType()
 
         private fun clickAction(action: Action) {
             (action as Action.Click).run {
-                // viewModel.selectTranslation(position)
                 viewModel.selectTranslation(position)
-                showEditFragment(view, position)
-                //     TranslationDialogFragment()
-                // }.show(childFragmentManager, "tag")
+                showEditFragment()
+            }
+        }
+    }
+
+    //DiffUtil
+    private class ListItemCallback : DiffUtil.ItemCallback<ListItem>() {
+
+        override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+            if (oldItem.viewType() == newItem.viewType()) {
+                return when (oldItem) {
+                    is TranslationItem -> {
+                        oldItem.translation == (newItem as TranslationItem).translation
+                    }
+                    else -> true
+                }
+            }
+            return false
+        }
+
+        override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+            return if (oldItem is TranscriptionItem) {
+                true
+            } else {
+                (oldItem as TranslationItem) == newItem as TranslationItem
             }
         }
     }
