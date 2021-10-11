@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
@@ -16,47 +18,30 @@ import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 
-
-internal interface ViewState
-
-internal typealias MutableState = MutableLiveData<out ViewState>
-
-internal typealias LiveState = LiveData<out ViewState>
-
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class SharedViewModel(
-    private val useCase: DictionaryUseCase,
-    private val resourceManager: ResourceManager
-) : ViewModel() {
+internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewModel() {
 
     private var searchJob: Job? = null
 
-    private val _edited = MutableState()
-    private val edited : LiveState
-        get() = _edited
+    //Selected Word
+    private var previewData = PreviewData()
+        set(value) {
+            field = value
+            _previewState.postValue(value.toPreviewState())
+        }
+
+    //Preview
+    private val _previewState = MutableLiveData<PreviewState>()
+    val previewState: LiveData<PreviewState>
+        get() = _previewState
 
     //Edit
-    private var editedTranslationData = Pair(-1, "")
-        set(value) {
-            field = value
-            _editTranslation.postValue(field.second)
-        }
+    private val _editedState = MutableStateFlow(EditState())
 
-    private val _editTranslation = MutableLiveData<String>()
-    val editTranslation: LiveData<String>
-        get() = _editTranslation
-
-    // Preview
-    private var word: Word = Word()
-        set(value) {
-            field = value
-            _selectedItem.postValue(value.toWordData())
-        }
-    private val _selectedItem = MutableLiveData<WordData>()
-    val selectedItem: LiveData<WordData>
-        get() = _selectedItem
+    val editedState: StateFlow<EditState>
+        get() = _editedState.asStateFlow()
 
     //Search
     private val _progressSearch = MutableLiveData<Boolean>()
@@ -103,74 +88,73 @@ internal class SharedViewModel(
 
     //Preview
     fun select(position: Int) {
-        (_searchResult.value?.get(position) as SearchWordItem).let {
-            word = it.toWord()
+        (searchResult.value?.get(position) as SearchWordItem).let {
+            val newState = PreviewData(
+                it.word, it.transcription, mutableListOf<Pair<String, Boolean>>().apply {
+                    it.translation.forEach { str ->
+                        add(Pair(str, false))
+                    }
+                }
+            )
+            previewData = newState
         }
     }
 
-    fun saveTranslation() {
-        editedTranslationData.first.let { index ->
-            word.translation[index] = editedTranslationData.second
-            _selectedItem.postValue(word.toWordData())
+    fun addToLocal() {
+        //TODO save to db
+        val newState = previewData.copy(isAdded = !previewData.isAdded)
+        previewData = newState
+    }
+
+    fun selectTranslation(position: Int) {
+        val index = position - 1
+        val data = getTranslationByIndex(index)
+        setEditState(data, index)
+    }
+
+    /**Edit**/
+    fun editTranslation(translation: String) {
+        setEditState(translation, editedState.value.position)
+    }
+
+    fun addTranslation() {
+        setEditState("", previewData.translation.size)
+    }
+
+    private fun setEditState(translation: String, position: Int) {
+        val oldData = getTranslationByIndex(position)
+        val newState = EditState("", translation, position, oldData != translation)
+        _editedState.value = newState
+    }
+
+    fun saveChanges() {
+        val newList = previewData.translation.toMutableList()
+        editedState.value.run {
+            if (position > previewData.translation.lastIndex) {
+                newList.add(Pair(editedState.value.translation, false))
+            } else {
+                when (translation.isBlank()) {
+                    true -> newList.removeAt(position)
+                    false -> newList[position] = newList[position].copy(first = translation)
+                }
+            }
         }
-        //word.translation[position - 1] = string
+        previewData = previewData.copy(translation = newList)
     }
 
-    //Edit
-    fun setEditedTranslation(translation: String, position: Int) {
-        editedTranslationData = Pair(position - 1, translation)
-    }
-
-    fun rollback() {
-        editedTranslationData.first.let { index ->
-            editedTranslationData = Pair(index, word.translation[index])
+    private fun getTranslationByIndex(index: Int): String {
+        return try {
+            previewData.translation[index].first
+        } catch (e: Exception) {
+            ""
         }
     }
 
-    fun setEditedTranslation(string: String) {
-        editedTranslationData = Pair(editedTranslationData.first, string)
-    }
-
+    /**Edit*/
 
     override fun onCleared() {
         searchJob?.cancel()
     }
-
-    fun add() {
-        _selectedItem.value?.let {
-            val newData = it.copy(isAdded = !it.isAdded)
-            _selectedItem.postValue(newData)
-        }
-    }
-
-    private data class Word(
-        val word: String = "",
-        val transcription: String = "",
-        val translation: MutableList<String> = mutableListOf(),
-        val isAdded: Boolean = false
-    )
-
-    internal data class WordData(
-        val word: String,
-        val items: List<ListItem>,
-        val isAdded: Boolean
-    )
-
-    private fun Word.toWordData(): WordData {
-        return WordData(
-            word,
-            mutableListOf<ListItem>().apply {
-                add(TranscriptionItem(transcription))
-                translation.forEachIndexed { index, s ->
-                    add(TranslationItem(s, index % 2 == 0))
-                }
-            }, isAdded
-        )
-    }
-
-    private fun SearchWordItem.toWord(): Word = Word(
-        word, transcription, translation.toMutableList(), isAdded
-    )
 
     companion object {
         private const val DEBOUNCE = 300L
@@ -178,8 +162,32 @@ internal class SharedViewModel(
 
     data class EditState(
         val title: String = "",
-        val string: String = "",
+        val translation: String = "",
         val position: Int = -1,
         val wasChanged: Boolean = false
-    ) : ViewState
+    )
+
+    private data class PreviewData(
+        val word: String = "",
+        val transcription: String = "",
+        var translation: List<Pair<String, Boolean>> = listOf(),
+        val isAdded: Boolean = false
+    )
+
+    data class PreviewState(
+        val word: String,
+        val isAdded: Boolean,
+        val items: List<ListItem>
+    )
+
+    private fun PreviewData.toPreviewState(): PreviewState {
+        return PreviewState(
+            word, isAdded, mutableListOf<ListItem>().apply {
+                add(TranscriptionItem(transcription))
+                translation.forEach {
+                    add(TranslationItem(it.first, it.second))
+                }
+            }
+        )
+    }
 }

@@ -68,7 +68,7 @@ internal object DictionaryFeatureModule {
     }
 
     @Provides
-    fun provideViewModelProviderFactory(useCase: DictionaryUseCase, manager: ResourceManager):
-            ViewModelProviderFactory<SharedViewModel> =
-        ViewModelProviderFactory { SharedViewModel(useCase, manager) }
+    fun provideViewModelProviderFactory(useCase: DictionaryUseCase):
+        ViewModelProviderFactory<SharedViewModel> =
+        ViewModelProviderFactory { SharedViewModel(useCase) }
 }

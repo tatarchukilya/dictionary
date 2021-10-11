@@ -9,7 +9,7 @@ versions.coroutines = "1.5.1"
 versions.dagger = "2.38.1"
 versions.junit = "4.12"
 versions.kotlin = "1.5.21"
-versions.lifecycle = "2.2.0"
+versions.lifecycle = "2.4.0-rc01"
 versions.material = "1.0.0"
 versions.navigation = "2.3.5"
 versions.okhttp_logging_interceptor = "4.9.1"
@@ -38,6 +38,10 @@ kotlin.test = "org.jetbrains.kotlin:kotlin-test-junit:$versions.kotlin"
 kotlin.plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
 kotlin.allopen = "org.jetbrains.kotlin:kotlin-allopen:$versions.kotlin"
 deps.kotlin = kotlin
+
+def lifecycle = [:]
+lifecycle.runtime = "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycle"
+deps.lifecycle = lifecycle
 
 def navigation = [:]
 navigation.runtime = "androidx.navigation:navigation-runtime:$versions.navigation"
