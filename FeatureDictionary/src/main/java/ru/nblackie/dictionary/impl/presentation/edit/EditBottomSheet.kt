@@ -25,7 +25,7 @@ import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 /**
  * @author Ilya Tatarchuk
  */
-internal class EditBottomSheet : BottomSheetDialogFragment() {
+internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
 
     private lateinit var editText: EditText
     private lateinit var saveView: ImageView
@@ -52,12 +52,12 @@ internal class EditBottomSheet : BottomSheetDialogFragment() {
                 }
             }
             doAfterTextChanged {
-                viewModel.editTranslation(it.toString())
+                edit(it.toString())
             }
         }
         saveView = view.findViewById(R.id.save_image_view)
         saveView.setOnClickListener {
-            viewModel.saveChanges()
+            save()
             findNavController().popBackStack()
         }
 
@@ -74,5 +74,13 @@ internal class EditBottomSheet : BottomSheetDialogFragment() {
     override fun onResume() {
         super.onResume()
         editText.showKeyboard()
+    }
+
+    override fun edit(string: String) {
+        viewModel.editTranslation(string)
+    }
+
+    override fun save() {
+        viewModel.saveChanges()
     }
 }

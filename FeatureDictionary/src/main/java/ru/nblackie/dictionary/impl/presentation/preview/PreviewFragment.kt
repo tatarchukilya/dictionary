@@ -10,11 +10,15 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnPreDraw
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.firstCharUpperCase
@@ -22,7 +26,7 @@ import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
-import ru.nblackie.dictionary.impl.presentation.actions.Action
+import ru.nblackie.dictionary.impl.presentation.actions.Event
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
@@ -30,7 +34,7 @@ import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationView
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
+internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), PreviewView {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var toolbar: Toolbar
@@ -69,36 +73,40 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_preview, menu)
-        viewModel.previewState.observe(viewLifecycleOwner, { data ->
-            activity?.let {
-                menu.findItem(R.id.item_add).icon = if (data.isAdded) {
-                    it.getTintDrawableByAttr(
-                        R.drawable.ic_bookmark_24,
-                        R.attr.colorSecondary
-                    )
-                } else {
-                    it.getTintDrawableByAttr(
-                        R.drawable.ic_bookmark_border_24,
-                        android.R.attr.textColorSecondary
-                    )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                activity?.let { activity ->
+                    menu.findItem(R.id.item_add).icon = if (it.isAdded) {
+                        activity.getTintDrawableByAttr(
+                            R.drawable.ic_bookmark_24,
+                            R.attr.colorSecondary
+                        )
+                    } else {
+                        activity.getTintDrawableByAttr(
+                            R.drawable.ic_bookmark_border_24,
+                            android.R.attr.textColorSecondary
+                        )
+                    }
                 }
             }
-        })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.item_add -> {
-            viewModel.addToLocal()
+            addToPersonal()
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
     private fun setUpObserver() {
-        (viewModel.previewState).observe(viewLifecycleOwner, {
-            toolbar.title = it.word.firstCharUpperCase()
-            adapter.submitList(it.items.toMutableList())
-        })
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                toolbar.title = it.word.firstCharUpperCase()
+                setItems(it.items.toMutableList())
+            }
+        }
     }
 
     private fun showEditFragment() {
@@ -133,11 +141,8 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
 
         override fun getItemViewType(position: Int): Int = getItem(position).viewType()
 
-        private fun clickAction(action: Action) {
-            (action as Action.Click).run {
-                viewModel.selectTranslation(position)
-                showEditFragment()
-            }
+        private fun clickAction(event: Event) {
+            selectTranslation(event)
         }
     }
 
@@ -163,5 +168,20 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview) {
                 (oldItem as TranslationItem) == newItem as TranslationItem
             }
         }
+    }
+
+    override fun setItems(items: List<ListItem>) {
+        adapter.submitList(items)
+    }
+
+    override fun selectTranslation(event: Event) {
+        (event as Event.Click).run {
+            viewModel.selectTranslation(position)
+            showEditFragment()
+        }
+    }
+
+    override fun addToPersonal() {
+        viewModel.addToPersonal()
     }
 }

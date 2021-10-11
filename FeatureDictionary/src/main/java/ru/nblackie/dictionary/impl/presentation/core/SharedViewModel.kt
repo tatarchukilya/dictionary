@@ -29,13 +29,13 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private var previewData = PreviewData()
         set(value) {
             field = value
-            _previewState.postValue(value.toPreviewState())
+            _previewState.value = value.toPreviewState()
         }
 
     //Preview
-    private val _previewState = MutableLiveData<PreviewState>()
-    val previewState: LiveData<PreviewState>
-        get() = _previewState
+    private val _previewState = MutableStateFlow(PreviewState())
+    val previewState: StateFlow<PreviewState>
+        get() = _previewState.asStateFlow()
 
     //Edit
     private val _editedState = MutableStateFlow(EditState())
@@ -44,31 +44,30 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         get() = _editedState.asStateFlow()
 
     //Search
-    private val _progressSearch = MutableLiveData<Boolean>()
-    val progressSearch: LiveData<Boolean>
-        get() = _progressSearch
-    private val _searchResult = MutableLiveData<MutableList<ListItem>>()
-    val searchResult: LiveData<MutableList<ListItem>>
-        get() = _searchResult
+    private val _searchState = MutableStateFlow(SearchState())
+    val searchState: StateFlow<SearchState>
+        get() = _searchState.asStateFlow()
 
     fun search(input: String) {
         searchJob?.cancel()
         if (input.isBlank()) {
-            _searchResult.postValue(emptyList())
-            _progressSearch.postValue(false)
+            _searchState.value = SearchState(listOf(),
+                progressVisible = false,
+                clearVisible = false,
+                switchVisible = false
+            )
             return
         }
         searchJob = viewModelScope.launch {
+            _searchState.value =
+                _searchState.value.copy(progressVisible = true, clearVisible = true, switchVisible = true)
             delay(DEBOUNCE)
-            _progressSearch.postValue(true)
             runCatching {
                 useCase.search(input)
             }.onSuccess {
-                _progressSearch.postValue(false)
-                _searchResult.postValue(searchResultList(it))
+                _searchState.value = _searchState.value.copy(items = searchResultList(it), progressVisible = false)
             }.onFailure {
-                _progressSearch.postValue(false)
-                _searchResult.postValue(emptyList())
+                _searchState.value = _searchState.value.copy(items = emptyList(), progressVisible = false)
                 Log.i("<>", "error", it)
             }
         }
@@ -88,10 +87,10 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     //Preview
     fun select(position: Int) {
-        (searchResult.value?.get(position) as SearchWordItem).let {
+        (searchState.value.items[position] as SearchWordItem).run {
             val newState = PreviewData(
-                it.word, it.transcription, mutableListOf<Pair<String, Boolean>>().apply {
-                    it.translation.forEach { str ->
+                word, transcription, mutableListOf<Pair<String, Boolean>>().apply {
+                    translation.forEach { str ->
                         add(Pair(str, false))
                     }
                 }
@@ -100,7 +99,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         }
     }
 
-    fun addToLocal() {
+    fun addToPersonal() {
         //TODO save to db
         val newState = previewData.copy(isAdded = !previewData.isAdded)
         previewData = newState
@@ -160,13 +159,6 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         private const val DEBOUNCE = 300L
     }
 
-    data class EditState(
-        val title: String = "",
-        val translation: String = "",
-        val position: Int = -1,
-        val wasChanged: Boolean = false
-    )
-
     private data class PreviewData(
         val word: String = "",
         val transcription: String = "",
@@ -175,9 +167,23 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     )
 
     data class PreviewState(
-        val word: String,
-        val isAdded: Boolean,
-        val items: List<ListItem>
+        val word: String = "",
+        val isAdded: Boolean = false,
+        val items: List<ListItem> = listOf()
+    )
+
+    data class EditState(
+        val title: String = "",
+        val translation: String = "",
+        val position: Int = -1,
+        val wasChanged: Boolean = false
+    )
+
+    data class SearchState(
+        val items: List<ListItem> = listOf(),
+        val progressVisible: Boolean = false,
+        val clearVisible: Boolean = false,
+        val switchVisible: Boolean = false
     )
 
     private fun PreviewData.toPreviewState(): PreviewState {

@@ -51,7 +51,7 @@ fun Activity.hideKeyboard() {
 }
 
 @ColorInt
-fun Activity.getColorByAttr(@AttrRes attr: Int): Int {
+fun Context.getColorByAttr(@AttrRes attr: Int): Int {
     val typedValue = TypedValue()
     theme.resolveAttribute(attr, typedValue, true)
     val arr: TypedArray = obtainStyledAttributes(
@@ -60,7 +60,7 @@ fun Activity.getColorByAttr(@AttrRes attr: Int): Int {
     return arr.getColor(0, -1)
 }
 
-fun Activity.getTintDrawableByAttr(@DrawableRes drawableResId: Int, @AttrRes attrResId: Int): Drawable? {
+fun Context.getTintDrawableByAttr(@DrawableRes drawableResId: Int, @AttrRes attrResId: Int): Drawable? {
     val drawable = ResourcesCompat.getDrawable(resources, drawableResId, theme)
     if (drawable != null) {
         val color = this.getColorByAttr(attrResId)
