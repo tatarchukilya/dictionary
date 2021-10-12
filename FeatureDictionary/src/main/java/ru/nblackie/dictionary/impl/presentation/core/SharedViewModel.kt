@@ -1,8 +1,6 @@
 package ru.nblackie.dictionary.impl.presentation.core
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -29,13 +27,13 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private var previewData = PreviewData()
         set(value) {
             field = value
-            _previewState.value = value.toPreviewState()
+            _previewStateNew.value = value.toPreviewStateNew()
         }
 
     //Preview
-    private val _previewState = MutableStateFlow(PreviewState())
-    val previewState: StateFlow<PreviewState>
-        get() = _previewState.asStateFlow()
+    private val _previewStateNew = MutableStateFlow(PreviewStateNew())
+    val previewStateNew: StateFlow<PreviewStateNew>
+        get() = _previewStateNew.asStateFlow()
 
     //Edit
     private val _editedState = MutableStateFlow(EditState())
@@ -51,7 +49,8 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     fun search(input: String) {
         searchJob?.cancel()
         if (input.isBlank()) {
-            _searchState.value = SearchState(listOf(),
+            _searchState.value = SearchState(
+                listOf(),
                 progressVisible = false,
                 clearVisible = false,
                 switchVisible = false
@@ -106,9 +105,8 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     }
 
     fun selectTranslation(position: Int) {
-        val index = position - 1
-        val data = getTranslationByIndex(index)
-        setEditState(data, index)
+        val data = getTranslationByIndex(position)
+        setEditState(data, position)
     }
 
     /**Edit**/
@@ -166,11 +164,25 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         val isAdded: Boolean = false
     )
 
-    data class PreviewState(
+    data class PreviewStateNew(
         val word: String = "",
         val isAdded: Boolean = false,
-        val items: List<ListItem> = listOf()
+        val transcriptions: TranscriptionItem? = null,
+        val translations: List<TranslationItem> = listOf()
     )
+
+    private fun PreviewData.toPreviewStateNew(): PreviewStateNew {
+        return PreviewStateNew(
+            word,
+            isAdded,
+            TranscriptionItem(transcription),
+            mutableListOf<TranslationItem>().apply {
+                translation.forEach {
+                    add(TranslationItem(it.first, it.second))
+                }
+            }
+        )
+    }
 
     data class EditState(
         val title: String = "",
@@ -185,15 +197,4 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         val clearVisible: Boolean = false,
         val switchVisible: Boolean = false
     )
-
-    private fun PreviewData.toPreviewState(): PreviewState {
-        return PreviewState(
-            word, isAdded, mutableListOf<ListItem>().apply {
-                add(TranscriptionItem(transcription))
-                translation.forEach {
-                    add(TranslationItem(it.first, it.second))
-                }
-            }
-        )
-    }
 }

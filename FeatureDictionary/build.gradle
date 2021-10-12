@@ -47,6 +47,8 @@ dependencies {
     //lifecycle
     implementation deps.lifecycle.runtime
 
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
+
     implementation project(':Core')
     implementation project(':CoreDB')
     implementation project(':CoreDI')

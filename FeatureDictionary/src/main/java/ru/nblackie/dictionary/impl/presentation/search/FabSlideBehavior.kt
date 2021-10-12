@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.dictionary.search
+package ru.nblackie.dictionary.impl.presentation.search
 
 import android.content.Context
 import android.util.AttributeSet
