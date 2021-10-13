@@ -1,12 +1,15 @@
 package ru.nblackie.dictionary.impl.presentation.edit
 
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.EditText
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
@@ -25,9 +28,9 @@ import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 /**
  * @author Ilya Tatarchuk
  */
-internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
+public class EditBottomSheet : BottomSheetDialogFragment(), EditView {
 
-    private lateinit var editText: EditText
+    private lateinit var editText: CustomEditText
     private lateinit var saveView: ImageView
 
     private val viewModel: SharedViewModel by navGraphViewModels(R.id.graph_dictionary) {
@@ -49,6 +52,8 @@ internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
             onFocusChangeListener = View.OnFocusChangeListener { _, inFocus ->
                 if (inFocus) {
                     dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+                } else {
+                    activity?.onBackPressed()
                 }
             }
             doAfterTextChanged {
