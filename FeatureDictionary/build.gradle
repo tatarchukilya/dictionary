@@ -2,7 +2,6 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id 'kotlin-parcelize'
 }
 
 android {
@@ -44,10 +43,10 @@ dependencies {
     //Navigation
     implementation deps.navigation.ui
     implementation deps.navigation.fragment_ktx
-    //lifecycle
+    //Lifecycle
     implementation deps.lifecycle.runtime
-
-    implementation "androidx.recyclerview:recyclerview:1.2.1"
+    //Recyclerview
+    implementation deps.recyclerview
 
     implementation project(':Core')
     implementation project(':CoreDB')

@@ -65,6 +65,9 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
                 useCase.search(input)
             }.onSuccess {
                 _searchState.value = _searchState.value.copy(items = searchResultList(it), progressVisible = false)
+                it.forEach { item ->
+                    Log.i("<>", "${item.id} ${item.word}")
+                }
             }.onFailure {
                 _searchState.value = _searchState.value.copy(items = emptyList(), progressVisible = false)
                 Log.i("<>", "error", it)
@@ -167,7 +170,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     data class PreviewStateNew(
         val word: String = "",
         val isAdded: Boolean = false,
-        val transcriptions: TranscriptionItem? = null,
+        val transcriptions: List<TranscriptionItem> = listOf(),
         val translations: List<TranslationItem> = listOf()
     )
 
@@ -175,7 +178,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         return PreviewStateNew(
             word,
             isAdded,
-            TranscriptionItem(transcription),
+            listOf(TranscriptionItem(transcription)),
             mutableListOf<TranslationItem>().apply {
                 translation.forEach {
                     add(TranslationItem(it.first, it.second))

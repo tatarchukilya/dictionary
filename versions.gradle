@@ -13,6 +13,7 @@ versions.lifecycle = "2.4.0-rc01"
 versions.material = "1.0.0"
 versions.navigation = "2.3.5"
 versions.okhttp_logging_interceptor = "4.9.1"
+versions.recyclerview = "1.2.1"
 versions.retrofit = "2.9.0"
 versions.room = "2.3.0"
 versions.truth = "1.0.1"
@@ -55,6 +56,8 @@ navigation.safe_args_plugin = "androidx.navigation:navigation-safe-args-gradle-p
 deps.navigation = navigation
 
 deps.okhttp_logging_interceptor = "com.squareup.okhttp3:logging-interceptor:$versions.okhttp_logging_interceptor"
+
+deps.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
 
 def retrofit = [:]
 retrofit.runtime = "com.squareup.retrofit2:retrofit:$versions.retrofit"

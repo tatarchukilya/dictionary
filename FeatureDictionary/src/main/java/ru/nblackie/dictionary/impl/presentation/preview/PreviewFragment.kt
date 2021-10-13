@@ -108,7 +108,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.previewStateNew.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 toolbar.title = it.word.firstCharUpperCase()
-                transcriptionAdapter.item = it.transcriptions
+                transcriptionAdapter.items = it.transcriptions
                 translationAdapter.submitList(it.translations)
             }
         }
@@ -131,10 +131,10 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
     private inner class TranscriptionAdapter : RecyclerView.Adapter<TranscriptionViewHolder>() {
 
-        var item: TranscriptionItem? = null
+        var items: List<TranscriptionItem> = listOf()
             set(value) {
                 field = value
-                notifyItemChanged(0)
+                notifyDataSetChanged()
             }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranscriptionViewHolder {
@@ -143,10 +143,10 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         }
 
         override fun onBindViewHolder(holder: TranscriptionViewHolder, position: Int) {
-            holder.onBind(item ?: return)
+            holder.onBind(items[position])
         }
 
-        override fun getItemCount(): Int = 1
+        override fun getItemCount(): Int = items.size
     }
 
     private inner class TranslationAdapter :
