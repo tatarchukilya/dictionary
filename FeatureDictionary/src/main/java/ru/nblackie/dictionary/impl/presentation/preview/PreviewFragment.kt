@@ -13,14 +13,13 @@ import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.nblackie.core.impl.recycler.BindViewHolder
-import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
@@ -40,7 +39,12 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     private lateinit var toolbar: Toolbar
     private lateinit var fab: FloatingActionButton
 
-    private val adapter = RecyclerAdapter()
+    private val transcriptionAdapter = TranscriptionAdapter()
+    private val translationAdapter = TranslationAdapter()
+    private val concatAdapter = ConcatAdapter(
+        //ConcatAdapter.Config.Builder().setIsolateViewTypes(false).build(),
+        transcriptionAdapter, translationAdapter
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +54,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpToolbar(view)
         recyclerView = view.findViewById(R.id.recycler_view)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = concatAdapter
         fab = view.findViewById(R.id.fab)
         fab.setOnClickListener {
             viewModel.addTranslation()
@@ -74,7 +78,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_preview, menu)
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.previewStateNew.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 activity?.let { activity ->
                     menu.findItem(R.id.item_add).icon = if (it.isAdded) {
                         activity.getTintDrawableByAttr(
@@ -102,76 +106,16 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
     private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.previewStateNew.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 toolbar.title = it.word.firstCharUpperCase()
-                setItems(it.items.toMutableList())
+                transcriptionAdapter.item = it.transcriptions
+                translationAdapter.submitList(it.translations)
             }
         }
     }
 
     private fun showEditFragment() {
         findNavController().navigate(R.id.preview_to_edit_dialog)
-    }
-
-    private inner class RecyclerAdapter : ListAdapter<ListItem, BindViewHolder<ListItem>>(ListItemCallback()) {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): BindViewHolder<ListItem> = when (viewType) {
-            R.layout.view_transcription_title -> {
-                TranscriptionViewHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.view_transcription_title, parent, false)
-                )
-            }
-            R.layout.view_translation -> {
-                TranslationViewHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.view_translation, parent, false)
-                ) { clickAction(it) }
-            }
-            else -> throw java.lang.IllegalArgumentException("Illegal viewType $viewType")
-        } as BindViewHolder<ListItem>
-
-        override fun onBindViewHolder(holder: BindViewHolder<ListItem>, position: Int) {
-            holder.onBind(getItem(position))
-        }
-
-        override fun getItemViewType(position: Int): Int = getItem(position).viewType()
-
-        private fun clickAction(event: Event) {
-            selectTranslation(event)
-        }
-    }
-
-    //DiffUtil
-    private class ListItemCallback : DiffUtil.ItemCallback<ListItem>() {
-
-        override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-            if (oldItem.viewType() == newItem.viewType()) {
-                return when (oldItem) {
-                    is TranslationItem -> {
-                        oldItem.translation == (newItem as TranslationItem).translation
-                    }
-                    else -> true
-                }
-            }
-            return false
-        }
-
-        override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-            return if (oldItem is TranscriptionItem) {
-                true
-            } else {
-                (oldItem as TranslationItem) == newItem as TranslationItem
-            }
-        }
-    }
-
-    override fun setItems(items: List<ListItem>) {
-        adapter.submitList(items)
     }
 
     override fun selectTranslation(event: Event) {
@@ -183,5 +127,52 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
     override fun addToPersonal() {
         viewModel.addToPersonal()
+    }
+
+    private inner class TranscriptionAdapter : RecyclerView.Adapter<TranscriptionViewHolder>() {
+
+        var item: TranscriptionItem? = null
+            set(value) {
+                field = value
+                notifyItemChanged(0)
+            }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranscriptionViewHolder {
+            val view = LayoutInflater.from(context).inflate(R.layout.view_transcription_title, parent, false)
+            return TranscriptionViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: TranscriptionViewHolder, position: Int) {
+            holder.onBind(item ?: return)
+        }
+
+        override fun getItemCount(): Int = 1
+    }
+
+    private inner class TranslationAdapter :
+        ListAdapter<TranslationItem, TranslationViewHolder>(TranslationItemCallback()) {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranslationViewHolder {
+            val view = LayoutInflater.from(context).inflate(R.layout.view_translation, parent, false)
+            return TranslationViewHolder(view) {
+                selectTranslation(it)
+            }
+        }
+
+        override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
+            holder.onBind(getItem(position))
+        }
+    }
+
+    //DiffUtil
+    private class TranslationItemCallback : DiffUtil.ItemCallback<TranslationItem>() {
+
+        override fun areItemsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {
+            return oldItem.translation == newItem.translation
+        }
+
+        override fun areContentsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {
+            return oldItem.translation == newItem.translation
+        }
     }
 }
