@@ -3,23 +3,22 @@ package ru.nblackie.dictionary.impl.di.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
-import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.fragment.ContainerFragment
-import ru.nblackie.core.impl.viewmodel.*
+import ru.nblackie.core.impl.viewmodel.SaveStateViewModelProviderFactory
+import ru.nblackie.core.impl.viewmodel.ViewModelAssistedProvideFactory
+import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.cache.Cache
 import ru.nblackie.dictionary.impl.data.cache.CacheImpl
-import ru.nblackie.dictionary.impl.data.remote.DictionaryApiMapper
-import ru.nblackie.dictionary.impl.data.remote.DictionaryApiMapperImpl
 import ru.nblackie.dictionary.impl.data.repository.DictionaryRepositoryImpl
+import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCaseImpl
-import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.dictionary.impl.presentation.DictionaryStackFragment
-import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
+import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
 import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 
 /**
@@ -43,15 +42,10 @@ internal object DictionaryFeatureModule {
 
     @Provides
     @PerFeature
-    fun provideApiMapper(api: RemoteDictionaryApi): DictionaryApiMapper =
-        DictionaryApiMapperImpl(api)
-
-    @Provides
-    @PerFeature
     fun provideRepository(
-        apiMapper: DictionaryApiMapper,
+        api: RemoteDictionaryApi,
         dao: DictionaryDao
-    ): DictionaryRepository = DictionaryRepositoryImpl(apiMapper, dao)
+    ): DictionaryRepository = DictionaryRepositoryImpl(api, dao)
 
     @Provides
     @PerFeature

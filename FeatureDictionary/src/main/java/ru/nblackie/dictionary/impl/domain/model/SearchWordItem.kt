@@ -6,11 +6,9 @@ import ru.nblackie.core.impl.recycler.ListItem
  * @author tatarchukilya@gmail.com
  */
 data class SearchWordItem(
-    val id: Int,
     val word: String,
     val translation: List<String>,
-    val transcription: String,
-    var isAdded: Boolean
+    val transcription: String
 ) : ListItem {
     override fun viewType() = VIEW_TYPE
 

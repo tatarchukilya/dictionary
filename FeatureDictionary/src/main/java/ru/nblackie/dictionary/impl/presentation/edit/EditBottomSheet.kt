@@ -1,15 +1,11 @@
 package ru.nblackie.dictionary.impl.presentation.edit
 
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
@@ -28,7 +24,7 @@ import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 /**
  * @author Ilya Tatarchuk
  */
-public class EditBottomSheet : BottomSheetDialogFragment(), EditView {
+internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
 
     private lateinit var editText: CustomEditText
     private lateinit var saveView: ImageView

@@ -7,5 +7,9 @@ import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
  */
 interface DictionaryUseCase {
 
-    suspend fun search(input: String): List<SearchWordItem>
+    suspend fun searchRemote(input: String): List<SearchWordItem>
+
+    suspend fun addTranslation(word: String, transcription: String, translation: String)
+
+    suspend fun searchDb(input: String, lang: String = "en"): List<SearchWordItem>
 }

@@ -17,9 +17,7 @@ interface SearchView {
 
     fun search(input: String)
 
-    fun selectLocal()
-
-    fun selectRemote()
+    fun switchSearch(isLocale: Boolean)
 
     fun hideSwitchNow()
 

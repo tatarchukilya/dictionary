@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ru.nblackie.coredb.impl.db.entity.Translation
-import ru.nblackie.coredb.impl.db.entity.Word
+import ru.nblackie.coredb.impl.db.entity.TranslationEntity
+import ru.nblackie.coredb.impl.db.entity.WordEntity
 
 /**
  * @author tatarchukilya@gmail.com
  */
-@Database(entities = [Word::class, Translation::class], version = 1, exportSchema = false)
+@Database(entities = [WordEntity::class, TranslationEntity::class], version = 1, exportSchema = false)
 internal abstract class DictionaryDataBase : RoomDatabase() {
 
     internal abstract fun dictionaryDao(): DictionaryDao
