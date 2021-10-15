@@ -24,4 +24,9 @@
     <color name="turquoise_700">#0097A7</color>
     <color name="yellow_300">#FFF176</color>
     <color name="yellow_500">#FFEB3B</color>
+    
+    <color name="coral">#ff6c2d</color>
+    <color name="orange">#ff4e0d</color>
+    <color name="primary">#0da7ff</color>
+    <color name="primary2">#0df3ff</color>
 </resources>

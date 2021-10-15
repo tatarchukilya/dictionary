@@ -21,7 +21,8 @@ import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
  */
 internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewModel() {
 
-    private var searchJob: Job? = null
+    private var remoteSearchJob: Job? = null
+    private var dbSearchJob: Job? = null
 
     //Selected Word
     private var previewData = PreviewData()
@@ -47,32 +48,65 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         get() = _searchState.asStateFlow()
 
     fun search(input: String) {
-        searchJob?.cancel()
         if (input.isBlank()) {
-            _searchState.value = SearchState(
-                listOf(),
-                progressVisible = false,
-                clearVisible = false,
-                switchVisible = false
-            )
+            clearSearch()
             return
         }
-        searchJob = viewModelScope.launch {
-            _searchState.value =
-                _searchState.value.copy(progressVisible = true, clearVisible = true, switchVisible = true)
+        _searchState.value =
+            _searchState.value.copy(input = input, progressVisible = true, clearVisible = true, switchVisible = true)
+        if (searchState.value.isLocal) searchDb(input) else searchRemote(input)
+    }
+
+    private fun searchRemote(input: String) {
+        // if (input.isBlank()) {
+        //     clearSearch()
+        //     return
+        // }
+        remoteSearchJob = viewModelScope.launch {
+            // _searchState.value =
+            //     _searchState.value.copy(progressVisible = true, clearVisible = true, switchVisible = true)
             delay(DEBOUNCE)
             runCatching {
-                useCase.search(input)
+                useCase.searchRemote(input)
             }.onSuccess {
-                _searchState.value = _searchState.value.copy(items = searchResultList(it), progressVisible = false)
-                it.forEach { item ->
-                    Log.i("<>", "${item.id} ${item.word}")
-                }
+                _searchState.value =
+                    _searchState.value.copy(remoteItems = searchResultList(it), progressVisible = false)
             }.onFailure {
-                _searchState.value = _searchState.value.copy(items = emptyList(), progressVisible = false)
+                _searchState.value = _searchState.value.copy(remoteItems = emptyList(), progressVisible = false)
                 Log.i("<>", "error", it)
             }
         }
+    }
+
+    private fun searchDb(input: String) {
+        dbSearchJob = viewModelScope.launch {
+            delay(DEBOUNCE)
+            runCatching {
+                useCase.searchDb(input)
+            }.onSuccess {
+                _searchState.value = searchState.value.copy(dbItems = searchResultList(it))
+            }.onFailure {
+                Log.i("<>", "error", it)
+            }
+        }
+    }
+
+    private fun clearSearch() {
+        dbSearchJob?.cancel()
+        remoteSearchJob?.cancel()
+        _searchState.value = SearchState(
+            isLocal = true,
+            remoteItems = listOf(),
+            dbItems = listOf(),
+            progressVisible = false,
+            clearVisible = false,
+            switchVisible = false
+        )
+    }
+
+    fun switchSearch(isLocal: Boolean) {
+        _searchState.value = searchState.value.copy(isLocal = isLocal)
+        search(searchState.value.input)
     }
 
     private fun searchResultList(newItems: List<ListItem>): MutableList<ListItem> {
@@ -89,7 +123,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     //Preview
     fun select(position: Int) {
-        (searchState.value.items[position] as SearchWordItem).run {
+        (searchState.value.remoteItems[position] as SearchWordItem).run {
             val newState = PreviewData(
                 word, transcription, mutableListOf<Pair<String, Boolean>>().apply {
                     translation.forEach { str ->
@@ -110,6 +144,20 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     fun selectTranslation(position: Int) {
         val data = getTranslationByIndex(position)
         setEditState(data, position)
+        //Event show editFragment
+    }
+
+    private fun addToDB(position: Int) {
+        viewModelScope.launch {
+            useCase.addTranslation(previewData.word, previewData.transcription, previewData.translation[position].first)
+        }
+    }
+
+    fun handleAction(action: Action) {
+        when (action) {
+            is SelectTranslation -> selectTranslation(action.position)
+            is Add -> addToDB(action.position)
+        }
     }
 
     /**Edit**/
@@ -123,7 +171,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     private fun setEditState(translation: String, position: Int) {
         val oldData = getTranslationByIndex(position)
-        val newState = EditState("", translation, position, oldData != translation)
+        val newState = EditState(translation, position, oldData != translation)
         _editedState.value = newState
     }
 
@@ -153,7 +201,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     /**Edit*/
 
     override fun onCleared() {
-        searchJob?.cancel()
+        remoteSearchJob?.cancel()
     }
 
     companion object {
@@ -188,14 +236,16 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     }
 
     data class EditState(
-        val title: String = "",
         val translation: String = "",
         val position: Int = -1,
         val wasChanged: Boolean = false
     )
 
     data class SearchState(
-        val items: List<ListItem> = listOf(),
+        val input: String = "",
+        val isLocal: Boolean = true,
+        val remoteItems: List<ListItem> = listOf(),
+        val dbItems: List<ListItem> = listOf(),
         val progressVisible: Boolean = false,
         val clearVisible: Boolean = false,
         val switchVisible: Boolean = false

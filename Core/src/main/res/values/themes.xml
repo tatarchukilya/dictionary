@@ -3,17 +3,38 @@
 
     <style name="Theme.Dictionary" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/turquoise_500</item>
-        <item name="colorPrimaryVariant">@color/turquoise_700</item>
+        <!--        <item name="colorPrimary">@color/turquoise_500</item>-->
+        <!--        <item name="colorPrimaryVariant">@color/turquoise_700</item>-->
+        <!--        <item name="colorOnPrimary">@color/white</item>-->
+        <!-- Secondary brand color. -->
+        <!--        <item name="colorSecondary">@color/yellow_300</item>-->
+        <!--        <item name="colorSecondaryVariant">@color/yellow_500</item>-->
+        <!--        <item name="colorOnSecondary">@color/black</item>-->
+        <!-- Status bar color. -->
+
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary2</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/yellow_300</item>
-        <item name="colorSecondaryVariant">@color/yellow_500</item>
+        <item name="colorSecondary">@color/orange</item>
+        <item name="colorSecondaryVariant">@color/coral</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
+
         <item name="android:statusBarColor">?android:colorBackground</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowSharedElementsUseOverlay">false</item>
+    </style>
+
+    <style name="DialogStyle" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary2</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/orange</item>
+        <item name="colorSecondaryVariant">@color/coral</item>
+        <item name="colorOnSecondary">@color/black</item>
     </style>
 
 

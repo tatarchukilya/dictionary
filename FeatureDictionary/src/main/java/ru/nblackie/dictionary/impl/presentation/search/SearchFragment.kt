@@ -12,7 +12,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
@@ -109,14 +108,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         searchView.doAfterTextChanged { input = it.toString() }
         view.findViewById<RadioGroup>(R.id.dictionary_toggle)
             .setOnCheckedChangeListener { _, buttonId ->
-                when (buttonId) {
-                    R.id.personal_dictionary -> {
-                        selectLocal()
-                    }
-                    R.id.general_dictionary -> {
-                        selectRemote()
-                    }
-                }
+                switchSearch(buttonId == R.id.personal_dictionary)
             }
     }
 
@@ -126,7 +118,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
                 progressBar.isVisible = it.progressVisible
                 setMenuVisibility(it.clearVisible)
                 setSwitchVisibility(it.switchVisible)
-                adapter.submitList(it.items)
+                adapter.submitList(if (it.isLocal) it.dbItems else it.remoteItems)
             }
         }
     }
@@ -210,12 +202,8 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         viewModel.search(input)
     }
 
-    override fun selectLocal() {
-        Toast.makeText(requireContext(), "Personal", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun selectRemote() {
-        Toast.makeText(requireContext(), "General", Toast.LENGTH_SHORT).show()
+    override fun switchSearch(isLocale: Boolean) {
+        viewModel.switchSearch(isLocale)
     }
 
     override fun hideSwitchNow() {
