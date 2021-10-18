@@ -6,5 +6,6 @@ package ru.nblackie.dictionary.impl.data.model
 data class SearchResult(
     val word: String,
     val transcription: String?,
-    val translation: List<String>
+    val remoteTranslation: List<String>,
+    val localTranslation: List<String>
 )

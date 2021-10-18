@@ -21,6 +21,10 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
         setUpToolbar(view)
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
     private fun setUpToolbar(view: View) {
         toolbar = view.findViewById<Toolbar>(R.id.toolbar).apply {
             navigationIcon =
@@ -36,10 +40,9 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
     }
 
     private fun toolbarAction() {
-        viewModel.search("")
+        viewModel.setInput("")
         val extras =
             FragmentNavigatorExtras(toolbar to getString(R.string.dictionary_search_transition))
         findNavController().navigate(R.id.fragment_search, null, null, extras)
     }
-
 }

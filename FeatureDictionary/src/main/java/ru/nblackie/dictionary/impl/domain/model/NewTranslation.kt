@@ -5,6 +5,6 @@ package ru.nblackie.dictionary.impl.domain.model
  */
 data class NewTranslation(
     val word: String,
-    val transcription: String,
+    val transcription: String? = null,
     val translation: String
 )

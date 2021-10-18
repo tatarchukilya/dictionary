@@ -79,13 +79,13 @@
         <entry key="FeatureDictionary/src/main/res/layout/view_empty.xml" value="0.1" />
         <entry key="FeatureDictionary/src/main/res/layout/view_preview_title.xml" value="0.25" />
         <entry key="FeatureDictionary/src/main/res/layout/view_prymary_text.xml" value="0.1" />
-        <entry key="FeatureDictionary/src/main/res/layout/view_search_word.xml" value="0.20925925925925926" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_search_word.xml" value="0.3525884986325373" />
         <entry key="FeatureDictionary/src/main/res/layout/view_simple.xml" value="0.4015828672229563" />
         <entry key="FeatureDictionary/src/main/res/layout/view_simple_text.xml" value="0.17108958774462554" />
         <entry key="FeatureDictionary/src/main/res/layout/view_single_word.xml" value="0.13425925925925927" />
         <entry key="FeatureDictionary/src/main/res/layout/view_title.xml" value="1.8422585967839413" />
         <entry key="FeatureDictionary/src/main/res/layout/view_title_secondary.xml" value="0.25" />
-        <entry key="FeatureDictionary/src/main/res/layout/view_transcription_title.xml" value="0.13324764353041987" />
+        <entry key="FeatureDictionary/src/main/res/layout/view_transcription_title.xml" value="0.2940389777492185" />
         <entry key="FeatureDictionary/src/main/res/layout/view_translation.xml" value="0.25" />
         <entry key="FeatureDictionary/src/main/res/layout/view_word.xml" value="0.19040758778473543" />
         <entry key="FeatureDictionary/src/main/res/layout/view_word_detail.xml" value="0.3634085213032581" />
