@@ -14,21 +14,36 @@
         android:layout_marginHorizontal="@dimen/large"
         android:layout_marginTop="@dimen/small"
         android:textAppearance="?attr/textAppearanceBody2"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Rattle" />
 
     <TextView
-        android:id="@+id/translation_text_view"
+        android:id="@+id/local_translation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/large"
+        android:layout_marginTop="@dimen/small"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="?colorSecondary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/word_text_view"
+        tools:text="трещать, греметь" />
+
+    <TextView
+        android:id="@+id/remote_translation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/large"
         android:layout_marginTop="@dimen/small"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/word_text_view"
-        tools:text="трещать, греметь, грохотать, треск, грохот, погремушка, трещотка" />
+        app:layout_constraintTop_toBottomOf="@+id/local_translation"
+        tools:text="грохотать, треск, грохот, погремушка, трещотка" />
 
     <View
         android:layout_width="match_parent"
@@ -38,6 +53,6 @@
         android:background="?android:actionBarDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/translation_text_view" />
+        app:layout_constraintTop_toBottomOf="@+id/remote_translation" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

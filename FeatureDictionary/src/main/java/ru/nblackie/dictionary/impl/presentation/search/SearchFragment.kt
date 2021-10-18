@@ -41,18 +41,11 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutLis
  */
 internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), SearchView {
 
-    private var input: String = ""
-        set(value) {
-            if (field != value) {
-                field = value
-                search(value)
-            }
-        }
-
     private val toggleState = SearchToggleState()
     private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
-    private lateinit var searchSwitch: LinearLayout
+    private lateinit var searchSwitchView: LinearLayout
+    private lateinit var searchRadioGroup: RadioGroup
     private lateinit var toolbar: Toolbar
     private val adapter = RecyclerAdapter()
 
@@ -92,33 +85,38 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
 
     private fun setUpView(view: View) {
         view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
-        searchSwitch = view.findViewById(R.id.search_toggle)
-        searchSwitch.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener1 {
+        searchSwitchView = view.findViewById(R.id.search_toggle)
+        searchSwitchView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener1 {
             override fun onGlobalLayout() {
-                if (input.isEmpty()) { // Если слово поиска пустое, скрыть [searchToggle]
+                if (searchView.text.isEmpty()) {
                     hideSwitchNow()
                 }
-                searchSwitch.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                searchSwitchView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
 
         progressBar = view.findViewById(R.id.progressbar)
         searchView = view.findViewById(R.id.input_query_view)
         searchView.showKeyboard()
-        searchView.doAfterTextChanged { input = it.toString() }
-        view.findViewById<RadioGroup>(R.id.dictionary_toggle)
-            .setOnCheckedChangeListener { _, buttonId ->
-                switchSearch(buttonId == R.id.personal_dictionary)
-            }
+        searchView.doAfterTextChanged {
+            viewModel.setInput(it.toString())
+        }
+        searchRadioGroup = view.findViewById(R.id.dictionary_toggle)
+        searchRadioGroup.setOnCheckedChangeListener { _, buttonId ->
+            switchSearch(buttonId == R.id.personal)
+        }
     }
 
     private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.searchState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
-                progressBar.isVisible = it.progressVisible
-                setMenuVisibility(it.clearVisible)
-                setSwitchVisibility(it.switchVisible)
-                adapter.submitList(if (it.isLocal) it.dbItems else it.remoteItems)
+                if (it.input != searchView.text.toString()) {
+                    searchView.setText(it.input)
+                }
+                setMenuVisibility(it.isClearable)
+                setSwitchVisibility(it.isSwitchable)
+                adapter.submitList(it.items)
+                searchRadioGroup.setState(it.isCache)
             }
         }
     }
@@ -181,6 +179,14 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
     }
 
+    private fun RadioGroup.setState(isPersonal: Boolean) {
+        if (checkedRadioButtonId == R.id.general && isPersonal) {
+            check(R.id.personal)
+        } else if (checkedRadioButtonId == R.id.personal && !isPersonal) {
+            check(R.id.general)
+        }
+    }
+
     override fun setItems(items: List<ListItem>) {
         adapter.submitList(items)
     }
@@ -199,7 +205,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     }
 
     override fun search(input: String) {
-        viewModel.search(input)
+        viewModel.setInput(input)
     }
 
     override fun switchSearch(isLocale: Boolean) {
@@ -207,7 +213,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     }
 
     override fun hideSwitchNow() {
-        searchSwitch.hideUpNow()
+        searchSwitchView.hideUpNow()
     }
 
     override fun setSwitchVisibility(isVisible: Boolean) {
@@ -227,14 +233,14 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         private val showAnimator = ValueAnimator().apply {
             duration = 300L
             addUpdateListener {
-                searchSwitch.translationY = it.animatedValue as Float
+                searchSwitchView.translationY = it.animatedValue as Float
             }
         }
 
         private val hideAnimator = ValueAnimator().apply {
             duration = 300L
             addUpdateListener {
-                searchSwitch.translationY = it.animatedValue as Float
+                searchSwitchView.translationY = it.animatedValue as Float
             }
         }
 
@@ -243,23 +249,23 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
 
         private fun showSearchSwitch() {
-            if (searchSwitch.translationY == 0f || showAnimator.isRunning) return
+            if (searchSwitchView.translationY == 0f || showAnimator.isRunning) return
             hideAnimator.cancel()
             with(showAnimator) {
-                val from = searchSwitch.height - (searchSwitch.height - searchSwitch.translationY)
+                val from = searchSwitchView.height - (searchSwitchView.height - searchSwitchView.translationY)
                 setFloatValues(from, 0f)
                 start()
             }
         }
 
         private fun hideSearchSwitch() {
-            if (searchSwitch.translationY == -searchSwitch.height.toFloat() || hideAnimator.isRunning) {
+            if (searchSwitchView.translationY == -searchSwitchView.height.toFloat() || hideAnimator.isRunning) {
                 return
             }
             showAnimator.cancel()
             with(hideAnimator) {
-                val from = searchSwitch.height - (searchSwitch.height - searchSwitch.translationY)
-                setFloatValues(from, -searchSwitch.height.toFloat())
+                val from = searchSwitchView.height - (searchSwitchView.height - searchSwitchView.translationY)
+                setFloatValues(from, -searchSwitchView.height.toFloat())
                 start()
             }
         }

@@ -2,16 +2,29 @@ package ru.nblackie.dictionary.impl.domain.repository
 
 import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
-import ru.nblackie.remote.impl.dictionary.model.Word
 
 /**
  * @author tatarchukilya@gmail.com
  */
 interface DictionaryRepository {
 
-    suspend fun search(input: String): List<Word>
+    /**
+     * Запрашивает варианты перевода с сервера и подтягивает к ним варианты из БД
+     * @param input введенное пользователем сллово
+     * @param lang язык словаря
+     */
+    suspend fun combineSearch(input: String, lang: String): List<SearchResult>
 
+    /**
+     * Добавить слово с переводом в БД
+     * @param data word, transcription, translation
+     */
     suspend fun add(data: NewTranslation)
 
+    /**
+     * Поиск по БД
+     * @param input введенное слово
+     * @param lang язык словаря
+     */
     suspend fun searchDB(input: String, lang: String): List<SearchResult>
 }
