@@ -2,19 +2,28 @@ package ru.nblackie.dictionary.impl.domain.usecase
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.data.Lang
 import ru.nblackie.dictionary.impl.domain.converter.toItem
+import ru.nblackie.dictionary.impl.domain.converter.toSearchSpannableItem
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
-import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.domain.model.SearchItem
+import ru.nblackie.dictionary.impl.domain.model.SearchSpannableItem
 import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 
 /**
  * @author tatarchukilya@gmail.com
  */
-class DictionaryUseCaseImpl(private val repository: DictionaryRepository) : DictionaryUseCase {
-    override suspend fun combineSearch(input: String, lang: Lang): List<SearchWordItem> {
+internal class DictionaryUseCaseImpl(
+    private val repository: DictionaryRepository,
+    private val resourceManager: ResourceManager
+) : DictionaryUseCase {
+    override suspend fun combineSearch(input: String, lang: Lang): List<SearchSpannableItem> {
         return withContext(Dispatchers.IO) {
-            repository.combineSearch(input, lang.code).map { it.toItem() }
+            repository.combineSearch(input, lang.code)
+                .map {
+                    it.toSearchSpannableItem(resourceManager)
+                }
         }
     }
 
@@ -24,7 +33,7 @@ class DictionaryUseCaseImpl(private val repository: DictionaryRepository) : Dict
         }
     }
 
-    override suspend fun searchDb(input: String, lang: Lang): List<SearchWordItem> {
+    override suspend fun searchDb(input: String, lang: Lang): List<SearchItem> {
         return withContext(Dispatchers.IO) {
             repository.searchDB(input, lang.code).map { it.toItem() }
         }

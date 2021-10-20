@@ -2,6 +2,7 @@ package ru.nblackie.dictionary.di
 
 import dagger.Module
 import dagger.Provides
+import ru.nblackie.core.api.CoreApi
 import ru.nblackie.coredb.api.DataBaseApi
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.dictionary.api.di.DictionaryFeatureApi
@@ -24,13 +25,17 @@ internal object FeatureAppModule {
     @Singleton
     @Provides
     fun provideDictionaryDependencies(
+        coreApi: CoreApi,
         dataBaseApi: DataBaseApi,
         restApi: RestApi
     ): DictionaryDependency =
         object : DictionaryDependency {
-            override fun dictionaryDao() = dataBaseApi.dao()
 
             override fun dictionaryApi() = restApi.dictionaryApi()
+
+            override fun dictionaryDao() = dataBaseApi.dao()
+
+            override fun resourceManager() = coreApi.resourceManager()
         }
 
     @Provides

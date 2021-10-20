@@ -3,6 +3,7 @@ package ru.nblackie.dictionary.impl.di.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
+import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.fragment.ContainerFragment
 import ru.nblackie.core.impl.viewmodel.SaveStateViewModelProviderFactory
 import ru.nblackie.core.impl.viewmodel.ViewModelAssistedProvideFactory
@@ -49,8 +50,11 @@ internal object DictionaryFeatureModule {
 
     @Provides
     @PerFeature
-    fun provideDictionaryUseCase(repository: DictionaryRepository): DictionaryUseCase =
-        DictionaryUseCaseImpl(repository)
+    fun provideDictionaryUseCase(
+        repository: DictionaryRepository,
+        resourceManager: ResourceManager
+    ): DictionaryUseCase =
+        DictionaryUseCaseImpl(repository, resourceManager)
 
     @Provides
     fun provideTempCreator(useCase: DictionaryUseCase): ViewModelAssistedProvideFactory<DictionaryViewModelNew> {

@@ -2,7 +2,6 @@ package ru.nblackie.dictionary.impl.presentation.search
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -19,21 +18,18 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialContainerTransform
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.nblackie.core.impl.recycler.BindViewHolder
-import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.domain.model.EmptyItem
-import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.domain.model.TypedItem
+import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
-import ru.nblackie.dictionary.impl.presentation.search.recycler.EmptyViewHolder
-import ru.nblackie.dictionary.impl.presentation.search.recycler.SingleWordViewHolder
+import ru.nblackie.dictionary.impl.presentation.search.recycler.SearchItemCallback
+import ru.nblackie.dictionary.impl.presentation.search.recycler.viewHolderFactoryMethod
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 /**
@@ -42,12 +38,13 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutLis
 internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), SearchView {
 
     private val toggleState = SearchToggleState()
+    private val adapter = RecyclerAdapter(SearchItemCallback())
+
     private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
     private lateinit var searchSwitchView: LinearLayout
     private lateinit var searchRadioGroup: RadioGroup
     private lateinit var toolbar: Toolbar
-    private val adapter = RecyclerAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,61 +118,20 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
     }
 
-    private inner class RecyclerAdapter : ListAdapter<ListItem, BindViewHolder<ListItem>>(ListItemCallback()) {
+    private inner class RecyclerAdapter(callback: SearchItemCallback) :
+        ListAdapter<TypedItem, BindViewHolder<TypedItem>>(callback) {
 
-        @Suppress("UNCHECKED_CAST")
-        override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<ListItem> =
-            when (type) {
-                EmptyItem.VIEW_TYPE -> EmptyViewHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.view_empty, parent, false)
-                )
-                SearchWordItem.VIEW_TYPE -> SingleWordViewHolder(
-                    LayoutInflater.from(parent.context).inflate(R.layout.view_search_word, parent, false)
-                ) { view, position ->
-                    viewHolderClick(view, position)
-                }
-                else -> throw java.lang.IllegalArgumentException("Illegal viewType $type")
-            } as BindViewHolder<ListItem>
+        override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<TypedItem> =
+            viewHolderFactoryMethod(parent, type) {
+                viewModel.handleAction(it)
+            }
 
-        override fun onBindViewHolder(holder: BindViewHolder<ListItem>, position: Int) {
+        override fun onBindViewHolder(holder: BindViewHolder<TypedItem>, position: Int) {
             holder.onBind(getItem(position))
         }
 
-        override fun onViewRecycled(holder: BindViewHolder<ListItem>) {
-            holder.unbind()
-        }
-
         override fun getItemViewType(position: Int): Int {
-            return getItem(position).viewType()
-        }
-
-        private fun viewHolderClick(view: View?, position: Int) {
-            select(position)
-        }
-    }
-
-    //DiffUtil
-    private class ListItemCallback : DiffUtil.ItemCallback<ListItem>() {
-
-        override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-            if (oldItem.viewType() == newItem.viewType()) {
-                return when (oldItem) {
-                    is SearchWordItem -> {
-                        oldItem.word == (newItem as SearchWordItem).word
-                    }
-                    else -> true
-                }
-            }
-            return false
-        }
-
-        override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-            return if (oldItem is EmptyItem) {
-                true
-            } else {
-                (oldItem as SearchWordItem) == newItem as SearchWordItem
-            }
+            return getItem(position).type.code
         }
     }
 
@@ -187,7 +143,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
     }
 
-    override fun setItems(items: List<ListItem>) {
+    override fun setItems(items: List<TypedItem>) {
         adapter.submitList(items)
     }
 

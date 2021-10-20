@@ -1,13 +1,13 @@
 package ru.nblackie.dictionary.impl.presentation.search
 
-import ru.nblackie.core.impl.recycler.ListItem
+import ru.nblackie.dictionary.impl.domain.model.TypedItem
 
 /**
  * @author Ilya Tatarchuk
  */
-interface SearchView {
+internal interface SearchView {
 
-    fun setItems(items: List<ListItem>)
+    fun setItems(items: List<TypedItem>)
 
     fun progressVisibility(isVisible: Boolean)
 

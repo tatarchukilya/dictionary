@@ -3,13 +3,12 @@ package ru.nblackie.core.impl.utils
 import android.app.Activity
 import android.content.Context
 import android.content.res.TypedArray
-import android.graphics.Insets
-import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
+import android.os.Build
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
+import android.view.WindowMetrics
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.AttrRes
@@ -18,14 +17,6 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import android.view.Display
-import android.util.DisplayMetrics
-
-import android.view.WindowInsets
-
-import android.view.WindowMetrics
-
-import android.os.Build
 
 /**
  * @author tatarchukilya@gmail.com

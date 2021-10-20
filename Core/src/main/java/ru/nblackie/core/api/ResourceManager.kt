@@ -1,5 +1,7 @@
 package ru.nblackie.core.api
 
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 
 /**
@@ -8,4 +10,10 @@ import androidx.annotation.StringRes
 interface ResourceManager {
 
     fun getString(@StringRes resId: Int): String
+
+    fun getColorByAttr(@AttrRes attr: Int): Int
+
+    @ColorInt
+    fun getColor(colorRes: Int): Int
+
 }
