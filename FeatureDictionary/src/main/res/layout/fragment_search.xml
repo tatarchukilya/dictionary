@@ -22,34 +22,34 @@
             app:contentInsetStartWithNavigation="0dp"
             app:navigationIcon="@drawable/ic_arrow_back_24">
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/input_query_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/input_query_view"
-                    android:layout_width="@dimen/dynamic_size"
-                    android:layout_height="match_parent"
-                    android:layout_weight="@integer/max_weight"
-                    android:backgroundTint="@android:color/transparent"
-                    android:hint="@string/search"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:paddingHorizontal="@dimen/small" />
-
-                <ProgressBar
-                    android:id="@+id/progressbar"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center_vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-            </LinearLayout>
+                android:layout_weight="@integer/max_weight"
+                android:backgroundTint="@android:color/transparent"
+                android:hint="@string/search"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:paddingHorizontal="@dimen/small" />
 
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="52dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="cycle"
+        android:indeterminateOnly="true"
+        android:indeterminateTintMode="src_in"
+        android:translationZ="@dimen/min"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/search_toggle"

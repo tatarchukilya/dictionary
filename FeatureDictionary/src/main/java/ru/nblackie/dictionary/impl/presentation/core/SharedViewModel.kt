@@ -71,14 +71,13 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         searchJob = viewModelScope.launch {
             delay(DEBOUNCE)
             runCatching {
+                _searchState.value = searchState.value.copy(inProgress = true)
                 useCase.combineSearch(input)
             }.onSuccess {
-                _searchState.value = searchState.value.copy(items = searchResultList(it))
-                it.forEach { res ->
-                    Log.i("<>", res.toString())
-                }
+                _searchState.value = searchState.value.copy(inProgress = false, items = searchResultList(it))
             }.onFailure {
                 _searchState.value = searchState.value.copy(items = emptyList())
+                _searchState.value = searchState.value.copy(inProgress = false)
                 Log.i("<>", "error", it)
             }
         }
@@ -229,6 +228,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     )
 
     data class SearchState(
+        val inProgress: Boolean = false,
         val input: String = "",
         val isCache: Boolean = true,
         val items: List<TypedItem> = listOf(),
