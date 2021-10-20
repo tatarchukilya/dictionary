@@ -18,6 +18,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialContainerTransform
@@ -45,6 +46,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     private lateinit var searchSwitchView: LinearLayout
     private lateinit var searchRadioGroup: RadioGroup
     private lateinit var toolbar: Toolbar
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +83,14 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     }
 
     private fun setUpView(view: View) {
-        view.findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
+        recyclerView = view.findViewById(R.id.recycler_view)
+        recyclerView.adapter = adapter
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+            }
+        })
+
         searchSwitchView = view.findViewById(R.id.search_toggle)
         searchSwitchView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener1 {
             override fun onGlobalLayout() {
@@ -93,11 +102,13 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         })
 
         progressBar = view.findViewById(R.id.progressbar)
+
         searchView = view.findViewById(R.id.input_query_view)
         searchView.showKeyboard()
         searchView.doAfterTextChanged {
             viewModel.setInput(it.toString())
         }
+
         searchRadioGroup = view.findViewById(R.id.dictionary_toggle)
         searchRadioGroup.setOnCheckedChangeListener { _, buttonId ->
             switchSearch(buttonId == R.id.personal)
@@ -114,6 +125,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
                 setSwitchVisibility(it.isSwitchable)
                 adapter.submitList(it.items)
                 searchRadioGroup.setState(it.isCache)
+                progressBar.isVisible = it.inProgress
             }
         }
     }
