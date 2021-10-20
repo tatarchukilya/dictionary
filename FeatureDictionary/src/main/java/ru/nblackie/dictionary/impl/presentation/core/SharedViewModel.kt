@@ -10,10 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.recycler.ListItem
+import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.domain.model.EmptyItem
-import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.domain.model.SearchItem
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
+import ru.nblackie.dictionary.impl.domain.model.TypedItem
 import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 
 /**
@@ -94,25 +96,25 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         }
     }
 
-    private fun searchResultList(newItems: List<ListItem>): MutableList<ListItem> {
+    private fun searchResultList(newItems: List<TypedItem>): MutableList<TypedItem> {
         return emptyList().apply {
             addAll(1, newItems)
         }
     }
 
-    private fun emptyList(): MutableList<ListItem> {
-        return mutableListOf<ListItem>().apply {
+    private fun emptyList(): MutableList<TypedItem> {
+        return mutableListOf<TypedItem>().apply {
             add(EmptyItem(56))
         }
     }
 
     //Preview
     fun select(position: Int) {
-        (searchState.value.items[position] as SearchWordItem).run {
+        (searchState.value.items[position] as SearchItem).run {
             val newState = PreviewData(
-                word, transcription, mutableListOf<Pair<String, Boolean>>().apply {
-                    translationRemote.forEach { str ->
-                        add(Pair(str, false))
+                word, transcription, mutableListOf<Translation>().apply {
+                    translation.forEach {
+                        add(it)
                     }
                 }
             )
@@ -134,7 +136,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     private fun addToDB(position: Int) {
         viewModelScope.launch {
-            useCase.addTranslation(previewData.word, previewData.transcription, previewData.translation[position].first)
+            useCase.addTranslation(previewData.word, previewData.transcription, previewData.translation[position].data)
         }
     }
 
@@ -164,11 +166,11 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         val newList = previewData.translation.toMutableList()
         editedState.value.run {
             if (position > previewData.translation.lastIndex) {
-                newList.add(Pair(editedState.value.translation, false))
+                newList.add(Translation(editedState.value.translation, false))
             } else {
                 when (translation.isBlank()) {
                     true -> newList.removeAt(position)
-                    false -> newList[position] = newList[position].copy(first = translation)
+                    false -> newList[position] = newList[position].copy(data = translation)
                 }
             }
         }
@@ -177,7 +179,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     private fun getTranslationByIndex(index: Int): String {
         return try {
-            previewData.translation[index].first
+            previewData.translation[index].data
         } catch (e: Exception) {
             ""
         }
@@ -196,7 +198,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private data class PreviewData(
         val word: String = "",
         val transcription: String = "",
-        var translation: List<Pair<String, Boolean>> = listOf(),
+        var translation: List<Translation> = listOf(),
         val isAdded: Boolean = false
     )
 
@@ -214,7 +216,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             listOf(TranscriptionItem(transcription)),
             mutableListOf<TranslationItem>().apply {
                 translation.forEach {
-                    add(TranslationItem(it.first, it.second))
+                    add(TranslationItem(it.data, it.isAdded))
                 }
             }
         )
@@ -229,7 +231,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     data class SearchState(
         val input: String = "",
         val isCache: Boolean = true,
-        val items: List<ListItem> = listOf(),
+        val items: List<TypedItem> = listOf(),
         val isClearable: Boolean = false,
         val isSwitchable: Boolean = false
     )

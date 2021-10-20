@@ -26,10 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/large"
         android:layout_marginTop="@dimen/small"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:textColor="?colorSecondary"
         android:textSize="14sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/word_text_view"
         tools:text="трещать, греметь" />
@@ -41,6 +38,7 @@
         android:layout_marginHorizontal="@dimen/large"
         android:layout_marginTop="@dimen/small"
         android:textSize="14sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/local_translation"
         tools:text="грохотать, треск, грохот, погремушка, трещотка" />

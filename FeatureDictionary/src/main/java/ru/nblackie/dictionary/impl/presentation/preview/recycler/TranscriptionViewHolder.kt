@@ -9,7 +9,7 @@ import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 /**
  * @author tatarchukilya@gmail.com
  */
-class TranscriptionViewHolder(view: View) : BindViewHolder<TranscriptionItem>(view) {
+internal class TranscriptionViewHolder(view: View) : BindViewHolder<TranscriptionItem>(view) {
 
     private val transcriptionView = view.findViewById<TextView>(R.id.transcription)
 

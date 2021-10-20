@@ -1,7 +1,6 @@
 package ru.nblackie.dictionary.impl.data.repository
 
 import ru.nblackie.coredb.impl.db.DictionaryDao
-import ru.nblackie.coredb.impl.db.data.TranslationSearchRow
 import ru.nblackie.dictionary.impl.data.cache.CacheImpl
 import ru.nblackie.dictionary.impl.data.converter.getWords
 import ru.nblackie.dictionary.impl.data.converter.toFullData
@@ -16,7 +15,7 @@ import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
  * @author tatarchukilya@gmail.com
  */
 
-class DictionaryRepositoryImpl(
+internal class DictionaryRepositoryImpl(
     private val api: RemoteDictionaryApi,
     private val dao: DictionaryDao
 ) : DictionaryRepository {
@@ -54,7 +53,7 @@ class DictionaryRepositoryImpl(
      *
      * @param words список слов, для которых нужно получить перевод
      */
-    private suspend fun getTranslation(words: List<String>): Map<String, List<TranslationSearchRow>> {
+    private suspend fun getTranslation(words: List<String>): Translations {
         return dao.getTranslation(words).groupBy {
             it.word
         }
@@ -64,13 +63,10 @@ class DictionaryRepositoryImpl(
      * Совмещает данные с сервера с данными из БД
      */
     private fun combineTranslation(remote: RemoteResult, db: Translations): List<SearchResult> {
-        val result = mutableListOf<SearchResult>()
-        remote.forEach {
-            val localTranslation = mutableListOf<String>()
-            db[it.word]?.forEach { translation ->
-                localTranslation.add(translation.translation)
+        val result = mutableListOf<SearchResult>().apply {
+            remote.forEach {
+                add(it.toSearchResult(db[it.word]))
             }
-            result.add(it.toSearchResult(localTranslation))
         }
         return result
     }

@@ -7,7 +7,7 @@ import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 /**
  * @author tatarchukilya@gmail.com
  */
-class DictionaryViewModelNew(
+internal class DictionaryViewModelNew(
     private val useCase: DictionaryUseCase,
     private val handle: SavedStateHandle
 ) : ViewModel() {

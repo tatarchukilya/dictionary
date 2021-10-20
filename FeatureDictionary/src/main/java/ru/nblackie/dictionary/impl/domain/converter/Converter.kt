@@ -1,16 +1,63 @@
 package ru.nblackie.dictionary.impl.domain.converter
 
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+import ru.nblackie.core.api.ResourceManager
+import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.model.SearchResult
-import ru.nblackie.dictionary.impl.domain.model.SearchWordItem
+import ru.nblackie.dictionary.impl.data.model.Translation
+import ru.nblackie.dictionary.impl.domain.model.SearchItem
+import ru.nblackie.dictionary.impl.domain.model.SearchSpannableItem
 
 /**
  * @author tatarchukilya@gmail.com
  */
 
-fun SearchResult.toItem(): SearchWordItem {
-    val remote = remoteTranslation.toMutableList()
-    localTranslation.forEach {
-        remote.remove(it)
+internal fun SearchResult.toItem(): SearchItem {
+    return SearchItem(word, transcription ?: "", translation, translation.joinTranslation())
+}
+
+fun List<Translation>.toSpannable(resourceManager: ResourceManager): SpannableString {
+    val string = mutableListOf<String>().apply {
+        this@toSpannable.forEach {
+            add(it.data)
+        }
+    }.joinToString()
+    var start = 0
+    var end: Int
+    val spannable = SpannableString(string)
+    forEach {
+        if (it.isAdded) {
+            end = start + it.data.length
+            spannable.setSpan(
+                ForegroundColorSpan(resourceManager.getColor(R.color.lime)),
+                start, end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                StyleSpan(Typeface.BOLD_ITALIC),
+                start, end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            start = end + 2
+        } else {
+            return@forEach
+        }
     }
-    return SearchWordItem(word, transcription ?: "", remote, localTranslation)
+    return spannable
+}
+
+internal fun SearchResult.toSearchSpannableItem(resourceManager: ResourceManager): SearchSpannableItem {
+    return SearchSpannableItem(word, transcription ?: "", translation, translation.toSpannable(resourceManager))
+}
+
+internal fun List<Translation>.joinTranslation(): String {
+    val list = mutableListOf<String>()
+    forEach {
+        list.add(it.data)
+    }
+    return list.joinToString()
 }
