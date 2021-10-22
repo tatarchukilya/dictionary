@@ -1,9 +1,8 @@
 package ru.nblackie.dictionary.impl.domain.usecase
 
 import ru.nblackie.core.impl.data.Lang
-import ru.nblackie.core.impl.data.Lang.*
+import ru.nblackie.core.impl.data.Lang.EN
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
-import ru.nblackie.dictionary.impl.domain.model.SearchSpannableItem
 
 /**
  * @author tatarchukilya@gmail.com
@@ -15,7 +14,7 @@ internal interface DictionaryUseCase {
      * @param input введенное пользователем сллово
      * @param lang на каком языке искать
      */
-    suspend fun combineSearch(input: String, lang: Lang = EN): List<SearchSpannableItem>
+    suspend fun combineSearch(input: String, lang: Lang = EN): List<SearchItem>
 
     /**
      * Добавить слово с переводом в БД

@@ -4,12 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import ru.nblackie.core.impl.recycler.ListItem
 import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
@@ -29,12 +30,12 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private var previewData = PreviewData()
         set(value) {
             field = value
-            _previewStateNew.value = value.toPreviewStateNew()
+            _previewStateNew.value = value.toPreviewState()
         }
 
     //Preview
-    private val _previewStateNew = MutableStateFlow(PreviewStateNew())
-    val previewStateNew: StateFlow<PreviewStateNew>
+    private val _previewStateNew = MutableStateFlow(PreviewState())
+    val previewStateNew: StateFlow<PreviewState>
         get() = _previewStateNew.asStateFlow()
 
     //Edit
@@ -45,12 +46,30 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     //Search
     private val _searchState = MutableStateFlow(SearchState())
-    val searchState: StateFlow<SearchState>
-        get() = _searchState.asStateFlow()
+    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
+
+    private val _searchEvent: Channel<Event> = Channel()
+    val event = _searchEvent.receiveAsFlow()
+
+    fun handleAction(action: Action) {
+        when (action) {
+            is SelectTranslation -> selectTranslation(action.position)
+            is Add -> addToDB(action.position)
+            is SelectWord -> {
+                selectWord(action.position)
+                viewModelScope.launch {
+                    _searchEvent.send(ShowPreview)
+                }
+            }
+        }
+    }
 
     fun setInput(input: String) {
-        _searchState.value = searchState.value.setInput(input)
-        search()
+        if (input != searchState.value.input) {
+            _searchState.value = searchState.value.setInput(input)
+            if (input.isNotBlank())
+                search()
+        }
     }
 
     fun switchSearch(isCache: Boolean) {
@@ -108,16 +127,11 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     }
 
     //Preview
-    fun select(position: Int) {
-        (searchState.value.items[position] as SearchItem).run {
-            val newState = PreviewData(
-                word, transcription, mutableListOf<Translation>().apply {
-                    translation.forEach {
-                        add(it)
-                    }
-                }
-            )
-            previewData = newState
+    fun selectWord(position: Int) {
+        searchState.value.items[position].let {
+            if (it is SearchItem) {
+                PreviewData(it.word, it.transcription, it.translation)
+            }
         }
     }
 
@@ -136,13 +150,6 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private fun addToDB(position: Int) {
         viewModelScope.launch {
             useCase.addTranslation(previewData.word, previewData.transcription, previewData.translation[position].data)
-        }
-    }
-
-    fun handleAction(action: Action) {
-        when (action) {
-            is SelectTranslation -> selectTranslation(action.position)
-            is Add -> addToDB(action.position)
         }
     }
 
@@ -201,17 +208,15 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         val isAdded: Boolean = false
     )
 
-    data class PreviewStateNew(
+    data class PreviewState(
         val word: String = "",
-        val isAdded: Boolean = false,
         val transcriptions: List<TranscriptionItem> = listOf(),
         val translations: List<TranslationItem> = listOf()
     )
 
-    private fun PreviewData.toPreviewStateNew(): PreviewStateNew {
-        return PreviewStateNew(
+    private fun PreviewData.toPreviewState(): PreviewState {
+        return PreviewState(
             word,
-            isAdded,
             listOf(TranscriptionItem(transcription)),
             mutableListOf<TranslationItem>().apply {
                 translation.forEach {
@@ -235,14 +240,6 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         val isClearable: Boolean = false,
         val isSwitchable: Boolean = false
     )
-
-    private fun SearchState.clear(): SearchState {
-        return copy(
-            input = "",
-            isClearable = false,
-            isSwitchable = false
-        )
-    }
 
     private fun SearchState.setInput(input: String): SearchState {
         return this.copy(

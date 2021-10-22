@@ -17,13 +17,13 @@ import ru.nblackie.dictionary.impl.presentation.core.SelectTranslation
 internal class TranslationViewHolder(view: View, val action: (Action) -> Unit) : BindViewHolder<TranslationItem>(view) {
 
     private val translationView = view.findViewById<TextView>(R.id.translation)
-    private val addExerciseButton = view.findViewById<ImageView>(R.id.add_exercise_image)
+    private val addButton = view.findViewById<ImageView>(R.id.add_exercise_image)
 
     init {
         view.setOnClickListener {
             action(SelectTranslation(adapterPosition))
         }
-        addExerciseButton.setOnClickListener {
+        addButton.setOnClickListener {
             action(Add(adapterPosition))
         }
     }
@@ -35,6 +35,6 @@ internal class TranslationViewHolder(view: View, val action: (Action) -> Unit) :
         } else {
             itemView.context.getTintDrawableByAttr(R.drawable.ic_bookmark_border_24, android.R.attr.textColorSecondary)
         }
-        addExerciseButton.setImageDrawable(icon)
+        addButton.setImageDrawable(icon)
     }
 }

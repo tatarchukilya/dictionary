@@ -8,7 +8,6 @@ import ru.nblackie.dictionary.impl.domain.converter.toItem
 import ru.nblackie.dictionary.impl.domain.converter.toSearchSpannableItem
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
-import ru.nblackie.dictionary.impl.domain.model.SearchSpannableItem
 import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 
 /**
@@ -18,7 +17,7 @@ internal class DictionaryUseCaseImpl(
     private val repository: DictionaryRepository,
     private val resourceManager: ResourceManager
 ) : DictionaryUseCase {
-    override suspend fun combineSearch(input: String, lang: Lang): List<SearchSpannableItem> {
+    override suspend fun combineSearch(input: String, lang: Lang): List<SearchItem> {
         return withContext(Dispatchers.IO) {
             repository.combineSearch(input, lang.code)
                 .map {

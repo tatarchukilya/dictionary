@@ -9,6 +9,6 @@ internal data class SearchItem(
     val word: String,
     val transcription: String,
     val translation: List<Translation>,
-    val joinString: String,
+    val joinString: CharSequence,
     override val type: ItemType = ItemType.SEARCH_TEXT,
 ) : TypedItem
