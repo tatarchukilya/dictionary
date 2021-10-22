@@ -220,7 +220,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             listOf(TranscriptionItem(transcription)),
             mutableListOf<TranslationItem>().apply {
                 translation.forEach {
-                    add(TranslationItem(it.data, it.isAdded))
+                    add(TranslationItem(it))
                 }
             }
         )

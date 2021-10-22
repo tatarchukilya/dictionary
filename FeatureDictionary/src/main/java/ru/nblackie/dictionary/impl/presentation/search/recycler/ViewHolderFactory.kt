@@ -11,12 +11,12 @@ import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
 /**
  * @author tatarchukilya@gmail.com
  */
+@Suppress("UNCHECKED_CAST")
 internal fun viewHolderFactoryMethod(
     parent: ViewGroup,
     type: Int,
     actionObserver: (Action) -> Unit
 ): BindViewHolder<TypedItem> {
-    @Suppress("UNCHECKED_CAST")
     return when (type) {
         ItemType.EMPTY.code -> EmptyViewHolder.create(parent)
         ItemType.SEARCH_TEXT.code -> SearchViewHolder(
