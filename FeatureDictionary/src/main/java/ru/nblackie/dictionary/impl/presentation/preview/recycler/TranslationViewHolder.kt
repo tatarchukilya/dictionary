@@ -29,8 +29,8 @@ internal class TranslationViewHolder(view: View, val action: (Action) -> Unit) :
     }
 
     override fun onBind(item: TranslationItem) {
-        translationView.text = item.translation
-        val icon = if (item.isAdded) {
+        translationView.text = item.translation.data
+        val icon = if (item.translation.isAdded) {
             itemView.context.getTintDrawableByAttr(R.drawable.ic_bookmark_24, R.attr.colorSecondary)
         } else {
             itemView.context.getTintDrawableByAttr(R.drawable.ic_bookmark_border_24, android.R.attr.textColorSecondary)

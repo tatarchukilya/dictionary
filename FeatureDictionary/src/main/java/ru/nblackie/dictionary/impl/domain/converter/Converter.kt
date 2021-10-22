@@ -16,15 +16,11 @@ import ru.nblackie.dictionary.impl.domain.model.SearchItem
  */
 
 internal fun SearchResult.toItem(): SearchItem {
-    return SearchItem(word, transcription ?: "", translation, translation.joinTranslation())
+    return SearchItem(word, transcription ?: "", translation, translation.joinToString { it.data })
 }
 
-fun List<Translation>.toSpannable(resourceManager: ResourceManager): SpannableString {
-    val string = mutableListOf<String>().apply {
-        this@toSpannable.forEach {
-            add(it.data)
-        }
-    }.joinToString()
+internal fun List<Translation>.toSpannable(resourceManager: ResourceManager): SpannableString {
+    val string = joinToString { it.data }
     var start = 0
     var end: Int
     val spannable = SpannableString(string)
@@ -53,10 +49,3 @@ internal fun SearchResult.toSearchSpannableItem(resourceManager: ResourceManager
     return SearchItem(word, transcription ?: "", translation, translation.toSpannable(resourceManager))
 }
 
-internal fun List<Translation>.joinTranslation(): String {
-    val list = mutableListOf<String>()
-    forEach {
-        list.add(it.data)
-    }
-    return list.joinToString()
-}

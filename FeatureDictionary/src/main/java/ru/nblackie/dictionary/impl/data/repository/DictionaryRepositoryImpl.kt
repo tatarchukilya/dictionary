@@ -2,9 +2,7 @@ package ru.nblackie.dictionary.impl.data.repository
 
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.dictionary.impl.data.cache.CacheImpl
-import ru.nblackie.dictionary.impl.data.converter.getWords
 import ru.nblackie.dictionary.impl.data.converter.toFullData
-import ru.nblackie.dictionary.impl.data.converter.toListResult
 import ru.nblackie.dictionary.impl.data.converter.toSearchResult
 import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
@@ -23,12 +21,15 @@ internal class DictionaryRepositoryImpl(
     private val cache = CacheImpl<String>()
 
     override suspend fun searchDB(input: String, lang: String): List<SearchResult> {
-        return dao.searchRightJoin("$input%", lang).toListResult()
+        return dao
+            .searchRightJoin(input, lang)
+            .groupBy { it.word }
+            .map { it.toSearchResult() }
     }
 
     override suspend fun combineSearch(input: String, lang: String): List<SearchResult> {
         val remote = searchRemote(input, lang)
-        val local = getTranslation(remote.getWords())
+        val local = getTranslation(remote.map { it.word })
         return combineTranslation(remote, local)
     }
 
@@ -42,6 +43,7 @@ internal class DictionaryRepositoryImpl(
      * @param input введенное пользователем сллово
      * @param lang на каком языке искать
      */
+    @Suppress("UNCHECKED_CAST")
     private suspend fun searchRemote(input: String, lang: String): RemoteResult {
         return cache.get(input, List::class.java) { str ->
             api.search(str, 20).result
@@ -54,20 +56,15 @@ internal class DictionaryRepositoryImpl(
      * @param words список слов, для которых нужно получить перевод
      */
     private suspend fun getTranslation(words: List<String>): Translations {
-        return dao.getTranslation(words).groupBy {
-            it.word
-        }
+        return dao
+            .getTranslation(words)
+            .groupBy { it.word }
     }
 
     /**
      * Совмещает данные с сервера с данными из БД
      */
     private fun combineTranslation(remote: RemoteResult, db: Translations): List<SearchResult> {
-        val result = mutableListOf<SearchResult>().apply {
-            remote.forEach {
-                add(it.toSearchResult(db[it.word]))
-            }
-        }
-        return result
+        return remote.map { it.toSearchResult(db[it.word]) }
     }
 }
