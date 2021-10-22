@@ -23,10 +23,6 @@ internal fun viewHolderFactoryMethod(
             LayoutInflater.from(parent.context).inflate(R.layout.view_search_word, parent, false),
             actionObserver
         )
-        ItemType.SEARCH_SPAN.code -> SearchSpannableViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.view_search_word, parent, false),
-            actionObserver
-        )
         else -> throw IllegalArgumentException("Illegal viewType $type")
     } as BindViewHolder<TypedItem>
 }

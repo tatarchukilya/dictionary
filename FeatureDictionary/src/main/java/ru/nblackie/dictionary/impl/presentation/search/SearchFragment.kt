@@ -28,6 +28,7 @@ import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TypedItem
 import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
+import ru.nblackie.dictionary.impl.presentation.core.ShowPreview
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SearchItemCallback
 import ru.nblackie.dictionary.impl.presentation.search.recycler.viewHolderFactoryMethod
@@ -128,6 +129,13 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
                 progressBar.isVisible = it.inProgress
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.event.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                if (it is ShowPreview) {
+                    findNavController().navigate(R.id.fragment_preview)
+                }
+            }
+        }
     }
 
     private inner class RecyclerAdapter(callback: SearchItemCallback) :
@@ -168,8 +176,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     }
 
     override fun select(position: Int) {
-        viewModel.select(position)
-        findNavController().navigate(R.id.fragment_preview)
+        viewModel.selectWord(position)
     }
 
     override fun search(input: String) {

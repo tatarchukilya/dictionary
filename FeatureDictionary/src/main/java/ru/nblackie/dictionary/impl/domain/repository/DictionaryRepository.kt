@@ -2,7 +2,6 @@ package ru.nblackie.dictionary.impl.domain.repository
 
 import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
-import ru.nblackie.dictionary.impl.domain.model.SearchSpannableItem
 
 /**
  * @author tatarchukilya@gmail.com

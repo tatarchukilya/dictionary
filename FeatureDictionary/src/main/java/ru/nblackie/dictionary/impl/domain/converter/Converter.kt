@@ -10,7 +10,6 @@ import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
-import ru.nblackie.dictionary.impl.domain.model.SearchSpannableItem
 
 /**
  * @author tatarchukilya@gmail.com
@@ -50,8 +49,8 @@ fun List<Translation>.toSpannable(resourceManager: ResourceManager): SpannableSt
     return spannable
 }
 
-internal fun SearchResult.toSearchSpannableItem(resourceManager: ResourceManager): SearchSpannableItem {
-    return SearchSpannableItem(word, transcription ?: "", translation, translation.toSpannable(resourceManager))
+internal fun SearchResult.toSearchSpannableItem(resourceManager: ResourceManager): SearchItem {
+    return SearchItem(word, transcription ?: "", translation, translation.toSpannable(resourceManager))
 }
 
 internal fun List<Translation>.joinTranslation(): String {
