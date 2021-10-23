@@ -21,12 +21,8 @@
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?android:colorBackground</item>
-        <item name="android:windowLightStatusBar">true</item>-->
+<!--        <item name="android:windowLightStatusBar">true</item>-->
         <item name="android:windowSharedElementsUseOverlay">false</item>
-
-        <item name="android:actionBarTheme">@style/ThemeOverlay.AppCompat.DayNight.ActionBar</item>
-        <item name="actionBarStyle">@style/ThemeOverlay.AppCompat.DayNight.ActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
     </style>
 
 

@@ -21,7 +21,7 @@ internal fun NewTranslation.toFullData() =
  * Конвертирует дынные из БД, сгруппированые в [Map] методом [List.groupBy] по слову, в объект [SearchResult]
  */
 internal fun Map.Entry<String, List<FullSearchRow>>.toSearchResult(): SearchResult {
-    return SearchResult(key, value[0].transcription, value.map { Translation(it.translation) })
+    return SearchResult(key, value[0].transcription, value.map { Translation(it.translation, true) })
 }
 
 /**

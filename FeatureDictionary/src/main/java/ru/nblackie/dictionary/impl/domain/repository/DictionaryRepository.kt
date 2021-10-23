@@ -27,4 +27,21 @@ internal interface DictionaryRepository {
      * @param lang язык словаря
      */
     suspend fun searchDB(input: String, lang: String): List<SearchResult>
+
+    /**
+     * Возвращает данные о слове (только точное совпадение)
+     *
+     * @param word слово, данные для которого необходимо получить
+     */
+    suspend fun getSingleWord(word: String, lang: String): SearchResult?
+
+    /**
+     * Получить все варианты перевода из БД для указанного слова
+     */
+    suspend fun getTranslation(word: String): List<String>
+
+    /**
+     * Удалить перевод для указанного влова
+     */
+    suspend fun deleteTranslation(word: String, translation: String) : Int
 }
