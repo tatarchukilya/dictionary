@@ -10,6 +10,9 @@ import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
+import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
+import ru.nblackie.dictionary.impl.domain.model.TranslationItem
+import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 
 /**
  * @author tatarchukilya@gmail.com
@@ -19,6 +22,12 @@ internal fun SearchResult.toItem(): SearchItem {
     return SearchItem(word, transcription ?: "", translation, translation.joinToString { it.data })
 }
 
+/**
+ * Преобразует список слов в строку, выделят в полученной строке слова, которые есть в БД
+ *
+ * @param resourceManager доступ к ресурсам, нужен, чтобы получить цвет для [ForegroundColorSpan]
+ */
+//TODO возможность получать ресурсы с поправкой на тему
 internal fun List<Translation>.toSpannable(resourceManager: ResourceManager): SpannableString {
     val string = joinToString { it.data }
     var start = 0
@@ -37,7 +46,7 @@ internal fun List<Translation>.toSpannable(resourceManager: ResourceManager): Sp
                 start, end,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            start = end + 2
+            start = end + 2 // Пропустить пробел с запятой
         } else {
             return@forEach
         }
@@ -49,3 +58,8 @@ internal fun SearchResult.toSearchSpannableItem(resourceManager: ResourceManager
     return SearchItem(word, transcription ?: "", translation, translation.toSpannable(resourceManager))
 }
 
+internal fun SearchResult.toPreview(): SharedViewModel.PreviewState {
+    return SharedViewModel.PreviewState(
+        word, listOf(TranscriptionItem(transcription ?: "")), translation.map { TranslationItem(it) }
+    )
+}

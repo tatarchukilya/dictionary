@@ -54,7 +54,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         recyclerView.adapter = concatAdapter
         fab = view.findViewById(R.id.fab)
         fab.setOnClickListener {
-            viewModel.addTranslation()
+           // viewModel.addNewTranslation("")
             showEditFragment()
         }
         setUpObserver()
@@ -74,7 +74,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
     private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.previewStateNew.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 toolbar.title = it.word.firstCharUpperCase()
                 transcriptionAdapter.items = it.transcriptions
                 translationAdapter.submitList(it.translations)
@@ -131,7 +131,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     private class TranslationItemCallback : DiffUtil.ItemCallback<TranslationItem>() {
 
         override fun areItemsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {
-            return oldItem.translation == newItem.translation
+            return oldItem.translation.data == newItem.translation.data
         }
 
         override fun areContentsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {

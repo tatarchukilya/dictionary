@@ -26,21 +26,13 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     private var searchJob: Job? = null
 
-    //Selected Word
-    private var previewData = PreviewData()
-        set(value) {
-            field = value
-            _previewStateNew.value = value.toPreviewState()
-        }
-
     //Preview
-    private val _previewStateNew = MutableStateFlow(PreviewState())
-    val previewStateNew: StateFlow<PreviewState>
-        get() = _previewStateNew.asStateFlow()
+    private val _previewState = MutableStateFlow(PreviewState())
+    val previewState: StateFlow<PreviewState>
+        get() = _previewState.asStateFlow()
 
     //Edit
     private val _editedState = MutableStateFlow(EditState())
-
     val editedState: StateFlow<EditState>
         get() = _editedState.asStateFlow()
 
@@ -54,12 +46,12 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     fun handleAction(action: Action) {
         when (action) {
             is SelectTranslation -> selectTranslation(action.position)
-            is Add -> addToDB(action.position)
+            is ChangelLinks -> {
+                changeLinks(action.position)
+            }
             is SelectWord -> {
                 selectWord(action.position)
-                viewModelScope.launch {
-                    _searchEvent.send(ShowPreview)
-                }
+                viewModelScope.launch { _searchEvent.send(ShowPreview) }
             }
         }
     }
@@ -128,18 +120,14 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     //Preview
     fun selectWord(position: Int) {
-        searchState.value.items[position].let {
-            if (it is SearchItem) {
-                PreviewData(it.word, it.transcription, it.translation)
-            }
-        }
+        _previewState.value = (searchState.value.items[position] as SearchItem).toPreview()
     }
 
-    fun addToPersonal() {
-        //TODO save to db
-        val newState = previewData.copy(isAdded = !previewData.isAdded)
-        previewData = newState
-    }
+    // fun addToPersonal() {
+    //     //TODO save to db
+    //     val newState = previewData.copy(isAdded = !previewData.isAdded)
+    //     previewData = newState
+    // }
 
     fun selectTranslation(position: Int) {
         val data = getTranslationByIndex(position)
@@ -147,9 +135,47 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         //Event show editFragment
     }
 
-    private fun addToDB(position: Int) {
+    private fun changeLinks(position: Int) {
         viewModelScope.launch {
-            useCase.addTranslation(previewData.word, previewData.transcription, previewData.translation[position].data)
+            previewState.value.translations[position].translation.let {
+                if (it.isAdded) {
+                    useCase.deleteTranslation(previewState.value.word, it.data)
+                } else {
+                    useCase.addTranslation(
+                        previewState.value.word,
+                        previewState.value.transcriptions[0].transcription,
+                        it.data
+                    )
+                }
+            }
+            val translations = useCase.getTranslation(previewState.value.word)
+            val old = previewState.value
+            val new = old.update(translations)
+            Log.i("<>", old.toString())
+            Log.i("<>", new.toString())
+            _previewState.value = new
+        }
+    }
+
+    private suspend fun addToDB(position: Int) {
+        previewState.value.let {
+            useCase.addTranslation(
+                it.word,
+                it.transcriptions[0].transcription,
+                it.translations[position].translation.data
+            )
+        }
+    }
+
+    private suspend fun deleteFromDB(word: String, translation: String) {
+        useCase.deleteTranslation(word, translation)
+    }
+
+    private fun addAndUpdate(position: Int) {
+        viewModelScope.launch {
+            addToDB(position)
+            val translations = useCase.getTranslation(previewState.value.word)
+            _previewState.value = previewState.value.update(translations)
         }
     }
 
@@ -158,8 +184,16 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         setEditState(translation, editedState.value.position)
     }
 
-    fun addTranslation() {
-        setEditState("", previewData.translation.size)
+    fun addNewTranslation(translation: String) {
+        viewModelScope.launch {
+            previewState.value.let {
+                useCase.addTranslation(
+                    it.word,
+                    it.transcriptions[0].transcription,
+                    translation
+                )
+            }
+        }
     }
 
     private fun setEditState(translation: String, position: Int) {
@@ -168,24 +202,9 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         _editedState.value = newState
     }
 
-    fun saveChanges() {
-        val newList = previewData.translation.toMutableList()
-        editedState.value.run {
-            if (position > previewData.translation.lastIndex) {
-                newList.add(Translation(editedState.value.translation, false))
-            } else {
-                when (translation.isBlank()) {
-                    true -> newList.removeAt(position)
-                    false -> newList[position] = newList[position].copy(data = translation)
-                }
-            }
-        }
-        previewData = previewData.copy(translation = newList)
-    }
-
     private fun getTranslationByIndex(index: Int): String {
         return try {
-            previewData.translation[index].data
+            previewState.value.translations[index].translation.data
         } catch (e: Exception) {
             ""
         }
@@ -201,30 +220,11 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         private const val DEBOUNCE = 300L
     }
 
-    private data class PreviewData(
-        val word: String = "",
-        val transcription: String = "",
-        var translation: List<Translation> = listOf(),
-        val isAdded: Boolean = false
-    )
-
     data class PreviewState(
         val word: String = "",
         val transcriptions: List<TranscriptionItem> = listOf(),
         val translations: List<TranslationItem> = listOf()
     )
-
-    private fun PreviewData.toPreviewState(): PreviewState {
-        return PreviewState(
-            word,
-            listOf(TranscriptionItem(transcription)),
-            mutableListOf<TranslationItem>().apply {
-                translation.forEach {
-                    add(TranslationItem(it))
-                }
-            }
-        )
-    }
 
     data class EditState(
         val translation: String = "",

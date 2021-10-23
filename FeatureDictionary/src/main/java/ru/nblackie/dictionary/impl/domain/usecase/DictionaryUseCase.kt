@@ -2,6 +2,7 @@ package ru.nblackie.dictionary.impl.domain.usecase
 
 import ru.nblackie.core.impl.data.Lang
 import ru.nblackie.core.impl.data.Lang.EN
+import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
 
 /**
@@ -25,4 +26,10 @@ internal interface DictionaryUseCase {
      * Поиск по БД
      */
     suspend fun searchDb(input: String, lang: Lang = EN): List<SearchItem>
+
+    suspend fun getSingleWord(word: String, lang: Lang = EN) : SearchResult?
+
+    suspend fun getTranslation(word: String): List<String>
+
+    suspend fun deleteTranslation(word: String, translation: String): Int
 }

@@ -82,6 +82,6 @@ internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
     }
 
     override fun save() {
-        viewModel.saveChanges()
+        //viewModel.saveChanges()
     }
 }

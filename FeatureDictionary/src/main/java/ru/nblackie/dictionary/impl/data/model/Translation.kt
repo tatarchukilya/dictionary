@@ -5,5 +5,5 @@ package ru.nblackie.dictionary.impl.data.model
  */
 data class Translation(
     val data: String,
-    var isAdded: Boolean = false
+    val isAdded: Boolean = false
 )
