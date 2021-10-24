@@ -79,6 +79,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
                 toolbar.title = it.word.firstCharUpperCase()
                 transcriptionAdapter.items = it.transcriptions
                 translationAdapter.submitList(it.translations)
+                //TODO пидумать архитектурное решение
                 if (it.translations.isEmpty()) {
                     activity?.onBackPressed()
                 }
