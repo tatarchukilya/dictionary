@@ -17,7 +17,7 @@ import ru.nblackie.coredb.impl.db.data.TranslationSearchRow
 @Dao
 interface DictionaryDao {
 
-    @Query("SELECT w2.id as id, w2.word as word, w2.transcription as transcription, w1.word as translation FROM translation t1 INNER JOIN word w1 ON t1.translation = w1.id INNER JOIN word w2 ON t1.word = w2.id WHERE t1.word IN (SELECT * FROM (SELECT id FROM word WHERE word LIKE :input AND lang = :lang) as t)")
+    @Query("SELECT w2.id as id, w2.word as word, w2.transcription as transcription, w1.word as translation FROM translation t1 INNER JOIN word w1 ON t1.translation = w1.id INNER JOIN word w2 ON t1.word = w2.id WHERE t1.word IN (SELECT * FROM (SELECT id FROM word WHERE word LIKE :input AND lang = :lang) as t) ORDER BY w2.word")
     suspend fun search(input: String, lang: String): List<FullSearchRow>
 
     @Query("SELECT id FROM word WHERE word = :word")
