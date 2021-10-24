@@ -21,9 +21,8 @@ import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
-import ru.nblackie.dictionary.impl.presentation.core.Action
-import ru.nblackie.dictionary.impl.presentation.core.SelectTranslation
-import ru.nblackie.dictionary.impl.presentation.core.SpotPreview
+import ru.nblackie.dictionary.impl.presentation.core.MatchTranslation
+import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
@@ -55,7 +54,6 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         recyclerView.adapter = concatAdapter
         fab = view.findViewById(R.id.fab)
         fab.setOnClickListener {
-            // viewModel.addNewTranslation("")
             showEditFragment()
         }
         setUpObserver()
@@ -76,23 +74,13 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
-                toolbar.title = it.word.firstCharUpperCase()
-                transcriptionAdapter.items = it.transcriptions
-                translationAdapter.submitList(it.translations)
-                //TODO пидумать архитектурное решение
-                if (it.translations.isEmpty()) {
-                    activity?.onBackPressed()
-                }
+                setState(it)
             }
         }
     }
 
     private fun showEditFragment() {
         findNavController().navigate(R.id.preview_to_edit_dialog)
-    }
-
-    override fun selectTranslation(action: Action) {
-        viewModel.handleAction(action)
     }
 
     private inner class TranscriptionAdapter : RecyclerView.Adapter<TranscriptionViewHolder>() {
@@ -120,9 +108,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranslationViewHolder {
             val view = LayoutInflater.from(context).inflate(R.layout.view_translation, parent, false)
-            return TranslationViewHolder(view) {
-                selectTranslation(it)
-            }
+            return TranslationViewHolder(view) { matchTranslation(it) }
         }
 
         override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
@@ -140,5 +126,19 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         override fun areContentsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {
             return oldItem.translation == newItem.translation
         }
+    }
+
+    override fun setState(state: SharedViewModel.PreviewState) {
+        toolbar.title = state.word.firstCharUpperCase()
+        transcriptionAdapter.items = state.transcriptions
+        translationAdapter.submitList(state.translations)
+        //TODO пидумать архитектурное решение
+        if (state.translations.isEmpty()) {
+            activity?.onBackPressed()
+        }
+    }
+
+    override fun matchTranslation(action: MatchTranslation) {
+        viewModel.handleAction(action)
     }
 }

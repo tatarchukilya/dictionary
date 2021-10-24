@@ -28,7 +28,12 @@ import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TypedItem
 import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
+import ru.nblackie.dictionary.impl.presentation.core.ClearSearch
+import ru.nblackie.dictionary.impl.presentation.core.SearchInput
+import ru.nblackie.dictionary.impl.presentation.core.SelectWord
+import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel.SearchState
 import ru.nblackie.dictionary.impl.presentation.core.ShowPreview
+import ru.nblackie.dictionary.impl.presentation.core.SwitchSearch
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.search.recycler.SearchItemCallback
 import ru.nblackie.dictionary.impl.presentation.search.recycler.viewHolderFactoryMethod
@@ -75,6 +80,37 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         else -> super.onOptionsItemSelected(item)
     }
 
+    override fun setState(state: SearchState) {
+        if (state.input != searchView.text.toString()) {
+            searchView.setText(state.input)
+        }
+        setMenuVisibility(state.isClearable)
+        toggleState.setSearchSwitchVisibility(state.isSwitchable)
+        adapter.submitList(state.items)
+        searchRadioGroup.setState(state.isCache)
+        progressBar.isVisible = state.inProgress
+    }
+
+    override fun clearSearch() {
+        viewModel.handleAction(ClearSearch)
+    }
+
+    override fun select(action: SelectWord) {
+        viewModel.handleAction(action)
+    }
+
+    override fun search(action: SearchInput) {
+        viewModel.handleAction(action)
+    }
+
+    override fun switchSearch() {
+        viewModel.handleAction(SwitchSearch)
+    }
+
+    override fun showPreview() {
+        findNavController().navigate(R.id.fragment_preview)
+    }
+
     private fun setUpToolbar(view: View) {
         toolbar = view.findViewById(R.id.toolbar)
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
@@ -107,37 +143,43 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         searchView = view.findViewById(R.id.input_query_view)
         searchView.showKeyboard()
         searchView.doAfterTextChanged {
-            viewModel.setInput(it.toString())
+            search(SearchInput(it.toString()))
         }
 
         searchRadioGroup = view.findViewById(R.id.dictionary_toggle)
-        searchRadioGroup.setOnCheckedChangeListener { _, buttonId ->
-            switchSearch(buttonId == R.id.personal)
-        }
+        searchRadioGroup.setOnCheckedChangeListener { _, _ -> switchSearch() }
     }
 
     private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.searchState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
-                if (it.input != searchView.text.toString()) {
-                    searchView.setText(it.input)
-                }
-                setMenuVisibility(it.isClearable)
-                setSwitchVisibility(it.isSwitchable)
-                adapter.submitList(it.items)
-                searchRadioGroup.setState(it.isCache)
-                progressBar.isVisible = it.inProgress
+                setState(it)
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.searchEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 if (it is ShowPreview) {
-                    findNavController().navigate(R.id.fragment_preview)
+                    showPreview()
                 }
             }
         }
     }
 
+    private fun hideSwitchNow() {
+        searchSwitchView.hideUpNow()
+    }
+
+    private fun View.hideUpNow() {
+        translationY = -height.toFloat()
+    }
+
+    private fun RadioGroup.setState(isPersonal: Boolean) {
+        if (checkedRadioButtonId == R.id.general && isPersonal) {
+            check(R.id.personal)
+        } else if (checkedRadioButtonId == R.id.personal && !isPersonal) {
+            check(R.id.general)
+        }
+    }
     private inner class RecyclerAdapter(callback: SearchItemCallback) :
         ListAdapter<TypedItem, BindViewHolder<TypedItem>>(callback) {
 
@@ -155,55 +197,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
     }
 
-    private fun RadioGroup.setState(isPersonal: Boolean) {
-        if (checkedRadioButtonId == R.id.general && isPersonal) {
-            check(R.id.personal)
-        } else if (checkedRadioButtonId == R.id.personal && !isPersonal) {
-            check(R.id.general)
-        }
-    }
-
-    override fun setItems(items: List<TypedItem>) {
-        adapter.submitList(items)
-    }
-
-    override fun progressVisibility(isVisible: Boolean) {
-        progressBar.isVisible = isVisible
-    }
-
-    override fun clearSearch() {
-        searchView.text.clear()
-    }
-
-    override fun select(position: Int) {
-        viewModel.selectWord(position)
-    }
-
-    override fun search(input: String) {
-        viewModel.setInput(input)
-    }
-
-    override fun switchSearch(isLocale: Boolean) {
-        viewModel.switchSearch(isLocale)
-    }
-
-    override fun hideSwitchNow() {
-        searchSwitchView.hideUpNow()
-    }
-
-    override fun setSwitchVisibility(isVisible: Boolean) {
-        toggleState.setSearchSwitchVisibility(isVisible)
-    }
-
-    override fun setProgressVisibility(isVisible: Boolean) {
-        progressBar.isVisible = isVisible
-    }
-
-    private fun View.hideUpNow() {
-        translationY = -height.toFloat()
-    }
-
-    // Класс, для анимации появления и скрытия searchToggle. Какой-то костыль
+    // Класс, для анимации появления и скрытия searchToggle. Костыль
     private inner class SearchToggleState {
         private val showAnimator = ValueAnimator().apply {
             duration = 300L

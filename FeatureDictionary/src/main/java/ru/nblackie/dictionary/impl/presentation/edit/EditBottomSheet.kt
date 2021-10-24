@@ -63,7 +63,7 @@ internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.editedState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.addTranslationState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 if (editText.text.toString() != it.translation) {
                     editText.setText(it.translation)
                 }

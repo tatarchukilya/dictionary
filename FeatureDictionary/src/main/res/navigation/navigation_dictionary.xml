@@ -42,14 +42,4 @@
         android:label="dialog_edit"
         tools:layout="@layout/fragment_edit"/>
 
-    <fragment
-        android:id="@+id/fragment_edit"
-        android:name="ru.nblackie.dictionary.impl.presentation.edit.EditContentFragment"
-        android:label="fragment_edit"
-        tools:layout="@layout/fragment_edit" />
-    <action
-        android:id="@+id/action_global_fragment_search"
-        app:destination="@id/fragment_search" />
-
-
 </navigation>
