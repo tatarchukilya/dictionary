@@ -18,9 +18,9 @@ internal class DictionaryUseCaseImpl(
     private val repository: DictionaryRepository,
     private val resourceManager: ResourceManager
 ) : DictionaryUseCase {
-    override suspend fun combineSearch(input: String, lang: Lang): List<SearchItem> {
+    override suspend fun combineSearch(input: String, lang: Lang, limit: Int): List<SearchItem> {
         return withContext(Dispatchers.IO) {
-            repository.combineSearch(input, lang.code)
+            repository.combineSearch(input, lang.code, limit)
                 .map {
                     it.toSearchSpannableItem(resourceManager)
                 }

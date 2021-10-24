@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.domain.model.EmptyItem
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
@@ -28,8 +27,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     //Preview
     private val _previewState = MutableStateFlow(PreviewState())
-    val previewState: StateFlow<PreviewState>
-        get() = _previewState.asStateFlow()
+    val previewState: StateFlow<PreviewState> = _previewState.asStateFlow()
 
     //Edit
     private val _editedState = MutableStateFlow(EditState())
@@ -41,13 +39,13 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
 
     private val _searchEvent: Channel<Event> = Channel()
-    val event = _searchEvent.receiveAsFlow()
+    val searchEvent = _searchEvent.receiveAsFlow()
 
     fun handleAction(action: Action) {
         when (action) {
             is SelectTranslation -> selectTranslation(action.position)
-            is ChangelLinks -> {
-                changeLinks(action.position)
+            is MatchTranslation -> {
+                matchTranslation(action.position)
             }
             is SelectWord -> {
                 selectWord(action.position)
@@ -85,10 +83,9 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
                 _searchState.value = searchState.value.copy(inProgress = true)
                 useCase.combineSearch(input)
             }.onSuccess {
-                _searchState.value = searchState.value.copy(inProgress = false, items = searchResultList(it))
+                setSearchItems(it)
             }.onFailure {
-                _searchState.value = searchState.value.copy(items = emptyList())
-                _searchState.value = searchState.value.copy(inProgress = false)
+                setSearchItems(listOf())
                 Log.i("<>", "error", it)
             }
         }
@@ -96,13 +93,23 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     private fun searchDb(input: String) {
         searchJob = viewModelScope.launch {
+            delay(DEBOUNCE)
             runCatching {
                 useCase.searchDb(input)
             }.onSuccess {
-                _searchState.value = searchState.value.copy(items = searchResultList(it))
+                setSearchItems(it)
             }.onFailure {
                 Log.i("<>", "error", it)
             }
+        }
+    }
+
+    private fun setSearchItems(items: List<SearchItem>) {
+        _searchState.value = searchState.value.copy(items = searchResultList(items), inProgress = false)
+        items.find { it.word == previewState.value.word }?.let {
+            _previewState.value = it.toPreview()
+        } ?: run {
+            _previewState.value = previewState.value.copy(translations = listOf())
         }
     }
 
@@ -123,19 +130,16 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         _previewState.value = (searchState.value.items[position] as SearchItem).toPreview()
     }
 
-    // fun addToPersonal() {
-    //     //TODO save to db
-    //     val newState = previewData.copy(isAdded = !previewData.isAdded)
-    //     previewData = newState
-    // }
-
     fun selectTranslation(position: Int) {
         val data = getTranslationByIndex(position)
         setEditState(data, position)
         //Event show editFragment
     }
 
-    private fun changeLinks(position: Int) {
+    /**
+     *
+     */
+    private fun matchTranslation(position: Int) {
         viewModelScope.launch {
             previewState.value.translations[position].translation.let {
                 if (it.isAdded) {
@@ -148,40 +152,8 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
                     )
                 }
             }
-            val translations = useCase.getTranslation(previewState.value.word)
-            val old = previewState.value
-            val new = old.update(translations)
-            Log.i("<>", old.toString())
-            Log.i("<>", new.toString())
-            _previewState.value = new
+            search()
         }
-    }
-
-    private suspend fun addToDB(position: Int) {
-        previewState.value.let {
-            useCase.addTranslation(
-                it.word,
-                it.transcriptions[0].transcription,
-                it.translations[position].translation.data
-            )
-        }
-    }
-
-    private suspend fun deleteFromDB(word: String, translation: String) {
-        useCase.deleteTranslation(word, translation)
-    }
-
-    private fun addAndUpdate(position: Int) {
-        viewModelScope.launch {
-            addToDB(position)
-            val translations = useCase.getTranslation(previewState.value.word)
-            _previewState.value = previewState.value.update(translations)
-        }
-    }
-
-    /**Edit**/
-    fun editTranslation(translation: String) {
-        setEditState(translation, editedState.value.position)
     }
 
     fun addNewTranslation(translation: String) {

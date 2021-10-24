@@ -26,7 +26,7 @@ internal class SearchItemCallback : DiffUtil.ItemCallback<TypedItem>() {
         return when (oldItem) {
             is EmptyItem -> true
             is SearchItem -> (newItem as SearchItem).let {
-                oldItem.translation == it.translation && oldItem.joinString == it.joinString
+                oldItem.translation == it.translation
             }
             else -> false
         }

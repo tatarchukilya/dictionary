@@ -8,7 +8,7 @@ import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.presentation.core.Action
-import ru.nblackie.dictionary.impl.presentation.core.ChangelLinks
+import ru.nblackie.dictionary.impl.presentation.core.MatchTranslation
 import ru.nblackie.dictionary.impl.presentation.core.SelectTranslation
 
 /**
@@ -24,7 +24,7 @@ internal class TranslationViewHolder(view: View, val action: (Action) -> Unit) :
             action(SelectTranslation(adapterPosition))
         }
         addButton.setOnClickListener {
-            action(ChangelLinks(adapterPosition))
+            action(MatchTranslation(adapterPosition))
         }
     }
 

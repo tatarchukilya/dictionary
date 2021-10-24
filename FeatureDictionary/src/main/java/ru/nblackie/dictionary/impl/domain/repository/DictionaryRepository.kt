@@ -13,7 +13,7 @@ internal interface DictionaryRepository {
      * @param input введенное пользователем сллово
      * @param lang язык словаря
      */
-    suspend fun combineSearch(input: String, lang: String): List<SearchResult>
+    suspend fun combineSearch(input: String, lang: String, limit: Int): List<SearchResult>
 
     /**
      * Добавить слово с переводом в БД
