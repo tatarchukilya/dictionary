@@ -7,22 +7,17 @@ import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.core.impl.utils.getTintDrawableByAttr
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
-import ru.nblackie.dictionary.impl.presentation.core.Action
 import ru.nblackie.dictionary.impl.presentation.core.MatchTranslation
-import ru.nblackie.dictionary.impl.presentation.core.SelectTranslation
 
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class TranslationViewHolder(view: View, val action: (Action) -> Unit) : BindViewHolder<TranslationItem>(view) {
+internal class TranslationViewHolder(view: View, val action: (MatchTranslation) -> Unit) : BindViewHolder<TranslationItem>(view) {
 
     private val translationView = view.findViewById<TextView>(R.id.translation)
-    private val addButton = view.findViewById<ImageView>(R.id.add_exercise_image)
+    private val addButton = view.findViewById<ImageView>(R.id.add_translation)
 
     init {
-        view.setOnClickListener {
-            action(SelectTranslation(adapterPosition))
-        }
         addButton.setOnClickListener {
             action(MatchTranslation(adapterPosition))
         }

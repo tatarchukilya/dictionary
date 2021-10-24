@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:colorBackground"
-    android:foreground="?selectableItemBackground"
     android:orientation="horizontal">
 
     <TextView
@@ -20,7 +19,7 @@
         tools:text="@string/translation" />
 
     <ImageView
-        android:id="@+id/add_exercise_image"
+        android:id="@+id/add_translation"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center"

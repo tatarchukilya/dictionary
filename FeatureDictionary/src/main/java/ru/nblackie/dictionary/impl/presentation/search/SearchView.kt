@@ -1,27 +1,26 @@
 package ru.nblackie.dictionary.impl.presentation.search
 
-import ru.nblackie.dictionary.impl.domain.model.TypedItem
+import ru.nblackie.dictionary.impl.presentation.core.SearchInput
+import ru.nblackie.dictionary.impl.presentation.core.SelectWord
+import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel.SearchState
 
 /**
  * @author Ilya Tatarchuk
  */
 internal interface SearchView {
 
-    fun setItems(items: List<TypedItem>)
+    // State
+    fun setState(state: SearchState)
 
-    fun progressVisibility(isVisible: Boolean)
-
+    //Action
     fun clearSearch()
 
-    fun select(position: Int)
+    fun select(action: SelectWord)
 
-    fun search(input: String)
+    fun search(action: SearchInput)
 
-    fun switchSearch(isLocale: Boolean)
+    fun switchSearch()
 
-    fun hideSwitchNow()
-
-    fun setSwitchVisibility(isVisible: Boolean)
-
-    fun  setProgressVisibility(isVisible: Boolean)
+    //Event
+    fun showPreview()
 }

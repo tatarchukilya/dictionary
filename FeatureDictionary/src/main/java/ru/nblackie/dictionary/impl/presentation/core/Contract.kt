@@ -4,11 +4,17 @@ package ru.nblackie.dictionary.impl.presentation.core
  * @author Ilya Tatarchuk
  */
 internal sealed interface Action
-class SelectTranslation(val position: Int) : Action
+
+// Search
+object ClearSearch : Action
+class SearchInput(val input: String) : Action
 class SelectWord(val position: Int) : Action
+object SwitchSearch : Action
+
+//Preview
+object AddTranslation : Action
 class MatchTranslation(val position: Int) : Action
-class AddNewTranslation(val translation: String) : Action
 
 sealed interface Event
 object ShowPreview : Event
-object SpotPreview: Event
+object ShowAddView : Event

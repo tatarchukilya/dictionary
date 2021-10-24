@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import ru.nblackie.dictionary.R
+import ru.nblackie.dictionary.impl.presentation.core.ClearSearch
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 
 /**
@@ -40,7 +41,7 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
     }
 
     private fun toolbarAction() {
-        viewModel.setInput("")
+        viewModel.handleAction(ClearSearch)
         val extras =
             FragmentNavigatorExtras(toolbar to getString(R.string.dictionary_search_transition))
         findNavController().navigate(R.id.fragment_search, null, null, extras)
