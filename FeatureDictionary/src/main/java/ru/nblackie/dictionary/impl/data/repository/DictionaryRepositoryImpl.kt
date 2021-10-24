@@ -44,8 +44,8 @@ internal class DictionaryRepositoryImpl(
         return dao.deleteTranslationByWord(word, translation)
     }
 
-    override suspend fun combineSearch(input: String, lang: String): List<SearchResult> {
-        val remote = searchRemote(input, lang)
+    override suspend fun combineSearch(input: String, lang: String, limit: Int): List<SearchResult> {
+        val remote = searchRemote(input, lang, limit)
         val local = getTranslation(remote.map { it.word })
         return combineTranslation(remote, local)
     }
@@ -61,9 +61,9 @@ internal class DictionaryRepositoryImpl(
      * @param lang на каком языке искать
      */
     @Suppress("UNCHECKED_CAST")
-    private suspend fun searchRemote(input: String, lang: String): List<SearchResultRest> {
+    private suspend fun searchRemote(input: String, lang: String, limit: Int): List<SearchResultRest> {
         return cache.get(input, List::class.java) { str ->
-            api.search(str, 20).result
+            api.search(str, lang, limit).result
         } as List<SearchResultRest>
     }
 

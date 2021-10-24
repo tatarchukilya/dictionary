@@ -78,7 +78,7 @@ internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
     }
 
     override fun edit(string: String) {
-        viewModel.editTranslation(string)
+        //viewModel.editTranslation(string)
     }
 
     override fun save() {

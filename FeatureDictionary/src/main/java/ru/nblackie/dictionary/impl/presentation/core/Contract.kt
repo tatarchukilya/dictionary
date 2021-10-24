@@ -6,9 +6,9 @@ package ru.nblackie.dictionary.impl.presentation.core
 internal sealed interface Action
 class SelectTranslation(val position: Int) : Action
 class SelectWord(val position: Int) : Action
-class ChangelLinks(val position: Int) : Action
-class EditTranslation(input: String) : Action
-object SavaChange : Action
+class MatchTranslation(val position: Int) : Action
+class AddNewTranslation(val translation: String) : Action
 
 sealed interface Event
 object ShowPreview : Event
+object SpotPreview: Event

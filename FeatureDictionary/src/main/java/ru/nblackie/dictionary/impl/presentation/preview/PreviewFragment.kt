@@ -23,6 +23,7 @@ import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.presentation.core.Action
 import ru.nblackie.dictionary.impl.presentation.core.SelectTranslation
+import ru.nblackie.dictionary.impl.presentation.core.SpotPreview
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
@@ -54,7 +55,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         recyclerView.adapter = concatAdapter
         fab = view.findViewById(R.id.fab)
         fab.setOnClickListener {
-           // viewModel.addNewTranslation("")
+            // viewModel.addNewTranslation("")
             showEditFragment()
         }
         setUpObserver()
@@ -78,6 +79,9 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
                 toolbar.title = it.word.firstCharUpperCase()
                 transcriptionAdapter.items = it.transcriptions
                 translationAdapter.submitList(it.translations)
+                if (it.translations.isEmpty()) {
+                    activity?.onBackPressed()
+                }
             }
         }
     }
@@ -88,8 +92,6 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
     override fun selectTranslation(action: Action) {
         viewModel.handleAction(action)
-        if (action is SelectTranslation)
-            showEditFragment()
     }
 
     private inner class TranscriptionAdapter : RecyclerView.Adapter<TranscriptionViewHolder>() {

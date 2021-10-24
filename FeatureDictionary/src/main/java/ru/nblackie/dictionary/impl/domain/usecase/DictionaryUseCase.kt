@@ -15,7 +15,7 @@ internal interface DictionaryUseCase {
      * @param input введенное пользователем сллово
      * @param lang на каком языке искать
      */
-    suspend fun combineSearch(input: String, lang: Lang = EN): List<SearchItem>
+    suspend fun combineSearch(input: String, lang: Lang = EN, limit: Int = 20): List<SearchItem>
 
     /**
      * Добавить слово с переводом в БД

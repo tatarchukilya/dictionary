@@ -21,6 +21,7 @@ interface RemoteDictionaryApi {
     @GET("/dictionary/search.php")
     suspend fun search(
         @Query("input") input: String,
+        @Query("lang") lang: String,
         @Query("limit") limit: Int
-    ) : SearchResponse
+    ): SearchResponse
 }

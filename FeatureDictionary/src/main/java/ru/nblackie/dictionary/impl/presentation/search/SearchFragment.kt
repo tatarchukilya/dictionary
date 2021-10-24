@@ -130,7 +130,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.event.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.searchEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 if (it is ShowPreview) {
                     findNavController().navigate(R.id.fragment_preview)
                 }
