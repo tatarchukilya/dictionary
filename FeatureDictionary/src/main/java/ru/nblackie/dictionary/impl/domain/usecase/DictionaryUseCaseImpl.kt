@@ -56,4 +56,10 @@ internal class DictionaryUseCaseImpl(
             repository.deleteTranslation(word, translation)
         }
     }
+
+    override suspend fun count(lang: Lang): Int {
+        return withContext(Dispatchers.IO) {
+            repository.count(lang.code)
+        }
+    }
 }

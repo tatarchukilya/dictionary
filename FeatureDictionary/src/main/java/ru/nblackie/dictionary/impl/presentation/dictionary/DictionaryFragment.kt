@@ -24,6 +24,7 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
 
     override fun onStart() {
         super.onStart()
+        viewModel.handleAction(ClearSearch)
     }
 
     private fun setUpToolbar(view: View) {
@@ -41,7 +42,6 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
     }
 
     private fun toolbarAction() {
-        viewModel.handleAction(ClearSearch)
         val extras =
             FragmentNavigatorExtras(toolbar to getString(R.string.dictionary_search_transition))
         findNavController().navigate(R.id.fragment_search, null, null, extras)

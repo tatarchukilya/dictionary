@@ -24,6 +24,7 @@ import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
 internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewModel() {
 
     private var searchJob: Job? = null
+    private var countJob: Job? = null
 
     //Dictionary
 
@@ -45,9 +46,13 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private val _addTranslationState = MutableStateFlow(AddTranslationState())
     val addTranslationState: StateFlow<AddTranslationState> = _addTranslationState.asStateFlow()
 
+    init {
+        getCount()
+    }
+
     fun handleAction(action: Action) {
         when (action) {
-            is SwitchSearch -> switchSearch()
+            is SwitchSearch -> switchSearch(action.isLocal)
             is ClearSearch -> setSearchInput("")
             is SearchInput -> setSearchInput(action.input)
             is MatchTranslation -> matchTranslation(action.position)
@@ -60,14 +65,12 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private fun setSearchInput(input: String) {
         if (input != searchState.value.input) {
             _searchState.value = searchState.value.setSearchInput(input)
-            if (input.isNotBlank())
-                search()
+            if (input.isBlank()) searchJob?.cancel() else search()
         }
     }
 
-    private fun switchSearch() {
-        val newVal = !searchState.value.isCache
-        _searchState.value = searchState.value.copy(isCache = newVal)
+    private fun switchSearch(isLocal: Boolean) {
+        _searchState.value = searchState.value.copy(isCache = isLocal)
         search()
     }
 
@@ -109,6 +112,18 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
                 setSearchItems(it)
             }.onFailure {
                 Log.i("<>", "error", it)
+            }
+        }
+    }
+
+    private fun getCount() {
+        countJob = viewModelScope.launch {
+            runCatching {
+                useCase.count()
+            }.onSuccess {
+                _searchState.value = searchState.value.copy(count = it)
+            }.onFailure {
+                Log.i("SharedViewModel", "loading count failed", it)
             }
         }
     }
@@ -166,6 +181,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
 
     override fun onCleared() {
         searchJob?.cancel()
+        countJob?.cancel()
     }
 
     data class PreviewState(
@@ -180,6 +196,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     )
 
     data class SearchState(
+        val count: Int = 0,
         val inProgress: Boolean = false,
         val input: String = "",
         val isCache: Boolean = true,

@@ -7,6 +7,7 @@
     <string name="edit">edit</string>
     <string name="save">save</string>
     <string name="add">add</string>
+    <string name="word_count">%d words</string>
     <string name="dictionary_search_transition" translatable="false">dictionary_search_transition</string>
     <string name="search_preview_transition" translatable="false">search_preview_transition</string>
 </resources>

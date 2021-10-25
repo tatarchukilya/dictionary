@@ -1,4 +1,4 @@
-package ru.nblackie.remote.impl.dictionary.model
+package ru.nblackie.remote.impl.dictionary.model.search
 
 data class SearchResultRest(
     val id: Int,

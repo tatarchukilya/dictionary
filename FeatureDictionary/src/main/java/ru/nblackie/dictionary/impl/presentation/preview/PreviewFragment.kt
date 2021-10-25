@@ -141,4 +141,8 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     override fun matchTranslation(action: MatchTranslation) {
         viewModel.handleAction(action)
     }
+
+    override fun showAddView() {
+        TODO("Not yet implemented")
+    }
 }
