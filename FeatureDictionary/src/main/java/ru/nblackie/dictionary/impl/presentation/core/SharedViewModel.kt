@@ -43,8 +43,11 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     val previewEvent = _previewEvent.receiveAsFlow()
 
     //Add
-    private val _addTranslationState = MutableStateFlow(AddTranslationState())
-    val addTranslationState: StateFlow<AddTranslationState> = _addTranslationState.asStateFlow()
+    private val _newTranslationState = MutableStateFlow(AddTranslationState())
+    val newTranslationState: StateFlow<AddTranslationState> = _newTranslationState.asStateFlow()
+
+    private val _newTranslationEvent = Channel<Event>()
+    val newTranslationEvent = _newTranslationEvent.receiveAsFlow()
 
     init {
         getCount()
@@ -57,8 +60,15 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             is SearchInput -> setSearchInput(action.input)
             is MatchTranslation -> matchTranslation(action.position)
             is SelectWord -> selectWord(action.position)
-            is AddTranslation -> _addTranslationState.value = AddTranslationState()
+            is AddTranslation -> showNewTranslationView()
+            is NewTranslation -> setNewTranslationState(action.input)
+            is SaveNewTranslation -> saveNewTranslation()
         }
+    }
+
+    override fun onCleared() {
+        searchJob?.cancel()
+        countJob?.cancel()
     }
 
     //Search
@@ -98,7 +108,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
                 setSearchItems(it)
             }.onFailure {
                 setSearchItems(listOf())
-                Log.i("<>", "error", it)
+                Log.i("SharedViewModel", "remote search failed", it)
             }
         }
     }
@@ -111,7 +121,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             }.onSuccess {
                 setSearchItems(it)
             }.onFailure {
-                Log.i("<>", "error", it)
+                Log.d("SharedViewModel", "db search failed", it)
             }
         }
     }
@@ -123,7 +133,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             }.onSuccess {
                 _searchState.value = searchState.value.copy(count = it)
             }.onFailure {
-                Log.i("SharedViewModel", "loading count failed", it)
+                Log.d("SharedViewModel", "loading count failed", it)
             }
         }
     }
@@ -167,34 +177,33 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         }
     }
 
-    private fun addNewTranslation(translation: String) {
+    private fun showNewTranslationView() {
+        _newTranslationState.value = AddTranslationState()
+        viewModelScope.launch {
+            _previewEvent.send(ShowNewWordView)
+        }
+    }
+
+    //Add
+    private fun setNewTranslationState(input: String) {
+        _newTranslationState.value = translationSateByInput(input)
+    }
+
+    private fun saveNewTranslation() {
         viewModelScope.launch {
             previewState.value.let {
                 useCase.addTranslation(
                     it.word,
                     it.transcriptions[0].transcription,
-                    translation
+                    newTranslationState.value.translation
                 )
             }
+            _newTranslationEvent.send(StopSelf)
+            search()
         }
     }
 
-    override fun onCleared() {
-        searchJob?.cancel()
-        countJob?.cancel()
-    }
-
-    data class PreviewState(
-        val word: String = "",
-        val transcriptions: List<TranscriptionItem> = listOf(),
-        val translations: List<TranslationItem> = listOf()
-    )
-
-    data class AddTranslationState(
-        val translation: String = "",
-        val wasChanged: Boolean = false
-    )
-
+    //Search
     data class SearchState(
         val count: Int = 0,
         val inProgress: Boolean = false,
@@ -213,6 +222,21 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             isSwitchable = input.isNotEmpty()
         )
     }
+
+    //Preview
+    data class PreviewState(
+        val word: String = "",
+        val transcriptions: List<TranscriptionItem> = listOf(),
+        val translations: List<TranslationItem> = listOf()
+    )
+
+    //Add
+    data class AddTranslationState(
+        val translation: String = "",
+        val wasChanged: Boolean = false
+    )
+
+    private fun translationSateByInput(input: String) = AddTranslationState(input, input.isNotBlank())
 
     companion object {
         private const val DEBOUNCE = 300L

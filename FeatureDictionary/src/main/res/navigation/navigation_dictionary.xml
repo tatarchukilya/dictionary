@@ -38,7 +38,7 @@
 
     <dialog
         android:id="@+id/edit_dialog"
-        android:name="ru.nblackie.dictionary.impl.presentation.edit.EditBottomSheet"
+        android:name="ru.nblackie.dictionary.impl.presentation.add.NewTranslationBottomSheet"
         android:label="dialog_edit"
         tools:layout="@layout/fragment_edit"/>
 

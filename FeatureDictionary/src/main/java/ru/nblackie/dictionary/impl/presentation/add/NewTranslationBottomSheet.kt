@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.edit
+package ru.nblackie.dictionary.impl.presentation.add
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,12 +19,14 @@ import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
+import ru.nblackie.dictionary.impl.presentation.core.NewTranslation
+import ru.nblackie.dictionary.impl.presentation.core.SaveNewTranslation
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 
 /**
  * @author Ilya Tatarchuk
  */
-internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
+internal class NewTranslationBottomSheet : BottomSheetDialogFragment(), NewTranslationView {
 
     private lateinit var editText: CustomEditText
     private lateinit var saveView: ImageView
@@ -43,6 +45,28 @@ internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setUpView(view)
+        setUpObserver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        editText.showKeyboard()
+    }
+
+    override fun setNewTranslation(input: String) {
+        viewModel.handleAction(NewTranslation(input))
+    }
+
+    override fun saveNewTranslation() {
+        viewModel.handleAction(SaveNewTranslation)
+    }
+
+    override fun stopSelf() {
+        findNavController().popBackStack()
+    }
+
+    private fun setUpView(view: View) {
         editText = view.findViewById(R.id.edit_text)
         editText.run {
             onFocusChangeListener = View.OnFocusChangeListener { _, inFocus ->
@@ -53,35 +77,28 @@ internal class EditBottomSheet : BottomSheetDialogFragment(), EditView {
                 }
             }
             doAfterTextChanged {
-                edit(it.toString())
+                setNewTranslation(it.toString())
             }
         }
         saveView = view.findViewById(R.id.save_image_view)
         saveView.setOnClickListener {
-            save()
-            findNavController().popBackStack()
+            saveNewTranslation()
         }
+    }
 
+    private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.addTranslationState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.newTranslationState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 if (editText.text.toString() != it.translation) {
                     editText.setText(it.translation)
                 }
                 saveView.isVisible = it.wasChanged
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        editText.showKeyboard()
-    }
-
-    override fun edit(string: String) {
-        //viewModel.editTranslation(string)
-    }
-
-    override fun save() {
-        //viewModel.saveChanges()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.newTranslationEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                findNavController().popBackStack()
+            }
+        }
     }
 }

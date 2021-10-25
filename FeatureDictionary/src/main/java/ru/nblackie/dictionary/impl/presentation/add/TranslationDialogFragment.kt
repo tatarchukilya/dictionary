@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.edit
+package ru.nblackie.dictionary.impl.presentation.add
 
 import android.annotation.SuppressLint
 import android.app.Dialog
