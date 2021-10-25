@@ -8,7 +8,7 @@ import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
 import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
 import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
-import ru.nblackie.remote.impl.dictionary.model.SearchResultRest
+import ru.nblackie.remote.impl.dictionary.model.search.SearchResultRest
 
 /**
  * @author tatarchukilya@gmail.com
@@ -43,6 +43,8 @@ internal class DictionaryRepositoryImpl(
     override suspend fun deleteTranslation(word: String, translation: String): Int {
         return dao.deleteTranslationByWord(word, translation)
     }
+
+    override suspend fun count(lang: String): Int = api.count(lang).result
 
     override suspend fun combineSearch(input: String, lang: String, limit: Int): List<SearchResult> {
         val remote = searchRemote(input, lang, limit)

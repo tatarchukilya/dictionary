@@ -9,7 +9,7 @@ import ru.nblackie.coredb.impl.db.data.WordLocal
 import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.domain.model.NewTranslation
-import ru.nblackie.remote.impl.dictionary.model.SearchResultRest
+import ru.nblackie.remote.impl.dictionary.model.search.SearchResultRest
 
 /**
  * @author Ilya Tatarchuk

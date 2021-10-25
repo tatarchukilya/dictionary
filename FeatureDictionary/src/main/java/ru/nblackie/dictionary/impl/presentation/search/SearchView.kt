@@ -19,7 +19,7 @@ internal interface SearchView {
 
     fun search(action: SearchInput)
 
-    fun switchSearch()
+    fun switchSearch(isLocal: Boolean)
 
     //Event
     fun showPreview()

@@ -8,6 +8,8 @@ import ru.nblackie.dictionary.impl.domain.model.NewTranslation
  */
 internal interface DictionaryRepository {
 
+    suspend fun count(lang: String): Int
+
     /**
      * Запрашивает варианты перевода с сервера и подтягивает к ним варианты из БД
      * @param input введенное пользователем сллово

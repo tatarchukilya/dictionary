@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -53,6 +54,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     private lateinit var searchRadioGroup: RadioGroup
     private lateinit var toolbar: Toolbar
     private lateinit var recyclerView: RecyclerView
+    private lateinit var remoteRadioButton: RadioButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,8 +89,9 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         setMenuVisibility(state.isClearable)
         toggleState.setSearchSwitchVisibility(state.isSwitchable)
         adapter.submitList(state.items)
-        searchRadioGroup.setState(state.isCache)
+        setSearchState(state.isCache)
         progressBar.isVisible = state.inProgress
+        setCount(state.count)
     }
 
     override fun clearSearch() {
@@ -103,8 +106,8 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         viewModel.handleAction(action)
     }
 
-    override fun switchSearch() {
-        viewModel.handleAction(SwitchSearch)
+    override fun switchSearch(isLocal: Boolean) {
+        viewModel.handleAction(SwitchSearch(isLocal))
     }
 
     override fun showPreview() {
@@ -120,6 +123,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     }
 
     private fun setUpView(view: View) {
+        remoteRadioButton = view.findViewById(R.id.general)
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -147,7 +151,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
 
         searchRadioGroup = view.findViewById(R.id.dictionary_toggle)
-        searchRadioGroup.setOnCheckedChangeListener { _, _ -> switchSearch() }
+        searchRadioGroup.setOnCheckedChangeListener { _, id -> switchSearch(id == R.id.personal) }
     }
 
     private fun setUpObserver() {
@@ -173,13 +177,26 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         translationY = -height.toFloat()
     }
 
-    private fun RadioGroup.setState(isPersonal: Boolean) {
-        if (checkedRadioButtonId == R.id.general && isPersonal) {
-            check(R.id.personal)
-        } else if (checkedRadioButtonId == R.id.personal && !isPersonal) {
-            check(R.id.general)
+    private fun setSearchState(isLocal: Boolean) {
+        if (isLocal) switchToLocal() else switchToRemote()
+    }
+
+    private fun switchToRemote() {
+        if (searchRadioGroup.checkedRadioButtonId != R.id.general) {
+            searchRadioGroup.check(R.id.general)
         }
     }
+
+    private fun switchToLocal() {
+        if (searchRadioGroup.checkedRadioButtonId != R.id.personal) {
+            searchRadioGroup.check(R.id.personal)
+        }
+    }
+
+    private fun setCount(count: Int) {
+        remoteRadioButton.text = getString(R.string.word_count, count)
+    }
+
     private inner class RecyclerAdapter(callback: SearchItemCallback) :
         ListAdapter<TypedItem, BindViewHolder<TypedItem>>(callback) {
 

@@ -8,7 +8,12 @@ import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel.PreviewStat
  */
 internal interface PreviewView {
 
+    //State
     fun setState(state: PreviewState)
 
+    //Action
     fun matchTranslation(action: MatchTranslation)
+
+    //Event
+    fun showAddView()
 }

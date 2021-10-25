@@ -32,4 +32,6 @@ internal interface DictionaryUseCase {
     suspend fun getTranslation(word: String): List<String>
 
     suspend fun deleteTranslation(word: String, translation: String): Int
+
+    suspend fun count(lang: Lang = EN): Int
 }

@@ -9,7 +9,7 @@ internal sealed interface Action
 object ClearSearch : Action
 class SearchInput(val input: String) : Action
 class SelectWord(val position: Int) : Action
-object SwitchSearch : Action
+class SwitchSearch(val isLocal: Boolean) : Action
 
 //Preview
 object AddTranslation : Action

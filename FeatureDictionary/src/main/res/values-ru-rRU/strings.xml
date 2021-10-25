@@ -7,4 +7,5 @@
     <string name="edit">редактировать</string>
     <string name="save">сохранить</string>
     <string name="add">добавить</string>
+    <string name="word_count">%s слов</string>
 </resources>
