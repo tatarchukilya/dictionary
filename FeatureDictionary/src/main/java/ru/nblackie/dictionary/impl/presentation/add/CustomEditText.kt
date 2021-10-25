@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.edit
+package ru.nblackie.dictionary.impl.presentation.add
 
 import android.content.Context
 import android.util.AttributeSet

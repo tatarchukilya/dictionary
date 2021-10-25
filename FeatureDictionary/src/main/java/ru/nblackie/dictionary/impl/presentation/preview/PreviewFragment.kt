@@ -11,7 +11,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -21,10 +20,12 @@ import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
+import ru.nblackie.dictionary.impl.presentation.core.AddTranslation
 import ru.nblackie.dictionary.impl.presentation.core.MatchTranslation
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
+import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationItemCallback
 import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
 
 /**
@@ -52,15 +53,10 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         setUpToolbar(view)
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = concatAdapter
-        fab = view.findViewById(R.id.fab)
-        fab.setOnClickListener {
-            showEditFragment()
+        view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+            sendNewWordAction()
         }
         setUpObserver()
-        postponeEnterTransition()
-        recyclerView.doOnPreDraw {
-            startPostponedEnterTransition()
-        }
     }
 
     private fun setUpToolbar(view: View) {
@@ -77,10 +73,12 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
                 setState(it)
             }
         }
-    }
 
-    private fun showEditFragment() {
-        findNavController().navigate(R.id.preview_to_edit_dialog)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.previewEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                showNewTranslationView()
+            }
+        }
     }
 
     private inner class TranscriptionAdapter : RecyclerView.Adapter<TranscriptionViewHolder>() {
@@ -116,23 +114,11 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         }
     }
 
-    //DiffUtil
-    private class TranslationItemCallback : DiffUtil.ItemCallback<TranslationItem>() {
-
-        override fun areItemsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {
-            return oldItem.translation.data == newItem.translation.data
-        }
-
-        override fun areContentsTheSame(oldItem: TranslationItem, newItem: TranslationItem): Boolean {
-            return oldItem.translation == newItem.translation
-        }
-    }
-
     override fun setState(state: SharedViewModel.PreviewState) {
         toolbar.title = state.word.firstCharUpperCase()
         transcriptionAdapter.items = state.transcriptions
         translationAdapter.submitList(state.translations)
-        //TODO пидумать архитектурное решение
+        //TODO придумать архитектурное решение
         if (state.translations.isEmpty()) {
             activity?.onBackPressed()
         }
@@ -142,7 +128,11 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         viewModel.handleAction(action)
     }
 
-    override fun showAddView() {
-        TODO("Not yet implemented")
+    override fun sendNewWordAction() {
+        viewModel.handleAction(AddTranslation)
+    }
+
+    override fun showNewTranslationView() {
+        findNavController().navigate(R.id.preview_to_edit_dialog)
     }
 }

@@ -6,15 +6,26 @@ package ru.nblackie.dictionary.impl.presentation.core
 internal sealed interface Action
 
 // Search
-object ClearSearch : Action
-class SearchInput(val input: String) : Action
-class SelectWord(val position: Int) : Action
-class SwitchSearch(val isLocal: Boolean) : Action
+internal object ClearSearch : Action
+internal class SearchInput(val input: String) : Action
+internal class SelectWord(val position: Int) : Action
+internal class SwitchSearch(val isLocal: Boolean) : Action
 
 //Preview
-object AddTranslation : Action
-class MatchTranslation(val position: Int) : Action
+internal object AddTranslation : Action
+internal class MatchTranslation(val position: Int) : Action
 
-sealed interface Event
-object ShowPreview : Event
-object ShowAddView : Event
+//New
+internal class NewTranslation(val input: String) : Action
+internal object SaveNewTranslation : Action
+
+internal sealed interface Event
+
+//Search
+internal object ShowPreview : Event
+
+//Preview
+internal object ShowNewWordView : Event
+
+//Add
+internal object StopSelf: Event

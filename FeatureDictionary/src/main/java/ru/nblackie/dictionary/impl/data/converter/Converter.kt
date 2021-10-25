@@ -31,7 +31,14 @@ internal fun Map.Entry<String, List<FullSearchRow>>.toSearchResult(): SearchResu
  * @param local варианты перевода в БД
  */
 internal fun SearchResultRest.toSearchResult(local: List<TranslationSearchRow>?): SearchResult {
-    return SearchResult(word, transcription, translation.map {
+    val newList: MutableList<String> = translation.toMutableList()
+    newList.addAll(local
+        ?.filter { row -> newList.find { it == row.translation } == null }
+        ?.map { it.translation }
+        ?: listOf()
+    )
+
+    return SearchResult(word, transcription, newList.map {
         Translation(it, local?.find { row -> row.translation == it } != null)
     }.sortedBy { !it.isAdded })
 }
