@@ -22,6 +22,7 @@ import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 import ru.nblackie.dictionary.impl.presentation.core.NewTranslation
 import ru.nblackie.dictionary.impl.presentation.core.SaveNewTranslation
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
+import ru.nblackie.dictionary.impl.presentation.core.StopSelf
 
 /**
  * @author Ilya Tatarchuk
@@ -73,7 +74,7 @@ internal class NewTranslationBottomSheet : BottomSheetDialogFragment(), NewTrans
                 if (inFocus) {
                     dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
                 } else {
-                    activity?.onBackPressed()
+                    stopSelf()
                 }
             }
             doAfterTextChanged {
@@ -97,7 +98,9 @@ internal class NewTranslationBottomSheet : BottomSheetDialogFragment(), NewTrans
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.newTranslationEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
-                findNavController().popBackStack()
+                if (it is StopSelf) {
+                    stopSelf()
+                }
             }
         }
     }
