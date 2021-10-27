@@ -1,8 +1,7 @@
 package ru.nblackie.dictionary.impl.di.internal
 
-import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.dictionary.api.di.DictionaryFeatureApi
-import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
+import ru.nblackie.dictionary.impl.domain.usecase.UseCase
 
 /**
  *  Предоставляет internal зависимости модуля
@@ -11,5 +10,5 @@ import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
  */
 internal interface DictionaryFeatureInternalApi : DictionaryFeatureApi {
 
-    fun sharedViewModel(): ViewModelProviderFactory<SharedViewModel>
+    fun useCases(): Map<Class<out UseCase>, UseCase>
 }

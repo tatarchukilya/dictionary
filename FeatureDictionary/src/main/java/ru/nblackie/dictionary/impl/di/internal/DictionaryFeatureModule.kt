@@ -3,6 +3,8 @@ package ru.nblackie.dictionary.impl.di.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.fragment.ContainerFragment
 import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
@@ -15,6 +17,7 @@ import ru.nblackie.dictionary.impl.data.repository.db.DbRepositoryImpl
 import ru.nblackie.dictionary.impl.data.repository.remote.RemoteRepositoryImpl
 import ru.nblackie.dictionary.impl.domain.repository.DbRepository
 import ru.nblackie.dictionary.impl.domain.repository.RemoteRepository
+import ru.nblackie.dictionary.impl.domain.usecase.UseCase
 import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCase
@@ -55,53 +58,51 @@ internal object DictionaryFeatureModule {
     @PerFeature
     fun provideDbRepo(dao: DictionaryDao): DbRepository = DbRepositoryImpl(dao)
 
+    @IntoMap
     @Provides
     @PerFeature
+    @UseCaseClassKey(RemoteSearchUseCase::class)
     fun provideRemoteSearchUseCase(
         remoteRepository: RemoteRepository,
         dbRepository: DbRepository,
         resourceManager: ResourceManager
-    ): RemoteSearchUseCase {
+    ): UseCase {
         return RemoteSearchUseCaseImpl(remoteRepository, dbRepository, CacheImpl(), resourceManager)
     }
 
+    @IntoMap
     @Provides
     @PerFeature
-    fun provideDbSearchUseCase(repository: DbRepository): DbSearchUseCase = DbSearchUseCaseImpl(repository)
+    @UseCaseClassKey(DbSearchUseCase::class)
+    fun provideDbSearchUseCase(repository: DbRepository): UseCase = DbSearchUseCaseImpl(repository)
 
+    @IntoMap
     @Provides
     @PerFeature
-    fun provideRemoteCountUseCase(repository: RemoteRepository): RemoteCountUseCase {
+    @UseCaseClassKey(RemoteCountUseCase::class)
+    fun provideRemoteCountUseCase(repository: RemoteRepository): UseCase {
         return RemoteCountUseCaseImpl(repository)
     }
 
+    @IntoMap
     @Provides
     @PerFeature
-    fun provideDeleteTranslationUseCase(repository: DbRepository): DeleteTranslationUseCase {
+    @UseCaseClassKey(DeleteTranslationUseCase::class)
+    fun provideDeleteTranslationUseCase(repository: DbRepository): UseCase {
         return DeleteTranslationUseCaseImpl(repository)
     }
 
+    @IntoMap
     @Provides
     @PerFeature
-    fun provideAddTranslationUseCase(repository: DbRepository): AddTranslationsUseCase {
+    @UseCaseClassKey(AddTranslationsUseCase::class)
+    fun provideAddTranslationUseCase(repository: DbRepository): UseCase {
         return AddTranslationsUseCaseImpl(repository)
     }
 
     @Provides
-    fun provideViewModelProviderFactory(
-        multiSourceUseCase: RemoteSearchUseCase,
-        dbSearch: DbSearchUseCase,
-        remoteCountUseCase: RemoteCountUseCase,
-        deleteTranslationsUseCase: DeleteTranslationUseCase,
-        addTranslationsUseCase: AddTranslationsUseCase
-    ):
+    fun provideViewModelProviderFactory():
         ViewModelProviderFactory<SharedViewModel> = ViewModelProviderFactory({
-        SharedViewModel(
-            multiSourceUseCase,
-            dbSearch,
-            remoteCountUseCase,
-            deleteTranslationsUseCase,
-            addTranslationsUseCase
-        )
+        SharedViewModel(HashMap())
     })
 }

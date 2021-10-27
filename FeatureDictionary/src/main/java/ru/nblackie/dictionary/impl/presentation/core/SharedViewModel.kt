@@ -16,6 +16,7 @@ import ru.nblackie.dictionary.impl.domain.model.SearchItem
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.domain.model.TypedItem
+import ru.nblackie.dictionary.impl.domain.usecase.UseCase
 import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCase
@@ -26,17 +27,14 @@ import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCase
  * @author tatarchukilya@gmail.com
  */
 internal class SharedViewModel(
-    private val multiSourceSearch: RemoteSearchUseCase,
-    private val dbSearch: DbSearchUseCase,
-    private val remoteCount: RemoteCountUseCase,
-    private val deleteTranslation: DeleteTranslationUseCase,
-    private val addTranslation: AddTranslationsUseCase
+    private val useCases: Map<Class<out UseCase>, UseCase>
 ) : ViewModel() {
 
     private var searchJob: Job? = null
     private var countJob: Job? = null
 
     //Dictionary
+    //TODO
 
     //Search
     private val _searchState = MutableStateFlow(SearchState())
@@ -81,7 +79,7 @@ internal class SharedViewModel(
         countJob?.cancel()
     }
 
-    //Search
+    // //Search
     private fun setSearchInput(input: String) {
         if (input != searchState.value.input) {
             _searchState.value = searchState.value.setSearchInput(input)
@@ -89,6 +87,7 @@ internal class SharedViewModel(
         }
     }
 
+    //
     private fun switchSearch(isLocal: Boolean) {
         _searchState.value = searchState.value.copy(isCache = isLocal)
         search()
@@ -113,7 +112,8 @@ internal class SharedViewModel(
             delay(DEBOUNCE)
             runCatching {
                 _searchState.value = searchState.value.copy(inProgress = true)
-                multiSourceSearch.run(input)
+                //multiSourceSearch.run(input)
+                getUseCase(RemoteSearchUseCase::class.java).run(input)
             }.onSuccess {
                 setSearchItems(it)
             }.onFailure {
@@ -127,7 +127,8 @@ internal class SharedViewModel(
         searchJob = viewModelScope.launch {
             delay(DEBOUNCE)
             runCatching {
-                dbSearch.run(input)
+                getUseCase(DbSearchUseCase::class.java).run(input)
+                //dbSearch.run(input)
             }.onSuccess {
                 setSearchItems(it)
             }.onFailure {
@@ -139,7 +140,7 @@ internal class SharedViewModel(
     private fun getCount() {
         countJob = viewModelScope.launch {
             runCatching {
-                remoteCount.run()
+                getUseCase(RemoteCountUseCase::class.java).run()
             }.onSuccess {
                 _searchState.value = searchState.value.copy(count = it)
             }.onFailure {
@@ -174,19 +175,17 @@ internal class SharedViewModel(
         viewModelScope.launch {
             previewState.value.translations[position].translation.let {
                 if (it.isAdded) {
-                    //useCase.deleteTranslation(previewState.value.word, it.data)
-                    deleteTranslation.run(previewState.value.word, it.data)
+                    getUseCase(DeleteTranslationUseCase::class.java).run(previewState.value.word, it.data)
                 } else {
-                    // useCase.addTranslation(
-                    //     previewState.value.word,
-                    //     previewState.value.transcriptions[0].transcription,
-                    //     it.data
-                    // )
                     addTranslation(previewState.value.word, previewState.value.transcriptions[0].transcription, it.data)
                 }
             }
             search()
         }
+    }
+
+    private suspend fun addTranslation(word: String, transcription: String, translation: String) {
+        getUseCase(AddTranslationsUseCase::class.java).run(word, transcription, translation)
     }
 
     private fun showNewTranslationView() {
@@ -201,18 +200,9 @@ internal class SharedViewModel(
         _newTranslationState.value = translationSateByInput(input)
     }
 
-    private suspend fun addTranslation(word: String, transcription: String, translation: String) {
-        addTranslation.run(word, transcription, translation)
-    }
-
     private fun saveNewTranslation() {
         viewModelScope.launch {
             previewState.value.let {
-                // useCase.addTranslation(
-                //     it.word,
-                //     it.transcriptions[0].transcription,
-                //     newTranslationState.value.translation
-                // )
                 addTranslation(it.word, it.transcriptions[0].transcription, newTranslationState.value.translation)
             }
             _newTranslationEvent.send(StopSelf)
@@ -252,6 +242,11 @@ internal class SharedViewModel(
         val translation: String = "",
         val wasChanged: Boolean = false
     )
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : UseCase> getUseCase(clazz: Class<T>): T {
+        return useCases[clazz] as T
+    }
 
     private fun translationSateByInput(input: String) = AddTranslationState(input, input.isNotBlank())
 

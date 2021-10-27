@@ -3,6 +3,7 @@ package ru.nblackie.dictionary.impl.presentation.core
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.navGraphViewModels
+import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 
@@ -12,6 +13,7 @@ import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 internal open class ViewModelFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes) {
 
     protected val viewModel: SharedViewModel by navGraphViewModels(R.id.graph_dictionary) {
-        DictionaryFeatureHolder.getInternalApi().sharedViewModel()
+        ViewModelProviderFactory({ SharedViewModel(DictionaryFeatureHolder.getInternalApi().useCases()) })
+       // DictionaryFeatureHolder.getInternalApi().sharedViewModel()
     }
 }

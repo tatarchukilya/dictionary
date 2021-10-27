@@ -17,6 +17,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.utils.showKeyboard
+import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
 import ru.nblackie.dictionary.impl.presentation.core.NewTranslation
@@ -33,7 +34,7 @@ internal class NewTranslationBottomSheet : BottomSheetDialogFragment(), NewTrans
     private lateinit var saveView: ImageView
 
     private val viewModel: SharedViewModel by navGraphViewModels(R.id.graph_dictionary) {
-        DictionaryFeatureHolder.getInternalApi().sharedViewModel()
+        ViewModelProviderFactory({ SharedViewModel(DictionaryFeatureHolder.getInternalApi().useCases()) })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
