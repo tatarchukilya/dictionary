@@ -16,12 +16,22 @@ import ru.nblackie.dictionary.impl.domain.model.SearchItem
 import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem
 import ru.nblackie.dictionary.impl.domain.model.TypedItem
-import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCase
 
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewModel() {
+internal class SharedViewModel(
+    private val multiSourceSearch: RemoteSearchUseCase,
+    private val dbSearch: DbSearchUseCase,
+    private val remoteCount: RemoteCountUseCase,
+    private val deleteTranslation: DeleteTranslationUseCase,
+    private val addTranslation: AddTranslationsUseCase
+) : ViewModel() {
 
     private var searchJob: Job? = null
     private var countJob: Job? = null
@@ -103,7 +113,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
             delay(DEBOUNCE)
             runCatching {
                 _searchState.value = searchState.value.copy(inProgress = true)
-                useCase.combineSearch(input)
+                multiSourceSearch.run(input)
             }.onSuccess {
                 setSearchItems(it)
             }.onFailure {
@@ -117,7 +127,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         searchJob = viewModelScope.launch {
             delay(DEBOUNCE)
             runCatching {
-                useCase.searchDb(input)
+                dbSearch.run(input)
             }.onSuccess {
                 setSearchItems(it)
             }.onFailure {
@@ -129,7 +139,7 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
     private fun getCount() {
         countJob = viewModelScope.launch {
             runCatching {
-                useCase.count()
+                remoteCount.run()
             }.onSuccess {
                 _searchState.value = searchState.value.copy(count = it)
             }.onFailure {
@@ -164,13 +174,15 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         viewModelScope.launch {
             previewState.value.translations[position].translation.let {
                 if (it.isAdded) {
-                    useCase.deleteTranslation(previewState.value.word, it.data)
+                    //useCase.deleteTranslation(previewState.value.word, it.data)
+                    deleteTranslation.run(previewState.value.word, it.data)
                 } else {
-                    useCase.addTranslation(
-                        previewState.value.word,
-                        previewState.value.transcriptions[0].transcription,
-                        it.data
-                    )
+                    // useCase.addTranslation(
+                    //     previewState.value.word,
+                    //     previewState.value.transcriptions[0].transcription,
+                    //     it.data
+                    // )
+                    addTranslation(previewState.value.word, previewState.value.transcriptions[0].transcription, it.data)
                 }
             }
             search()
@@ -189,14 +201,19 @@ internal class SharedViewModel(private val useCase: DictionaryUseCase) : ViewMod
         _newTranslationState.value = translationSateByInput(input)
     }
 
+    private suspend fun addTranslation(word: String, transcription: String, translation: String) {
+        addTranslation.run(word, transcription, translation)
+    }
+
     private fun saveNewTranslation() {
         viewModelScope.launch {
             previewState.value.let {
-                useCase.addTranslation(
-                    it.word,
-                    it.transcriptions[0].transcription,
-                    newTranslationState.value.translation
-                )
+                // useCase.addTranslation(
+                //     it.word,
+                //     it.transcriptions[0].transcription,
+                //     newTranslationState.value.translation
+                // )
+                addTranslation(it.word, it.transcriptions[0].transcription, newTranslationState.value.translation)
             }
             _newTranslationEvent.send(StopSelf)
             search()

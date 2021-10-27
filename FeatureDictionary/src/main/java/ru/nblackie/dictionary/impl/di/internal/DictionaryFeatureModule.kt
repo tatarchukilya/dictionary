@@ -5,21 +5,28 @@ import dagger.Module
 import dagger.Provides
 import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.fragment.ContainerFragment
-import ru.nblackie.core.impl.viewmodel.SaveStateViewModelProviderFactory
-import ru.nblackie.core.impl.viewmodel.ViewModelAssistedProvideFactory
 import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.cache.Cache
 import ru.nblackie.dictionary.impl.data.cache.CacheImpl
-import ru.nblackie.dictionary.impl.data.repository.DictionaryRepositoryImpl
-import ru.nblackie.dictionary.impl.domain.repository.DictionaryRepository
-import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCase
-import ru.nblackie.dictionary.impl.domain.usecase.DictionaryUseCaseImpl
+import ru.nblackie.dictionary.impl.data.repository.db.DbRepositoryImpl
+import ru.nblackie.dictionary.impl.data.repository.remote.RemoteRepositoryImpl
+import ru.nblackie.dictionary.impl.domain.repository.DbRepository
+import ru.nblackie.dictionary.impl.domain.repository.RemoteRepository
+import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCaseImpl
+import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCaseImpl
+import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCaseImpl
+import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCaseImpl
+import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCaseImpl
 import ru.nblackie.dictionary.impl.presentation.DictionaryStackFragment
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
-import ru.nblackie.dictionary.impl.presentation.dictionary.DictionaryViewModelNew
 import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 
 /**
@@ -29,7 +36,6 @@ import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 internal object DictionaryFeatureModule {
 
     @Provides
-    @PerFeature
     fun provideCache(): Cache<String> = CacheImpl()
 
     @Provides
@@ -43,31 +49,59 @@ internal object DictionaryFeatureModule {
 
     @Provides
     @PerFeature
-    fun provideRepository(
-        api: RemoteDictionaryApi,
-        dao: DictionaryDao
-    ): DictionaryRepository = DictionaryRepositoryImpl(api, dao)
+    fun provideRemoteRepo(api: RemoteDictionaryApi): RemoteRepository = RemoteRepositoryImpl(api)
 
     @Provides
     @PerFeature
-    fun provideDictionaryUseCase(
-        repository: DictionaryRepository,
-        resourceManager: ResourceManager
-    ): DictionaryUseCase =
-        DictionaryUseCaseImpl(repository, resourceManager)
+    fun provideDbRepo(dao: DictionaryDao): DbRepository = DbRepositoryImpl(dao)
 
     @Provides
-    fun provideTempCreator(useCase: DictionaryUseCase): ViewModelAssistedProvideFactory<DictionaryViewModelNew> {
-        return ViewModelAssistedProvideFactory<DictionaryViewModelNew> { owner, defaultArgs ->
-            SaveStateViewModelProviderFactory(owner, defaultArgs) {
-                DictionaryViewModelNew(useCase, it)
-            }
-        }
+    @PerFeature
+    fun provideRemoteSearchUseCase(
+        remoteRepository: RemoteRepository,
+        dbRepository: DbRepository,
+        resourceManager: ResourceManager
+    ): RemoteSearchUseCase {
+        return RemoteSearchUseCaseImpl(remoteRepository, dbRepository, CacheImpl(), resourceManager)
     }
 
     @Provides
-    fun provideViewModelProviderFactory(useCase: DictionaryUseCase):
-        ViewModelProviderFactory<SharedViewModel> =
-        ViewModelProviderFactory({ SharedViewModel(useCase) }) //{ viewModel -> viewModel?.getCount() }
-    //ViewModelProviderFactory { SharedViewModel(useCase) }
+    @PerFeature
+    fun provideDbSearchUseCase(repository: DbRepository): DbSearchUseCase = DbSearchUseCaseImpl(repository)
+
+    @Provides
+    @PerFeature
+    fun provideRemoteCountUseCase(repository: RemoteRepository): RemoteCountUseCase {
+        return RemoteCountUseCaseImpl(repository)
+    }
+
+    @Provides
+    @PerFeature
+    fun provideDeleteTranslationUseCase(repository: DbRepository): DeleteTranslationUseCase {
+        return DeleteTranslationUseCaseImpl(repository)
+    }
+
+    @Provides
+    @PerFeature
+    fun provideAddTranslationUseCase(repository: DbRepository): AddTranslationsUseCase {
+        return AddTranslationsUseCaseImpl(repository)
+    }
+
+    @Provides
+    fun provideViewModelProviderFactory(
+        multiSourceUseCase: RemoteSearchUseCase,
+        dbSearch: DbSearchUseCase,
+        remoteCountUseCase: RemoteCountUseCase,
+        deleteTranslationsUseCase: DeleteTranslationUseCase,
+        addTranslationsUseCase: AddTranslationsUseCase
+    ):
+        ViewModelProviderFactory<SharedViewModel> = ViewModelProviderFactory({
+        SharedViewModel(
+            multiSourceUseCase,
+            dbSearch,
+            remoteCountUseCase,
+            deleteTranslationsUseCase,
+            addTranslationsUseCase
+        )
+    })
 }

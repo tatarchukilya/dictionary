@@ -7,20 +7,13 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.data.model.SearchResult
 import ru.nblackie.dictionary.impl.data.model.Translation
+import ru.nblackie.dictionary.impl.data.model.Word
 import ru.nblackie.dictionary.impl.domain.model.SearchItem
-import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
-import ru.nblackie.dictionary.impl.domain.model.TranslationItem
-import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 
 /**
  * @author tatarchukilya@gmail.com
  */
-
-internal fun SearchResult.toItem(): SearchItem {
-    return SearchItem(word, transcription ?: "", translation, translation.joinToString { it.data })
-}
 
 /**
  * Преобразует список слов в строку, выделят в полученной строке слова, которые есть в БД
@@ -54,12 +47,30 @@ internal fun List<Translation>.toSpannable(resourceManager: ResourceManager): Sp
     return spannable
 }
 
-internal fun SearchResult.toSearchSpannableItem(resourceManager: ResourceManager): SearchItem {
-    return SearchItem(word, transcription ?: "", translation, translation.toSpannable(resourceManager))
+/**
+ * Возвращает [SearchItem] из двух [Word]. Предполагается, что [term] получен из БД, и все варианты перевода,
+ * которые он содержит меняют [Translation.isAdded] на true
+ *
+ * @param term - данные из БД
+ */
+internal fun Word.concat(term: Word?, resourceManager: ResourceManager): SearchItem {
+    val concatTranslation = (translations + (term?.translations ?: listOf()))
+        .groupBy { it }
+        .map { Translation(it.key, term?.translations?.find { tr -> tr == it.key } != null) }
+        .sortedBy { !it.isAdded }
+    return SearchItem(
+        data,
+        transcription ?: term?.transcription ?: "[]",
+        concatTranslation,
+        concatTranslation.toSpannable(resourceManager)
+    )
 }
 
-internal fun SearchResult.toPreview(): SharedViewModel.PreviewState {
-    return SharedViewModel.PreviewState(
-        word, listOf(TranscriptionItem(transcription ?: "")), translation.map { TranslationItem(it) }
+internal fun Word.toSearchItem(): SearchItem {
+    return SearchItem(
+        data,
+        transcription ?: "[]",
+        translations.map { Translation(it, true) },
+        translations.joinToString()
     )
 }
