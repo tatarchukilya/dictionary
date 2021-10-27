@@ -5,5 +5,5 @@ package ru.nblackie.dictionary.impl.domain.model
  */
 internal interface TypedItem {
 
-    abstract val type: ItemType
+    val type: ItemType
 }
