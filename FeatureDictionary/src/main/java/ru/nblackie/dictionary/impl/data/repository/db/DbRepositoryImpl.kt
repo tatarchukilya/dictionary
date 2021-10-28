@@ -23,9 +23,16 @@ internal class DbRepositoryImpl(private val dao: DictionaryDao) : DbRepository {
             }
     }
 
-    override suspend fun getSingleWord(word: String, lang: String): Word? {
-        return dao
-            .getSingleWord(word, lang)
+    override suspend fun deleteTranslation(word: String, translation: String): Int {
+        return dao.deleteTranslationByWord(word, translation)
+    }
+
+    override suspend fun add(data: NewTranslation) {
+        dao.add(data.toFullData())
+    }
+
+    override suspend fun getDictionary(lang: String): List<Word> {
+        return dao.getDictionary(lang)
             .groupBy { it.word }
             .map {
                 Word(
@@ -34,18 +41,5 @@ internal class DbRepositoryImpl(private val dao: DictionaryDao) : DbRepository {
                     it.value.map { data -> data.translation }
                 )
             }
-            .firstOrNull()
-    }
-
-    override suspend fun getTranslation(word: String): List<String> {
-        return dao.getTranslation(word).map { it.translation }
-    }
-
-    override suspend fun deleteTranslation(word: String, translation: String): Int {
-        return dao.deleteTranslationByWord(word, translation)
-    }
-
-    override suspend fun add(data: NewTranslation) {
-        dao.add(data.toFullData())
     }
 }

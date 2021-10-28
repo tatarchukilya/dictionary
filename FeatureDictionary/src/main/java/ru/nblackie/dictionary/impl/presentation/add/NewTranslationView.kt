@@ -3,7 +3,7 @@ package ru.nblackie.dictionary.impl.presentation.add
 /**
  * @author Ilya Tatarchuk
  */
-interface NewTranslationView {
+internal interface NewTranslationView {
 
     //Action
     fun setNewTranslation(input: String)

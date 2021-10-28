@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.preview.recycler
+package ru.nblackie.dictionary.impl.presentation.recycler.callback
 
 import androidx.recyclerview.widget.DiffUtil
 import ru.nblackie.dictionary.impl.domain.model.TranslationItem

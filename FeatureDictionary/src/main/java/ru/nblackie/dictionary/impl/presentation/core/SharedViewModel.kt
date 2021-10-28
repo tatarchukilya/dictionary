@@ -20,6 +20,7 @@ import ru.nblackie.dictionary.impl.domain.usecase.UseCase
 import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.DictionaryUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCase
 
@@ -30,11 +31,13 @@ internal class SharedViewModel(
     private val useCases: Map<Class<out UseCase>, UseCase>
 ) : ViewModel() {
 
-    private var searchJob: Job? = null
     private var countJob: Job? = null
+    private var dictionaryJob: Job? = null
+    private var searchJob: Job? = null
 
     //Dictionary
-    //TODO
+    private val _dictionaryState = MutableStateFlow<List<TypedItem>>(listOf())
+    val dictionaryState: StateFlow<List<TypedItem>> = _dictionaryState.asStateFlow()
 
     //Search
     private val _searchState = MutableStateFlow(SearchState())
@@ -58,6 +61,7 @@ internal class SharedViewModel(
     val newTranslationEvent = _newTranslationEvent.receiveAsFlow()
 
     init {
+        getDictionary()
         getCount()
     }
 
@@ -75,8 +79,22 @@ internal class SharedViewModel(
     }
 
     override fun onCleared() {
-        searchJob?.cancel()
         countJob?.cancel()
+        dictionaryJob?.cancel()
+        searchJob?.cancel()
+    }
+
+    //Dictionary
+    private fun getDictionary() {
+        dictionaryJob = viewModelScope.launch {
+            runCatching {
+               getUseCase(DictionaryUseCase::class.java).run()
+            }.onSuccess {
+                _dictionaryState.value = listResultList(it)
+            }.onFailure {
+
+            }
+        }
     }
 
     // //Search
@@ -87,7 +105,6 @@ internal class SharedViewModel(
         }
     }
 
-    //
     private fun switchSearch(isLocal: Boolean) {
         _searchState.value = searchState.value.copy(isCache = isLocal)
         search()
@@ -112,7 +129,6 @@ internal class SharedViewModel(
             delay(DEBOUNCE)
             runCatching {
                 _searchState.value = searchState.value.copy(inProgress = true)
-                //multiSourceSearch.run(input)
                 getUseCase(RemoteSearchUseCase::class.java).run(input)
             }.onSuccess {
                 setSearchItems(it)
@@ -150,7 +166,7 @@ internal class SharedViewModel(
     }
 
     private fun setSearchItems(items: List<SearchItem>) {
-        _searchState.value = searchState.value.copy(items = searchResultList(items), inProgress = false)
+        _searchState.value = searchState.value.copy(items = listResultList(items), inProgress = false)
         items.find { it.word == previewState.value.word }?.let {
             _previewState.value = it.toPreview()
         } ?: run {
@@ -158,7 +174,7 @@ internal class SharedViewModel(
         }
     }
 
-    private fun searchResultList(newItems: List<TypedItem>): MutableList<TypedItem> {
+    private fun listResultList(newItems: List<TypedItem>): MutableList<TypedItem> {
         return emptyList().apply {
             addAll(1, newItems)
         }

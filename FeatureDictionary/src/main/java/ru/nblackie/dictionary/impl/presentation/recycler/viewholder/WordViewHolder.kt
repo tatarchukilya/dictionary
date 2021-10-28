@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.search.recycler
+package ru.nblackie.dictionary.impl.presentation.recycler.viewholder
 
 import android.view.View
 import android.widget.TextView
@@ -11,7 +11,7 @@ import ru.nblackie.dictionary.impl.presentation.core.SelectWord
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class SearchViewHolder(view: View, actionObserver: (Action) -> Unit) :
+internal class WordViewHolder(view: View, actionObserver: (Action) -> Unit) :
     BindViewHolder<SearchItem>(view, actionObserver) {
 
     private val wordView = view.findViewById<TextView>(R.id.word_text_view)

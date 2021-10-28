@@ -14,6 +14,5 @@ internal open class ViewModelFragment(@LayoutRes layoutRes: Int) : Fragment(layo
 
     protected val viewModel: SharedViewModel by navGraphViewModels(R.id.graph_dictionary) {
         ViewModelProviderFactory({ SharedViewModel(DictionaryFeatureHolder.getInternalApi().useCases()) })
-       // DictionaryFeatureHolder.getInternalApi().sharedViewModel()
     }
 }

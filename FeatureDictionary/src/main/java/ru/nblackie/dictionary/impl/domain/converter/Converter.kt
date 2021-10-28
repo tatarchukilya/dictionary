@@ -20,7 +20,7 @@ import ru.nblackie.dictionary.impl.domain.model.SearchItem
  *
  * @param resourceManager доступ к ресурсам, нужен, чтобы получить цвет для [ForegroundColorSpan]
  */
-//TODO возможность получать ресурсы с поправкой на тему
+//TODO Получать ресурсы с поправкой на тему
 internal fun List<Translation>.toSpannable(resourceManager: ResourceManager): SpannableString {
     val string = joinToString { it.data }
     var start = 0

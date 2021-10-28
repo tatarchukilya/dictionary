@@ -8,7 +8,7 @@ import androidx.appcompat.widget.AppCompatEditText
 /**
  * @author Ilya Tatarchuk
  */
-class CustomEditText @JvmOverloads constructor(
+internal class CustomEditText @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = android.R.attr.editTextStyle

@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.search.recycler
+package ru.nblackie.dictionary.impl.presentation.recycler.viewholder
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -18,8 +18,10 @@ internal fun viewHolderFactoryMethod(
     actionObserver: (Action) -> Unit
 ): BindViewHolder<TypedItem> {
     return when (type) {
-        ItemType.EMPTY.code -> EmptyViewHolder.create(parent)
-        ItemType.SEARCH_TEXT.code -> SearchViewHolder(
+        ItemType.EMPTY.code -> EmptyViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.view_empty, parent, false)
+        )
+        ItemType.SEARCH_TEXT.code -> WordViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.view_search_word, parent, false),
             actionObserver
         )

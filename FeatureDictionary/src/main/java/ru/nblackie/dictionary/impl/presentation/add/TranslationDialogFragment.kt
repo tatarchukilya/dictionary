@@ -15,7 +15,7 @@ import ru.nblackie.dictionary.R
 /**
  * @author Ilya Tatarchuk
  */
-class TranslationDialogFragment : DialogFragment() {
+internal class TranslationDialogFragment : DialogFragment() {
 
     private lateinit var editText: EditText
 
