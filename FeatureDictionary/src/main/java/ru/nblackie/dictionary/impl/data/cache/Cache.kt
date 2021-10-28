@@ -3,7 +3,7 @@ package ru.nblackie.dictionary.impl.data.cache
 /**
  * @author tatarchukilya@gmail.com
  */
-interface Cache<K> {
+internal interface Cache<K> {
 
     fun <V> getIfExist(key: K, clazz: Class<V>): V?
 

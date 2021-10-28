@@ -3,7 +3,7 @@ package ru.nblackie.dictionary.impl.data.cache
 /**
  * @author tatarchukilya@gmail.com
  */
-class CacheImpl<K> : Cache<K> {
+internal class CacheImpl<K> : Cache<K> {
 
     private val store = hashMapOf<K, Any>()
 

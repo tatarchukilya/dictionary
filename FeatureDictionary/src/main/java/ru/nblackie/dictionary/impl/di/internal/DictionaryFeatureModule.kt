@@ -3,7 +3,6 @@ package ru.nblackie.dictionary.impl.di.internal
 import androidx.navigation.fragment.NavHostFragment
 import dagger.Module
 import dagger.Provides
-import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.core.impl.fragment.ContainerFragment
@@ -11,7 +10,6 @@ import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.coredb.impl.db.DictionaryDao
 import ru.nblackie.coredi.PerFeature
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.data.cache.Cache
 import ru.nblackie.dictionary.impl.data.cache.CacheImpl
 import ru.nblackie.dictionary.impl.data.repository.db.DbRepositoryImpl
 import ru.nblackie.dictionary.impl.data.repository.remote.RemoteRepositoryImpl
@@ -24,6 +22,8 @@ import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCas
 import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCaseImpl
+import ru.nblackie.dictionary.impl.domain.usecase.reed.DictionaryUseCase
+import ru.nblackie.dictionary.impl.domain.usecase.reed.DictionaryUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCaseImpl
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCase
@@ -39,9 +39,6 @@ import ru.nblackie.remote.impl.dictionary.RemoteDictionaryApi
 internal object DictionaryFeatureModule {
 
     @Provides
-    fun provideCache(): Cache<String> = CacheImpl()
-
-    @Provides
     @PerFeature
     fun provideContainerFragment(): ContainerFragment = DictionaryStackFragment.newInstance()
 
@@ -52,11 +49,19 @@ internal object DictionaryFeatureModule {
 
     @Provides
     @PerFeature
-    fun provideRemoteRepo(api: RemoteDictionaryApi): RemoteRepository = RemoteRepositoryImpl(api)
+    fun provideRemoteRepository(api: RemoteDictionaryApi): RemoteRepository = RemoteRepositoryImpl(api)
 
     @Provides
     @PerFeature
-    fun provideDbRepo(dao: DictionaryDao): DbRepository = DbRepositoryImpl(dao)
+    fun provideDbRepository(dao: DictionaryDao): DbRepository = DbRepositoryImpl(dao)
+
+    @Provides
+    @IntoMap
+    @PerFeature
+    @UseCaseClassKey(DictionaryUseCase::class)
+    fun provideDictionaryUseCase(repository: DbRepository): UseCase {
+        return DictionaryUseCaseImpl(repository)
+    }
 
     @IntoMap
     @Provides

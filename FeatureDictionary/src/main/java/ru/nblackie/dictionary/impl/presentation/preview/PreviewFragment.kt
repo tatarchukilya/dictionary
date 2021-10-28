@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -24,9 +23,9 @@ import ru.nblackie.dictionary.impl.presentation.core.AddTranslation
 import ru.nblackie.dictionary.impl.presentation.core.MatchTranslation
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
-import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranscriptionViewHolder
-import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationItemCallback
-import ru.nblackie.dictionary.impl.presentation.preview.recycler.TranslationViewHolder
+import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.TranscriptionViewHolder
+import ru.nblackie.dictionary.impl.presentation.recycler.callback.TranslationItemCallback
+import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.TranslationViewHolder
 
 /**
  * @author tatarchukilya@gmail.com

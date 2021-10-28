@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.presentation.preview.recycler
+package ru.nblackie.dictionary.impl.presentation.recycler.viewholder
 
 import android.view.View
 import android.widget.TextView

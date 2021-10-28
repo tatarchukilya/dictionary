@@ -12,7 +12,7 @@ import kotlin.math.min
 /**
  * @author tatarchukilya@gmail.com
  */
-class TopHideBehavior(context: Context?, attrs: AttributeSet?) :
+internal class TopHideBehavior(context: Context?, attrs: AttributeSet?) :
     CoordinatorLayout.Behavior<View>(context, attrs) {
 
     override fun onStartNestedScroll(

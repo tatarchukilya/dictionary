@@ -36,8 +36,8 @@ import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel.SearchState
 import ru.nblackie.dictionary.impl.presentation.core.ShowPreview
 import ru.nblackie.dictionary.impl.presentation.core.SwitchSearch
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
-import ru.nblackie.dictionary.impl.presentation.search.recycler.SearchItemCallback
-import ru.nblackie.dictionary.impl.presentation.search.recycler.viewHolderFactoryMethod
+import ru.nblackie.dictionary.impl.presentation.recycler.callback.WordItemCallback
+import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.viewHolderFactoryMethod
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 /**
@@ -46,7 +46,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutLis
 internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), SearchView {
 
     private val toggleState = SearchToggleState()
-    private val adapter = RecyclerAdapter(SearchItemCallback())
+    private val adapter = RecyclerAdapter(WordItemCallback())
 
     private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
@@ -197,7 +197,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         remoteRadioButton.text = getString(R.string.word_count, count)
     }
 
-    private inner class RecyclerAdapter(callback: SearchItemCallback) :
+    private inner class RecyclerAdapter(callback: WordItemCallback) :
         ListAdapter<TypedItem, BindViewHolder<TypedItem>>(callback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<TypedItem> =
