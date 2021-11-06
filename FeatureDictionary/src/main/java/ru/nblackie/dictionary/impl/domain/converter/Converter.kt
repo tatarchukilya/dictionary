@@ -9,7 +9,8 @@ import ru.nblackie.core.api.ResourceManager
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.data.model.Translation
 import ru.nblackie.dictionary.impl.data.model.Word
-import ru.nblackie.dictionary.impl.domain.model.SearchItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.DictionaryItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.SearchItem
 
 /**
  * @author tatarchukilya@gmail.com
@@ -68,6 +69,15 @@ internal fun Word.concat(term: Word?, resourceManager: ResourceManager): SearchI
 
 internal fun Word.toSearchItem(): SearchItem {
     return SearchItem(
+        data,
+        transcription ?: "[]",
+        translations.map { Translation(it, true) },
+        translations.joinToString()
+    )
+}
+
+internal fun Word.toDictionaryItem(): DictionaryItem {
+    return DictionaryItem(
         data,
         transcription ?: "[]",
         translations.map { Translation(it, true) },

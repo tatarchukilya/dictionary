@@ -20,10 +20,10 @@ import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.core.impl.viewmodel.ViewModelProviderFactory
 import ru.nblackie.dictionary.R
 import ru.nblackie.dictionary.impl.di.DictionaryFeatureHolder
-import ru.nblackie.dictionary.impl.presentation.core.NewTranslation
-import ru.nblackie.dictionary.impl.presentation.core.SaveNewTranslation
+import ru.nblackie.dictionary.impl.presentation.core.Action.NewTranslation
+import ru.nblackie.dictionary.impl.presentation.core.Action.SaveNewTranslation
+import ru.nblackie.dictionary.impl.presentation.core.Event.StopSelf
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
-import ru.nblackie.dictionary.impl.presentation.core.StopSelf
 
 /**
  * @author Ilya Tatarchuk

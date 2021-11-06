@@ -2,7 +2,7 @@ package ru.nblackie.dictionary.impl.presentation.recycler.viewholder
 
 import android.view.View
 import ru.nblackie.core.dpToPixels
-import ru.nblackie.dictionary.impl.domain.model.EmptyItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.EmptyItem
 import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
 
 /**

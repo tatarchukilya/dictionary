@@ -3,29 +3,42 @@ package ru.nblackie.dictionary.impl.presentation.core
 /**
  * @author Ilya Tatarchuk
  */
-internal sealed interface Action
+internal sealed interface Action {
+    //Dictionary
+    object ShowSearch: Action
+    class DictionarySelect(val position: Int) : Action
 
-// Search
-internal object ClearSearch : Action
-internal class SearchInput(val input: String) : Action
-internal class SelectWord(val position: Int) : Action
-internal class SwitchSearch(val isLocal: Boolean) : Action
+    // Search
+    object ClearSearch : Action
+    class SearchInput(val input: String) : Action
+    class SearchSelect(val position: Int) : Action
+    class SwitchSearch(val isLocal: Boolean) : Action
 
-//Preview
-internal object AddTranslation : Action
-internal class MatchTranslation(val position: Int) : Action
+    //Detail
+    object AddTranslation : Action
+    class MatchTranslation(val position: Int) : Action
+    class SelectWord(val position: Int, val source: DetailSource) : Action
 
-//New
-internal class NewTranslation(val input: String) : Action
-internal object SaveNewTranslation : Action
+    //New
+    class NewTranslation(val input: String) : Action
+    object SaveNewTranslation : Action
 
-internal sealed interface Event
+}
 
-//Search
-internal object ShowPreview : Event
+internal sealed interface Event {
+    //Dictionary
+    object ShowSearch: Event
 
-//Preview
-internal object ShowNewWordView : Event
+    //Search
+    object ShowDetail : Event
 
-//Add
-internal object StopSelf: Event
+    //Preview
+    object ShowAddView : Event
+
+    //Add
+    object StopSelf : Event
+}
+
+internal enum class DetailSource {
+    DICTIONARY, SEARCH
+}

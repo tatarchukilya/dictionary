@@ -2,7 +2,7 @@ package ru.nblackie.dictionary.impl.presentation.core
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import ru.nblackie.dictionary.impl.domain.model.TypedItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TypedItem
 
 /**
  * @author Ilya Tatarchuk

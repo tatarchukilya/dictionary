@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.TextView
 import ru.nblackie.core.impl.recycler.BindViewHolder
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TranscriptionItem
 
 /**
  * @author tatarchukilya@gmail.com
