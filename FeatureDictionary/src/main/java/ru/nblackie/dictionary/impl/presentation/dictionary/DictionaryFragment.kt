@@ -1,6 +1,7 @@
 package ru.nblackie.dictionary.impl.presentation.dictionary
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -15,21 +16,22 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.domain.model.TypedItem
+import ru.nblackie.dictionary.impl.presentation.core.Action
 import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
-import ru.nblackie.dictionary.impl.presentation.core.ClearSearch
+import ru.nblackie.dictionary.impl.presentation.core.Event
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
-import ru.nblackie.dictionary.impl.presentation.recycler.callback.WordItemCallback
-import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.viewHolderFactoryMethod
+import ru.nblackie.dictionary.impl.presentation.recycler.callback.DictionaryItemCallback
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TypedItem
+import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.dictionaryViewHolderFactory
 
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictionary) {
+internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictionary), DictionaryView {
 
     private lateinit var toolbar: Toolbar
     private lateinit var recyclerView: RecyclerView
-    private val adapter = RecyclerAdapter(WordItemCallback())
+    private val adapter = RecyclerAdapter(DictionaryItemCallback())
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpToolbar(view)
@@ -38,7 +40,7 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
 
     override fun onStart() {
         super.onStart()
-        viewModel.handleAction(ClearSearch)
+        viewModel.handleAction(Action.ClearSearch)
     }
 
     private fun setUpToolbar(view: View) {
@@ -59,20 +61,28 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
                 adapter.submitList(it)
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.dictionaryEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+                when (it) {
+                    is Event.ShowSearch -> showSearch()
+                    is Event.ShowDetail -> showDetail()
+                    else -> Log.i("<>", "Illegal event $it")
+                }
+            }
+        }
     }
 
     private val searchClickListener: View.OnClickListener = View.OnClickListener {
-        val extras =
-            FragmentNavigatorExtras(toolbar to getString(R.string.dictionary_search_transition))
-        findNavController().navigate(R.id.fragment_search, null, null, extras)
+        clickSearch()
     }
 
-    private inner class RecyclerAdapter(callback: WordItemCallback) :
+    private inner class RecyclerAdapter(callback: DictionaryItemCallback) :
         ListAdapter<TypedItem, BindViewHolder<TypedItem>>(callback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<TypedItem> =
-            viewHolderFactoryMethod(parent, type) {
-                viewModel.handleAction(it)
+            dictionaryViewHolderFactory(parent, type) {
+                selectWord(it)
             }
 
         override fun onBindViewHolder(holder: BindViewHolder<TypedItem>, position: Int) {
@@ -82,5 +92,27 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
         override fun getItemViewType(position: Int): Int {
             return getItem(position).type.code
         }
+    }
+
+    override fun setItem(items: List<TypedItem>) {
+        adapter.submitList(items)
+    }
+
+    override fun selectWord(action: Action) {
+        viewModel.handleAction(action)
+    }
+
+    override fun clickSearch() {
+        viewModel.handleAction(Action.ShowSearch)
+    }
+
+    override fun showDetail() {
+        findNavController().navigate(R.id.fragment_detail)
+    }
+
+    override fun showSearch() {
+        val extras =
+            FragmentNavigatorExtras(toolbar to getString(R.string.dictionary_search_transition))
+        findNavController().navigate(R.id.fragment_search, null, null, extras)
     }
 }

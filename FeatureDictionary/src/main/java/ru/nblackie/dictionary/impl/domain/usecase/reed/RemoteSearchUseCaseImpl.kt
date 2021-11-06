@@ -7,7 +7,7 @@ import ru.nblackie.core.impl.data.Lang
 import ru.nblackie.dictionary.impl.data.cache.Cache
 import ru.nblackie.dictionary.impl.data.model.Word
 import ru.nblackie.dictionary.impl.domain.converter.concat
-import ru.nblackie.dictionary.impl.domain.model.SearchItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.SearchItem
 import ru.nblackie.dictionary.impl.domain.repository.DbRepository
 import ru.nblackie.dictionary.impl.domain.repository.RemoteRepository
 

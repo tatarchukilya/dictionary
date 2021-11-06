@@ -1,7 +1,7 @@
 package ru.nblackie.dictionary.impl.presentation.search
 
-import ru.nblackie.dictionary.impl.presentation.core.SearchInput
-import ru.nblackie.dictionary.impl.presentation.core.SelectWord
+import ru.nblackie.dictionary.impl.presentation.core.Action.SearchInput
+import ru.nblackie.dictionary.impl.presentation.core.Action.SearchSelect
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel.SearchState
 
 /**
@@ -15,7 +15,7 @@ internal interface SearchView {
     //Action
     fun clearSearch()
 
-    fun select(action: SelectWord)
+    fun select(action: SearchSelect)
 
     fun search(action: SearchInput)
 

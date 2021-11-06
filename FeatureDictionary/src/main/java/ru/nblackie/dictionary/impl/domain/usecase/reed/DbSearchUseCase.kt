@@ -1,7 +1,7 @@
 package ru.nblackie.dictionary.impl.domain.usecase.reed
 
 import ru.nblackie.core.impl.data.Lang
-import ru.nblackie.dictionary.impl.domain.model.SearchItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.SearchItem
 import ru.nblackie.dictionary.impl.domain.usecase.UseCase
 
 /**

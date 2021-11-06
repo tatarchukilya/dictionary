@@ -13,6 +13,9 @@
         <action
             android:id="@+id/dictionary_to_search"
             app:destination="@id/fragment_search" />
+        <action
+            android:id="@+id/dictionary_to_detail"
+            app:destination="@id/fragment_detail" />
     </fragment>
     <fragment
         android:id="@+id/fragment_search"
@@ -20,19 +23,16 @@
         android:label="fragment_search"
         tools:layout="@layout/fragment_search">
         <action
-            android:id="@+id/search_to_preview"
-            app:destination="@id/fragment_preview" />
+            android:id="@+id/search_to_detail"
+            app:destination="@id/fragment_detail" />
     </fragment>
     <fragment
-        android:id="@+id/fragment_preview"
-        android:name="ru.nblackie.dictionary.impl.presentation.preview.PreviewFragment"
-        android:label="fragment_preview"
-        tools:layout="@layout/fragment_preview">
+        android:id="@+id/fragment_detail"
+        android:name="ru.nblackie.dictionary.impl.presentation.detail.DetailFragment"
+        android:label="fragment_detail"
+        tools:layout="@layout/fragment_detail">
         <action
-            android:id="@+id/preview_to_edit"
-            app:destination="@+id/fragment_edit" />
-        <action
-            android:id="@+id/preview_to_edit_dialog"
+            android:id="@+id/detail_to_edit_dialog"
             app:destination="@id/edit_dialog" />
     </fragment>
 

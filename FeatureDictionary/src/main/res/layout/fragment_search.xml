@@ -26,7 +26,6 @@
             android:layout_height="@dimen/extra_large"
             android:layout_margin="@dimen/large"
             android:background="@drawable/radio_group_background"
-            android:checkedButton="@+id/personal"
             android:elevation="@dimen/min"
             android:orientation="horizontal"
             android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar">

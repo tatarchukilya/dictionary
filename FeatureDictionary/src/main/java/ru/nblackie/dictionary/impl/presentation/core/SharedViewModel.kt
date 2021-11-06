@@ -11,11 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import ru.nblackie.dictionary.impl.domain.model.EmptyItem
-import ru.nblackie.dictionary.impl.domain.model.SearchItem
-import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
-import ru.nblackie.dictionary.impl.domain.model.TranslationItem
-import ru.nblackie.dictionary.impl.domain.model.TypedItem
 import ru.nblackie.dictionary.impl.domain.usecase.UseCase
 import ru.nblackie.dictionary.impl.domain.usecase.create.AddTranslationsUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.delete.DeleteTranslationUseCase
@@ -23,12 +18,23 @@ import ru.nblackie.dictionary.impl.domain.usecase.reed.DbSearchUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.DictionaryUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteCountUseCase
 import ru.nblackie.dictionary.impl.domain.usecase.reed.RemoteSearchUseCase
+import ru.nblackie.dictionary.impl.presentation.core.DetailSource.*
+import ru.nblackie.dictionary.impl.presentation.core.Event.ShowAddView
+import ru.nblackie.dictionary.impl.presentation.core.Event.ShowDetail
+import ru.nblackie.dictionary.impl.presentation.core.Event.StopSelf
+import ru.nblackie.dictionary.impl.presentation.recycler.items.DictionaryItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.EmptyItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.SearchItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TranscriptionItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TranslationItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TypedItem
+import java.lang.IllegalStateException
 
 /**
  * @author tatarchukilya@gmail.com
  */
 internal class SharedViewModel(
-    private val useCases: Map<Class<out UseCase>, UseCase>
+    private val useCases: Map<Class<out UseCase>, UseCase>,
 ) : ViewModel() {
 
     private var countJob: Job? = null
@@ -39,6 +45,9 @@ internal class SharedViewModel(
     private val _dictionaryState = MutableStateFlow<List<TypedItem>>(listOf())
     val dictionaryState: StateFlow<List<TypedItem>> = _dictionaryState.asStateFlow()
 
+    private val _dictionaryEvent: Channel<Event> = Channel()
+    val dictionaryEvent = _dictionaryEvent.receiveAsFlow()
+
     //Search
     private val _searchState = MutableStateFlow(SearchState())
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
@@ -46,12 +55,12 @@ internal class SharedViewModel(
     private val _searchEvent: Channel<Event> = Channel()
     val searchEvent = _searchEvent.receiveAsFlow()
 
-    //Preview
-    private val _previewState = MutableStateFlow(PreviewState())
-    val previewState: StateFlow<PreviewState> = _previewState.asStateFlow()
+    //Detail
+    private val _detailState = MutableStateFlow(DetailState())
+    val detailState: StateFlow<DetailState> = _detailState.asStateFlow()
 
-    private val _previewEvent = Channel<Event>()
-    val previewEvent = _previewEvent.receiveAsFlow()
+    private val _detailEvent = Channel<Event>()
+    val detailEvent = _detailEvent.receiveAsFlow()
 
     //Add
     private val _newTranslationState = MutableStateFlow(AddTranslationState())
@@ -61,20 +70,40 @@ internal class SharedViewModel(
     val newTranslationEvent = _newTranslationEvent.receiveAsFlow()
 
     init {
-        getDictionary()
-        getCount()
+        dictionaryJob = viewModelScope.launch { getDictionary() }
+        remoteCount()
     }
 
-    fun handleAction(action: Action) {
-        when (action) {
-            is SwitchSearch -> switchSearch(action.isLocal)
-            is ClearSearch -> setSearchInput("")
-            is SearchInput -> setSearchInput(action.input)
-            is MatchTranslation -> matchTranslation(action.position)
-            is SelectWord -> selectWord(action.position)
-            is AddTranslation -> showNewTranslationView()
-            is NewTranslation -> setNewTranslationState(action.input)
-            is SaveNewTranslation -> saveNewTranslation()
+    fun handleAction(action: Action) = when (action) {
+        is Action.DictionarySelect -> selectDictionary(action.position)
+        is Action.SwitchSearch -> switchSearch(action.isLocal)
+        is Action.ClearSearch -> setSearchWord("")
+        is Action.SearchInput -> setSearchWord(action.input)
+        is Action.MatchTranslation -> matchTranslation(action.position)
+        is Action.SearchSelect -> selectSearch(action.position)
+        is Action.AddTranslation -> showNewTranslationView()
+        is Action.NewTranslation -> setNewTranslationState(action.input)
+        is Action.SaveNewTranslation -> saveNewTranslation()
+        is Action.ShowSearch -> showSearch()
+        is Action.SelectWord -> selectWord(action.position, action.source)
+    }
+
+    /**
+     * Выбор слова для редактирования данных
+     *
+     * @param position позиция в списке
+     * @param source для определения списка, из которого произведен выбор
+     */
+    private fun selectWord(position: Int, source: DetailSource) {
+        when (source) {
+            DICTIONARY -> {
+                _detailState.value = (dictionaryState.value[position] as DictionaryItem).toDetail()
+                viewModelScope.launch { _dictionaryEvent.send(ShowDetail) }
+            }
+            SEARCH -> {
+                _detailState.value = (searchState.value.items[position] as SearchItem).toDetail()
+                viewModelScope.launch { _searchEvent.send(ShowDetail) }
+            }
         }
     }
 
@@ -85,75 +114,116 @@ internal class SharedViewModel(
     }
 
     //Dictionary
-    private fun getDictionary() {
-        dictionaryJob = viewModelScope.launch {
-            runCatching {
-               getUseCase(DictionaryUseCase::class.java).run()
-            }.onSuccess {
-                _dictionaryState.value = listResultList(it)
-            }.onFailure {
-
-            }
+    private suspend fun getDictionary() {
+        runCatching {
+            getUseCase(DictionaryUseCase::class.java).run()
+        }.onSuccess {
+            //TODO добавить item с подсказками для пустого списка
+            _dictionaryState.value = listResultList(it, 64)
+        }.onFailure {
+            Log.i("SharedViewModel", "db dictionary failed", it)
         }
     }
 
-    // //Search
-    private fun setSearchInput(input: String) {
+    private fun selectDictionary(position: Int) {
+        _detailState.value = (dictionaryState.value[position] as DictionaryItem).toDetail()
+        viewModelScope.launch { _dictionaryEvent.send(ShowDetail) }
+    }
+
+    private fun showSearch() {
+        setSearchWord("")
+        viewModelScope.launch { _dictionaryEvent.send(Event.ShowSearch) }
+    }
+
+    //Search
+    private fun setSearchWord(input: String) {
         if (input != searchState.value.input) {
-            _searchState.value = searchState.value.setSearchInput(input)
-            if (input.isBlank()) searchJob?.cancel() else search()
+            _searchState.value = searchState.value.setSearchWord(input)
+            searchAsync()
         }
     }
 
     private fun switchSearch(isLocal: Boolean) {
-        _searchState.value = searchState.value.copy(isCache = isLocal)
-        search()
+        Log.i("<>", "isLocal = $isLocal isCache = ${searchState.value.isCache}")
+        if (isLocal != searchState.value.isCache) {
+            _searchState.value = searchState.value.copy(isCache = isLocal)
+            searchAsync()
+        }
     }
 
-    private fun search() {
+    /**
+     * Обновляет данные. Вызывается после добавления или удпления варианта перевода.
+     */
+    private suspend fun update() {
+        when (detailState.value.source) {
+            DICTIONARY -> {
+                getDictionary()
+                dictionaryState.value
+                    .find { item -> (item is DictionaryItem && item.word == detailState.value.word) }
+                    ?.let { _detailState.value = (it as DictionaryItem).toDetail() }
+                    //TODO stop DetailFragment
+                    ?: run { _detailState.value = detailState.value.copy(translations = listOf()) }
+            }
+            SEARCH -> {
+                getDictionary()
+                searchNew()
+                searchState.value.items
+                    .find { item -> item is SearchItem && item.word == detailState.value.word }
+                    ?.let { _detailState.value = (it as SearchItem).toDetail() }
+                    ?: run { _detailState.value = detailState.value.copy(translations = listOf()) }
+            }
+            else -> throw IllegalStateException("illegal detail state source ${detailState.value.source}")
+        }
+    }
+
+    private fun selectSearch(position: Int) {
+        _detailState.value = (searchState.value.items[position] as SearchItem).toDetail()
+        viewModelScope.launch { _searchEvent.send(ShowDetail) }
+    }
+
+    private fun searchAsync() {
         searchJob?.cancel()
-        searchState.value.run {
-            if (input.isNotBlank()) {
-                if (isCache) searchDb(input) else searchRemote(input)
-            }
-        }
-    }
-
-    private fun selectWord(position: Int) {
-        _previewState.value = (searchState.value.items[position] as SearchItem).toPreview()
-        viewModelScope.launch { _searchEvent.send(ShowPreview) }
-    }
-
-    private fun searchRemote(input: String) {
         searchJob = viewModelScope.launch {
-            delay(DEBOUNCE)
-            runCatching {
-                _searchState.value = searchState.value.copy(inProgress = true)
-                getUseCase(RemoteSearchUseCase::class.java).run(input)
-            }.onSuccess {
-                setSearchItems(it)
-            }.onFailure {
-                setSearchItems(listOf())
-                Log.i("SharedViewModel", "remote search failed", it)
+            searchNew()
+        }
+    }
+
+    private suspend fun searchNew() {
+        searchState.value.let { state ->
+            if (state.input.isBlank()) {
+                return
+            }
+            when (state.isCache) {
+                true -> dbSearch(state.input)
+                false -> remoteSearch(state.input)
             }
         }
     }
 
-    private fun searchDb(input: String) {
-        searchJob = viewModelScope.launch {
-            delay(DEBOUNCE)
-            runCatching {
-                getUseCase(DbSearchUseCase::class.java).run(input)
-                //dbSearch.run(input)
-            }.onSuccess {
-                setSearchItems(it)
-            }.onFailure {
-                Log.d("SharedViewModel", "db search failed", it)
-            }
+    private suspend fun remoteSearch(input: String) {
+        delay(DEBOUNCE)
+        runCatching {
+            _searchState.value = searchState.value.copy(inProgress = true)
+            getUseCase(RemoteSearchUseCase::class.java).run(input)
+        }.onSuccess {
+            setSearchItems(it)
+        }.onFailure {
+            setSearchItems(listOf())
+            Log.d("SharedViewModel", "remote search failed", it)
         }
     }
 
-    private fun getCount() {
+    private suspend fun dbSearch(input: String) {
+        runCatching {
+            getUseCase(DbSearchUseCase::class.java).run(input)
+        }.onSuccess {
+            setSearchItems(it)
+        }.onFailure {
+            Log.d("SharedViewModel", "db search failed", it)
+        }
+    }
+
+    private fun remoteCount() {
         countJob = viewModelScope.launch {
             runCatching {
                 getUseCase(RemoteCountUseCase::class.java).run()
@@ -166,37 +236,35 @@ internal class SharedViewModel(
     }
 
     private fun setSearchItems(items: List<SearchItem>) {
-        _searchState.value = searchState.value.copy(items = listResultList(items), inProgress = false)
-        items.find { it.word == previewState.value.word }?.let {
-            _previewState.value = it.toPreview()
-        } ?: run {
-            _previewState.value = previewState.value.copy(translations = listOf())
-        }
+        _searchState.value = searchState.value.copy(items = listResultList(items, 56), inProgress = false)
+        items.find { it.word == detailState.value.word }
+            ?.let { _detailState.value = it.toDetail() }
+            ?: run { _detailState.value = detailState.value.copy(translations = listOf()) }
     }
 
-    private fun listResultList(newItems: List<TypedItem>): MutableList<TypedItem> {
-        return emptyList().apply {
+    private fun listResultList(newItems: List<TypedItem>, padding: Int): MutableList<TypedItem> {
+        return emptyList(padding).apply {
             addAll(1, newItems)
         }
     }
 
-    private fun emptyList(): MutableList<TypedItem> {
+    private fun emptyList(height: Int): MutableList<TypedItem> {
         return mutableListOf<TypedItem>().apply {
-            add(EmptyItem(56))
+            add(EmptyItem(height))
         }
     }
 
-    //Preview
+    //Detail
     private fun matchTranslation(position: Int) {
         viewModelScope.launch {
-            previewState.value.translations[position].translation.let {
+            detailState.value.translations[position].translation.let {
                 if (it.isAdded) {
-                    getUseCase(DeleteTranslationUseCase::class.java).run(previewState.value.word, it.data)
+                    getUseCase(DeleteTranslationUseCase::class.java).run(detailState.value.word, it.data)
                 } else {
-                    addTranslation(previewState.value.word, previewState.value.transcriptions[0].transcription, it.data)
+                    addTranslation(detailState.value.word, detailState.value.transcriptions[0].transcription, it.data)
                 }
             }
-            search()
+            update()
         }
     }
 
@@ -207,7 +275,7 @@ internal class SharedViewModel(
     private fun showNewTranslationView() {
         _newTranslationState.value = AddTranslationState()
         viewModelScope.launch {
-            _previewEvent.send(ShowNewWordView)
+            _detailEvent.send(ShowAddView)
         }
     }
 
@@ -218,11 +286,11 @@ internal class SharedViewModel(
 
     private fun saveNewTranslation() {
         viewModelScope.launch {
-            previewState.value.let {
+            detailState.value.let {
                 addTranslation(it.word, it.transcriptions[0].transcription, newTranslationState.value.translation)
             }
+            update()
             _newTranslationEvent.send(StopSelf)
-            search()
         }
     }
 
@@ -234,10 +302,10 @@ internal class SharedViewModel(
         val isCache: Boolean = true,
         val items: List<TypedItem> = listOf(),
         val isClearable: Boolean = false,
-        val isSwitchable: Boolean = false
+        val isSwitchable: Boolean = false,
     )
 
-    private fun SearchState.setSearchInput(input: String): SearchState {
+    private fun SearchState.setSearchWord(input: String): SearchState {
         return this.copy(
             input = input,
             items = if (input.isNotBlank()) items else listOf(),
@@ -246,17 +314,18 @@ internal class SharedViewModel(
         )
     }
 
-    //Preview
-    data class PreviewState(
+    //Detail
+    data class DetailState(
         val word: String = "",
         val transcriptions: List<TranscriptionItem> = listOf(),
-        val translations: List<TranslationItem> = listOf()
+        val translations: List<TranslationItem> = listOf(),
+        val source: DetailSource? = null,
     )
 
     //Add
     data class AddTranslationState(
         val translation: String = "",
-        val wasChanged: Boolean = false
+        val wasChanged: Boolean = false,
     )
 
     @Suppress("UNCHECKED_CAST")

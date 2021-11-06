@@ -1,5 +1,6 @@
-package ru.nblackie.dictionary.impl.presentation.preview
+package ru.nblackie.dictionary.impl.presentation.detail
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,10 +18,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.utils.firstCharUpperCase
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.domain.model.TranscriptionItem
-import ru.nblackie.dictionary.impl.domain.model.TranslationItem
-import ru.nblackie.dictionary.impl.presentation.core.AddTranslation
-import ru.nblackie.dictionary.impl.presentation.core.MatchTranslation
+import ru.nblackie.dictionary.impl.presentation.core.Action
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TranscriptionItem
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TranslationItem
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
 import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.TranscriptionViewHolder
@@ -30,11 +30,10 @@ import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.TranslationV
 /**
  * @author tatarchukilya@gmail.com
  */
-internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), PreviewView {
+internal class DetailFragment : ViewModelFragment(R.layout.fragment_detail), DetailView {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var toolbar: Toolbar
-    private lateinit var fab: FloatingActionButton
 
     private val transcriptionAdapter = TranscriptionAdapter()
     private val translationAdapter = TranslationAdapter()
@@ -68,13 +67,13 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
 
     private fun setUpObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.previewState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.detailState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 setState(it)
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.previewEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
+            viewModel.detailEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
                 showNewTranslationView()
             }
         }
@@ -83,9 +82,10 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
     private inner class TranscriptionAdapter : RecyclerView.Adapter<TranscriptionViewHolder>() {
 
         var items: List<TranscriptionItem> = listOf()
+            @SuppressLint("NotifyDataSetChanged")
             set(value) {
                 field = value
-                notifyDataSetChanged()
+                notifyDataSetChanged() //Список всегда из одного элемента, поэтому notifyDataSetChanged норм
             }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranscriptionViewHolder {
@@ -113,7 +113,7 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         }
     }
 
-    override fun setState(state: SharedViewModel.PreviewState) {
+    override fun setState(state: SharedViewModel.DetailState) {
         toolbar.title = state.word.firstCharUpperCase()
         transcriptionAdapter.items = state.transcriptions
         translationAdapter.submitList(state.translations)
@@ -123,15 +123,15 @@ internal class PreviewFragment : ViewModelFragment(R.layout.fragment_preview), P
         }
     }
 
-    override fun matchTranslation(action: MatchTranslation) {
+    override fun matchTranslation(action: Action.MatchTranslation) {
         viewModel.handleAction(action)
     }
 
     override fun sendNewWordAction() {
-        viewModel.handleAction(AddTranslation)
+        viewModel.handleAction(Action.AddTranslation)
     }
 
     override fun showNewTranslationView() {
-        findNavController().navigate(R.id.preview_to_edit_dialog)
+        findNavController().navigate(R.id.detail_to_edit_dialog)
     }
 }

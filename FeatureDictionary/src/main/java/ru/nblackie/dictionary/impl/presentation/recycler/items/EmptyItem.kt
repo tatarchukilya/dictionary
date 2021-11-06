@@ -1,4 +1,4 @@
-package ru.nblackie.dictionary.impl.domain.model
+package ru.nblackie.dictionary.impl.presentation.recycler.items
 
 /**
  * @author tatarchukilya@gmail.com

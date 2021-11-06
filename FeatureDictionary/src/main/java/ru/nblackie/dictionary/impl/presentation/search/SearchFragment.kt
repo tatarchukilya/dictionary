@@ -1,7 +1,10 @@
 package ru.nblackie.dictionary.impl.presentation.search
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -27,17 +30,17 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.nblackie.core.impl.utils.showKeyboard
 import ru.nblackie.dictionary.R
-import ru.nblackie.dictionary.impl.domain.model.TypedItem
+import ru.nblackie.dictionary.impl.presentation.core.Action.ClearSearch
+import ru.nblackie.dictionary.impl.presentation.core.Action.SearchInput
+import ru.nblackie.dictionary.impl.presentation.core.Action.SearchSelect
+import ru.nblackie.dictionary.impl.presentation.core.Action.SwitchSearch
 import ru.nblackie.dictionary.impl.presentation.core.BindViewHolder
-import ru.nblackie.dictionary.impl.presentation.core.ClearSearch
-import ru.nblackie.dictionary.impl.presentation.core.SearchInput
-import ru.nblackie.dictionary.impl.presentation.core.SelectWord
+import ru.nblackie.dictionary.impl.presentation.core.Event
 import ru.nblackie.dictionary.impl.presentation.core.SharedViewModel.SearchState
-import ru.nblackie.dictionary.impl.presentation.core.ShowPreview
-import ru.nblackie.dictionary.impl.presentation.core.SwitchSearch
 import ru.nblackie.dictionary.impl.presentation.core.ViewModelFragment
-import ru.nblackie.dictionary.impl.presentation.recycler.callback.WordItemCallback
-import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.viewHolderFactoryMethod
+import ru.nblackie.dictionary.impl.presentation.recycler.callback.SearchItemCallback
+import ru.nblackie.dictionary.impl.presentation.recycler.items.TypedItem
+import ru.nblackie.dictionary.impl.presentation.recycler.viewholder.searchViewHolderFactory
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 /**
@@ -46,7 +49,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutLis
 internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), SearchView {
 
     private val toggleState = SearchToggleState()
-    private val adapter = RecyclerAdapter(WordItemCallback())
+    private val adapter = RecyclerAdapter(SearchItemCallback())
 
     private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
@@ -58,13 +61,20 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.i("<>", "onCreate")
         setHasOptionsMenu(true)
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             scrimColor = resources.getColor(android.R.color.transparent, activity?.theme)
         }
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        Log.i("<>", "onCreateView")
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.i("<>", "onViewCreated")
         setUpView(view)
         setUpToolbar(view)
         setUpObserver()
@@ -98,7 +108,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         viewModel.handleAction(ClearSearch)
     }
 
-    override fun select(action: SelectWord) {
+    override fun select(action: SearchSelect) {
         viewModel.handleAction(action)
     }
 
@@ -111,7 +121,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
     }
 
     override fun showPreview() {
-        findNavController().navigate(R.id.fragment_preview)
+        findNavController().navigate(R.id.fragment_detail)
     }
 
     private fun setUpToolbar(view: View) {
@@ -151,7 +161,13 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
 
         searchRadioGroup = view.findViewById(R.id.dictionary_toggle)
-        searchRadioGroup.setOnCheckedChangeListener { _, id -> switchSearch(id == R.id.personal) }
+        if(searchRadioGroup.checkedRadioButtonId == -1) searchRadioGroup.check(R.id.personal)
+        searchRadioGroup.setOnCheckedChangeListener { _, id ->
+            when (id) {
+                R.id.personal -> switchSearch(true)
+                R.id.general -> switchSearch(false)
+            }
+        }
     }
 
     private fun setUpObserver() {
@@ -162,7 +178,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.searchEvent.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect {
-                if (it is ShowPreview) {
+                if (it is Event.ShowDetail) {
                     showPreview()
                 }
             }
@@ -193,15 +209,16 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
     }
 
+    @SuppressLint("StringFormatMatches")
     private fun setCount(count: Int) {
         remoteRadioButton.text = getString(R.string.word_count, count)
     }
 
-    private inner class RecyclerAdapter(callback: WordItemCallback) :
+    private inner class RecyclerAdapter(callback: SearchItemCallback) :
         ListAdapter<TypedItem, BindViewHolder<TypedItem>>(callback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): BindViewHolder<TypedItem> =
-            viewHolderFactoryMethod(parent, type) {
+            searchViewHolderFactory(parent, type) {
                 viewModel.handleAction(it)
             }
 
