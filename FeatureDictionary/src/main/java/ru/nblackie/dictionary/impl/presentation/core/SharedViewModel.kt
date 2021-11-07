@@ -38,7 +38,7 @@ internal class SharedViewModel(
 ) : ViewModel() {
 
     private var countJob: Job? = null
-    private var dictionaryJob: Job? = null
+    private var startJob: Job? = null
     private var searchJob: Job? = null
 
     //Dictionary
@@ -70,8 +70,10 @@ internal class SharedViewModel(
     val newTranslationEvent = _newTranslationEvent.receiveAsFlow()
 
     init {
-        dictionaryJob = viewModelScope.launch { getDictionary() }
-        remoteCount()
+        startJob = viewModelScope.launch {
+            getDictionary()
+            remoteCount()
+        }
     }
 
     fun handleAction(action: Action) = when (action) {
@@ -109,7 +111,7 @@ internal class SharedViewModel(
 
     override fun onCleared() {
         countJob?.cancel()
-        dictionaryJob?.cancel()
+        startJob?.cancel()
         searchJob?.cancel()
     }
 
@@ -139,15 +141,14 @@ internal class SharedViewModel(
     private fun setSearchWord(input: String) {
         if (input != searchState.value.input) {
             _searchState.value = searchState.value.setSearchWord(input)
-            searchAsync()
+            asyncSearch()
         }
     }
 
     private fun switchSearch(isLocal: Boolean) {
-        Log.i("<>", "isLocal = $isLocal isCache = ${searchState.value.isCache}")
         if (isLocal != searchState.value.isCache) {
             _searchState.value = searchState.value.copy(isCache = isLocal)
-            searchAsync()
+            asyncSearch()
         }
     }
 
@@ -161,12 +162,12 @@ internal class SharedViewModel(
                 dictionaryState.value
                     .find { item -> (item is DictionaryItem && item.word == detailState.value.word) }
                     ?.let { _detailState.value = (it as DictionaryItem).toDetail() }
-                    //TODO stop DetailFragment
+                //TODO stop DetailFragment
                     ?: run { _detailState.value = detailState.value.copy(translations = listOf()) }
             }
             SEARCH -> {
                 getDictionary()
-                searchNew()
+                search()
                 searchState.value.items
                     .find { item -> item is SearchItem && item.word == detailState.value.word }
                     ?.let { _detailState.value = (it as SearchItem).toDetail() }
@@ -181,14 +182,14 @@ internal class SharedViewModel(
         viewModelScope.launch { _searchEvent.send(ShowDetail) }
     }
 
-    private fun searchAsync() {
+    private fun asyncSearch() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            searchNew()
+            search()
         }
     }
 
-    private suspend fun searchNew() {
+    private suspend fun search() {
         searchState.value.let { state ->
             if (state.input.isBlank()) {
                 return
@@ -223,15 +224,13 @@ internal class SharedViewModel(
         }
     }
 
-    private fun remoteCount() {
-        countJob = viewModelScope.launch {
-            runCatching {
-                getUseCase(RemoteCountUseCase::class.java).run()
-            }.onSuccess {
-                _searchState.value = searchState.value.copy(count = it)
-            }.onFailure {
-                Log.d("SharedViewModel", "loading count failed", it)
-            }
+    private suspend fun remoteCount() {
+        runCatching {
+            getUseCase(RemoteCountUseCase::class.java).run()
+        }.onSuccess {
+            _searchState.value = searchState.value.copy(count = it)
+        }.onFailure {
+            Log.d("SharedViewModel", "loading count failed", it)
         }
     }
 
