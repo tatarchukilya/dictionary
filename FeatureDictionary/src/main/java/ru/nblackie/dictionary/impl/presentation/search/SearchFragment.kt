@@ -50,6 +50,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
 
     private val toggleState = SearchToggleState()
     private val adapter = RecyclerAdapter(SearchItemCallback())
+    private var switchFlag = false
 
     private lateinit var searchView: EditText
     private lateinit var progressBar: ProgressBar
@@ -97,7 +98,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
             searchView.setText(state.input)
         }
         setMenuVisibility(state.isClearable)
-        toggleState.setSearchSwitchVisibility(state.isSwitchable)
+        toggleState.setVisibility(state.isSwitchable)
         adapter.submitList(state.items)
         setSearchState(state.isCache)
         progressBar.isVisible = state.inProgress
@@ -161,8 +162,14 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
         }
 
         searchRadioGroup = view.findViewById(R.id.dictionary_toggle)
-        if(searchRadioGroup.checkedRadioButtonId == -1) searchRadioGroup.check(R.id.personal)
+        if (searchRadioGroup.checkedRadioButtonId == -1) {
+            switchFlag = true
+        }
         searchRadioGroup.setOnCheckedChangeListener { _, id ->
+            if (switchFlag) {
+                switchFlag = false
+                return@setOnCheckedChangeListener
+            }
             when (id) {
                 R.id.personal -> switchSearch(true)
                 R.id.general -> switchSearch(false)
@@ -247,11 +254,11 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
             }
         }
 
-        fun setSearchSwitchVisibility(isVisible: Boolean) {
-            if (isVisible) showSearchSwitch() else hideSearchSwitch()
+        fun setVisibility(isVisible: Boolean) {
+            if (isVisible) show() else hide()
         }
 
-        private fun showSearchSwitch() {
+        private fun show() {
             if (searchSwitchView.translationY == 0f || showAnimator.isRunning) return
             hideAnimator.cancel()
             with(showAnimator) {
@@ -261,7 +268,7 @@ internal class SearchFragment : ViewModelFragment(R.layout.fragment_search), Sea
             }
         }
 
-        private fun hideSearchSwitch() {
+        private fun hide() {
             if (searchSwitchView.translationY == -searchSwitchView.height.toFloat() || hideAnimator.isRunning) {
                 return
             }

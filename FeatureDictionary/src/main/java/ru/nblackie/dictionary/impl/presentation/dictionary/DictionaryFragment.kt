@@ -38,11 +38,6 @@ internal class DictionaryFragment : ViewModelFragment(R.layout.fragment_dictiona
         setUbObserver()
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.handleAction(Action.ClearSearch)
-    }
-
     private fun setUpToolbar(view: View) {
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
